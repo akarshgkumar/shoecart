@@ -8,10 +8,11 @@ const { User, Admin } = require("./mongodb");
 const secretKey = process.env.SESSION_SECRET;
 const JWT_SECRET = secretKey;
 const cookieParser = require("cookie-parser");
-const crypto = require("crypto");
+const sgMail = require("@sendgrid/mail");
+console.log(process.env.SENDGRID_API_KEY);
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 app.use(cookieParser());
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/static", express.static(path.join(__dirname, "public")));
@@ -19,7 +20,6 @@ app.set("view engine", "ejs");
 
 function authenticateJWT(req, res, next) {
   let token = req.cookies.jwt;
-
   if (!token && req.headers.authorization) {
     token = req.headers.authorization.split(" ")[1];
   }
@@ -36,6 +36,11 @@ function authenticateJWT(req, res, next) {
     res.redirect("/login");
   }
 }
+
+function generateOTP() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
 app.get("/", authenticateJWT, (req, res) => {
   res.redirect("/home");
 });
@@ -61,57 +66,69 @@ app.get("/admin/dashboard", (req, res) => {
   res.render("admin-dashboard");
 });
 
-app.get("/verify-email", async (req, res) => {
-  try {
-    const user = await User.findOne({
-      verificationToken: req.query.token,
-      email: req.query.email,
-    });
+app.post("/verify-otp", async (req, res) => {
+  const { email, otp } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    console.log(`No user found with email: ${email}`);
+    return res.redirect("/signup?error=User%20not%20found");
+  }
 
-    if (user) {
-      user.verified = true;
-      user.verificationToken = undefined;
-      await user.save();
-
-      res.redirect("/login?message=Email%20verified%20successfully");
-    } else {
-      res.redirect("/signup?error=Invalid%20verification%20link");
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal Server Error");
+  if (otp === user.otp && Date.now() <= user.otpExpires) {
+    user.verified = true;
+    user.otp = undefined;
+    user.otpExpires = undefined;
+    await user.save();
+    res.redirect("/home");
+  } else {
+    res.redirect(
+      `/enter-otp?error=Invalid%20or%20expired%20OTP&email=${encodeURIComponent(
+        email
+      )}`
+    );
   }
 });
 
+app.get("/enter-otp", (req, res) => {
+  const error = req.query.error;
+  const email = req.query.email;
+  res.render("enter-otp", { error, email });
+});
 
 app.post("/signup", async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const otp = generateOTP();
+    const otpExpires = Date.now() + 10 * 60 * 1000;
 
     const data = {
       name: req.body.name,
       email: req.body.email,
       phoneNo: req.body.phoneNo,
       password: hashedPassword,
-      verificationToken,
+      otp,
+      otpExpires,
     };
 
     await User.create(data);
 
-    const verificationURL = `http://localhost:3000/verify-email?token=${verificationToken}&email=${req.body.email}`;
-
-    await transporter.sendMail({
-      from: process.env.EMAIL,
+    const msg = {
       to: req.body.email,
-      subject: "Email Verification",
-      text: `Click on this link to verify your email: ${verificationURL}`,
-      html: `<a href="${verificationURL}">Click here to verify your email</a>`,
-    });
+      from: { email: process.env.EMAIL },
+      subject: "Your OTP for Signup",
+      text: `Your OTP for signup is: ${otp}. It is valid for 10 minutes.`,
+    };
 
-    res.redirect(
-      "/login?message=Verification%20email%20sent.%20Please%20check%20your%20inbox"
-    );
+    sgMail
+      .send(msg)
+      .then(() => {
+        res.redirect("/enter-otp?email=" + encodeURIComponent(req.body.email));
+      })
+      .catch((error) => {
+        console.error(error);
+        console.error("Error sending mail:", error.response.body.errors);
+        res.status(500).send("Internal Server Error");
+      });
   } catch (error) {
     console.error(error);
     if (error.code === 11000) {
@@ -131,13 +148,10 @@ app.post("/login", async (req, res) => {
         JWT_SECRET,
         { expiresIn: "730d" }
       );
-
-      // Set the JWT token as an HTTP-Only cookie
       res.cookie("jwt", token, {
         httpOnly: true,
-        maxAge: 730 * 24 * 60 * 60 * 1000, // 730 days in milliseconds
+        maxAge: 730 * 24 * 60 * 60 * 1000,
       });
-
       res.redirect("/home");
     } else {
       res.render("login", { notFound: "Incorrect email or password" });
