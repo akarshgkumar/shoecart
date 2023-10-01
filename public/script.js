@@ -118,6 +118,14 @@ $(function () {
       errorSpan.css("color", "#e63946");
     },
   });
+  $(".otp-login-form").submit(function (e) {
+    if ($('input[name="otp"]').parent().css("display") === "none") {
+      e.preventDefault();
+      $('input[name="otp"]').parent().show();
+      $(".otp-wrapper").show();
+      $(".otp-login-btn").text("Submit OTP");
+    }
+  });
   setInterval(updateTimer, 1000);
 });
 if (window.history.replaceState && location.search.includes("error")) {
@@ -125,31 +133,28 @@ if (window.history.replaceState && location.search.includes("error")) {
 }
 
 let expiryTimestamp = sessionStorage.getItem("otpExpiry");
-  if (!expiryTimestamp) {
-    expiryTimestamp = Date.now() + 10 * 60 * 1000;
-    sessionStorage.setItem("otpExpiry", expiryTimestamp);
+console.log(expiryTimestamp)
+if (!expiryTimestamp) {
+  expiryTimestamp = Date.now() + 10 * 60 * 1000;
+  sessionStorage.setItem("otpExpiry", expiryTimestamp);
+}
+function updateTimer() {
+  const currentTime = Date.now();
+  const remainingTime = expiryTimestamp - currentTime;
+
+  if (remainingTime <= 0) {
+    document.getElementById("otp-timer").textContent = "OTP expired";
+    sessionStorage.removeItem("otpExpiry");
+    return;
   }
-  function updateTimer() {
-    const currentTime = Date.now();
-    const expiryTimestamp = sessionStorage.getItem("otpExpiry");
-    const remainingTime = expiryTimestamp - currentTime;
 
-    if (remainingTime <= 0) {
-      document.getElementById("otp-timer").textContent = "OTP expired";
-      return;
-    }
+  const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
 
-    const minutes = Math.floor(
-      (remainingTime % (1000 * 60 * 60)) / (1000 * 60)
-    );
-    const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-
-    document.getElementById(
-      "otp-timer"
-    ).textContent = `Expiry time: ${minutes}:${
-      seconds < 10 ? "0" : ""
-    }${seconds}`;
-  }
+  document.getElementById("otp-timer").textContent = `Expiry time: ${minutes}:${
+    seconds < 10 ? "0" : ""
+  }${seconds}`;
+}
 
 function resendOTP() {
   const email = $("#otp-email-input").val();
@@ -164,7 +169,6 @@ function resendOTP() {
     .then((response) => response.json())
     .then((data) => {
       if (data.success) {
-        sessionStorage.removeItem('otpExpiry');
         const newExpiryTimestamp = Date.now() + 10 * 60 * 1000;
         sessionStorage.setItem("otpExpiry", newExpiryTimestamp);
         expiryTimestamp = newExpiryTimestamp;

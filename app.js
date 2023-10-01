@@ -10,9 +10,7 @@ const JWT_SECRET = secretKey;
 const cookieParser = require("cookie-parser");
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-const cors = require("cors");
 
-app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -71,6 +69,33 @@ app.get("/enter-otp", (req, res) => {
   const error = req.query.error;
   const email = req.query.email;
   res.render("enter-otp", { error, email });
+});
+
+app.get('/otp-login', (req,res)=> {
+  res.render('otp-login');
+})
+
+app.post("/otp-login", async (req, res) => {
+  const { email, otp } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    console.log(`No user found with email: ${email}`);
+    return res.redirect("/signup?error=User%20not%20found");
+  }
+
+  if (otp === user.otp && Date.now() <= user.otpExpires) {
+    user.verified = true;
+    user.otp = undefined;
+    user.otpExpires = undefined;
+    await user.save();
+    res.redirect("/home");
+  } else {
+    res.redirect(
+      `/enter-otp?error=Invalid%20or%20expired%20OTP&email=${encodeURIComponent(
+        email
+      )}`
+    );
+  }
 });
 
 app.post("/signup", async (req, res) => {
