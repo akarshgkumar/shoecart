@@ -9,9 +9,10 @@ const secretKey = process.env.SESSION_SECRET;
 const JWT_SECRET = secretKey;
 const cookieParser = require("cookie-parser");
 const sgMail = require("@sendgrid/mail");
-console.log(process.env.SENDGRID_API_KEY);
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const cors = require("cors");
 
+app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -66,29 +67,6 @@ app.get("/admin/dashboard", (req, res) => {
   res.render("admin-dashboard");
 });
 
-app.post("/verify-otp", async (req, res) => {
-  const { email, otp } = req.body;
-  const user = await User.findOne({ email });
-  if (!user) {
-    console.log(`No user found with email: ${email}`);
-    return res.redirect("/signup?error=User%20not%20found");
-  }
-
-  if (otp === user.otp && Date.now() <= user.otpExpires) {
-    user.verified = true;
-    user.otp = undefined;
-    user.otpExpires = undefined;
-    await user.save();
-    res.redirect("/home");
-  } else {
-    res.redirect(
-      `/enter-otp?error=Invalid%20or%20expired%20OTP&email=${encodeURIComponent(
-        email
-      )}`
-    );
-  }
-});
-
 app.get("/enter-otp", (req, res) => {
   const error = req.query.error;
   const email = req.query.email;
@@ -116,7 +94,7 @@ app.post("/signup", async (req, res) => {
       to: req.body.email,
       from: { email: process.env.EMAIL },
       subject: "Your OTP for Signup",
-      text: `Your OTP for signup is: ${otp}. It is valid for 10 minutes.`,
+      text: `Your OTP for signup is: ${otp}. It is valid for only 10 minutes.`,
     };
 
     sgMail
@@ -136,6 +114,69 @@ app.post("/signup", async (req, res) => {
     } else {
       res.status(500).send("Internal Server Error");
     }
+  }
+});
+
+app.post("/resend-otp", async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      console.log("User not found for email:", email);
+      return res.json({ success: false, message: "User not found" });
+    }
+
+    const otp = generateOTP();
+    const otpExpires = Date.now() + 10 * 60 * 1000;
+    user.otp = otp;
+    user.otpExpires = otpExpires;
+    await user.save();
+
+    const msg = {
+      to: email,
+      from: { email: process.env.EMAIL },
+      subject: "Your Resend OTP for Signup",
+      text: `Your OTP for signup is: ${otp}. It is valid for only 10 minutes.`,
+    };
+
+    sgMail
+      .send(msg)
+      .then(() => {
+        res.json({ success: true, message: "OTP sent successfully" });
+      })
+      .catch((error) => {
+        console.error("Error sending mail:", error.response?.body?.errors);
+        res.json({
+          success: false,
+          message: "Error sending OTP. Please try again later.",
+        });
+      });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+});
+
+app.post("/verify-otp", async (req, res) => {
+  const { email, otp } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    console.log(`No user found with email: ${email}`);
+    return res.redirect("/signup?error=User%20not%20found");
+  }
+
+  if (otp === user.otp && Date.now() <= user.otpExpires) {
+    user.verified = true;
+    user.otp = undefined;
+    user.otpExpires = undefined;
+    await user.save();
+    res.redirect("/home");
+  } else {
+    res.redirect(
+      `/enter-otp?error=Invalid%20or%20expired%20OTP&email=${encodeURIComponent(
+        email
+      )}`
+    );
   }
 });
 

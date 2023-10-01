@@ -179,7 +179,7 @@ button:hover {
 
 .wrap-input100.error {
   position: relative;
-  background: none; 
+  background: none;
 }
 
 .wrap-input100.error input {
@@ -242,7 +242,6 @@ button:hover {
   }
 }
 
-
 .login-shoe-img {
   margin-top: -20px;
   border-radius: 12px;
@@ -272,7 +271,7 @@ button:hover {
 }
 
 .navbar-icons .nav-item:not(:last-child) {
-  margin-right: 30px; 
+  margin-right: 30px;
 }
 
 .navbar-brand {
@@ -281,4 +280,23 @@ button:hover {
 
 .icon-set {
   margin-right: 3%;
+}
+
+.otp-wrapper {
+  display: flex;
+  justify-content: space-between;
+}
+
+#resend-otp {
+  color: #198771;
+  font-size: 15px;
+}
+
+#resend-otp:hover{
+  text-decoration: underline;
+}
+
+#otp-timer {
+  color: #333333;
+  font-size: 15px;
 }

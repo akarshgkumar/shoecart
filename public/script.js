@@ -118,8 +118,60 @@ $(function () {
       errorSpan.css("color", "#e63946");
     },
   });
+  setInterval(updateTimer, 1000);
 });
-
 if (window.history.replaceState && location.search.includes("error")) {
   window.history.replaceState({}, document.title, location.pathname);
+}
+
+let expiryTimestamp = sessionStorage.getItem("otpExpiry");
+  if (!expiryTimestamp) {
+    expiryTimestamp = Date.now() + 10 * 60 * 1000;
+    sessionStorage.setItem("otpExpiry", expiryTimestamp);
+  }
+  function updateTimer() {
+    const currentTime = Date.now();
+    const expiryTimestamp = sessionStorage.getItem("otpExpiry");
+    const remainingTime = expiryTimestamp - currentTime;
+
+    if (remainingTime <= 0) {
+      document.getElementById("otp-timer").textContent = "OTP expired";
+      return;
+    }
+
+    const minutes = Math.floor(
+      (remainingTime % (1000 * 60 * 60)) / (1000 * 60)
+    );
+    const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+
+    document.getElementById(
+      "otp-timer"
+    ).textContent = `Expiry time: ${minutes}:${
+      seconds < 10 ? "0" : ""
+    }${seconds}`;
+  }
+
+function resendOTP() {
+  const email = $("#otp-email-input").val();
+  console.log(email);
+  fetch("/resend-otp", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        sessionStorage.removeItem('otpExpiry');
+        const newExpiryTimestamp = Date.now() + 10 * 60 * 1000;
+        sessionStorage.setItem("otpExpiry", newExpiryTimestamp);
+        expiryTimestamp = newExpiryTimestamp;
+        updateTimer();
+        alert("OTP sent!");
+      } else {
+        alert("Error resending OTP.");
+      }
+    });
 }
