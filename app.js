@@ -9,6 +9,7 @@ const secretKey = process.env.SESSION_SECRET;
 const JWT_SECRET = secretKey;
 const cookieParser = require("cookie-parser");
 const sgMail = require("@sendgrid/mail");
+const { rmSync } = require("fs");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 app.use(cookieParser());
@@ -61,6 +62,10 @@ app.get("/admin", (req, res) => {
   res.render("admin-login");
 });
 
+app.get('/admin/add-product', (req,res) => {
+  res.render('admin-add-product');
+})
+
 app.get("/admin/dashboard", (req, res) => {
   res.render("admin-dashboard");
 });
@@ -71,27 +76,41 @@ app.get("/enter-otp", (req, res) => {
   res.render("enter-otp", { error, email });
 });
 
-app.get("/otp-login", (req, res) => {
+app.get("/verify-email", (req, res) => {
   const error = req.query.error;
-  res.render("otp-login", { error });
+  res.render("verify-email", { error });
 });
 
-app.post("/otp-login", async (req, res) => {
-  const { email,otp } = req.body;
+app.post("/verify-email", async (req, res) => {
+  const { email } = req.body;
   const user = await User.findOne({ email });
   if (!user) {
     console.log(`No user found with email: ${email}`);
-    return res.redirect("/otp-login?error=User%20not%20found");
-  }
-
-  if (otp === user.otp && Date.now() <= user.otpExpires) {
-    res.redirect("/home");
+    res.redirect("/verify-email?error=User%20not%20found");
   } else {
-    res.redirect(
-      `/otp-login?error=Invalid%20or%20expired%20OTP&email=${encodeURIComponent(
-        email
-      )}`
-    );
+    const otp = generateOTP();
+    const otpExpires = Date.now() + 10 * 60 * 1000;
+    user.otp = otp;
+    user.otpExpires = otpExpires;
+    await user.save();
+
+    const msg = {
+      to: req.body.email,
+      from: { email: process.env.EMAIL },
+      subject: "Your OTP for Signup",
+      text: `Your OTP for signup is: ${otp}. It is valid for only 10 minutes.`,
+    };
+
+    sgMail
+      .send(msg)
+      .then(() => {
+        res.redirect("/enter-otp?email=" + encodeURIComponent(req.body.email));
+      })
+      .catch((error) => {
+        console.error(error);
+        console.error("Error sending mail:", error.response.body.errors);
+        res.status(500).send("Internal Server Error");
+      });
   }
 });
 
@@ -230,34 +249,37 @@ app.post("/verify-email", async (req, res) => {
   const user = await User.findOne({ email });
 
   if (user) {
-      // 1. Generate the OTP
-      const otp = generateOTP();
-      const otpExpires = Date.now() + 10 * 60 * 1000; // valid for 10 minutes
+    // Generate OTP and set its expiration time
+    const otp = generateOTP();
+    const otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
 
-      // 2. Save the OTP and its expiration time in the database
-      user.otp = otp;
-      user.otpExpires = otpExpires;
-      await user.save();
+    // Update the user in the database with the generated OTP
+    user.otp = otp;
+    user.otpExpires = otpExpires;
+    await user.save();
 
-      // 3. Send the OTP via email
-      const msg = {
-          to: email,
-          from: { email: process.env.EMAIL },
-          subject: "Your OTP for Login",
-          text: `Your OTP for login is: ${otp}. It is valid for only 10 minutes.`,
-      };
+    // Send the OTP via email
+    const msg = {
+      to: email,
+      from: { email: process.env.EMAIL },
+      subject: "Your OTP for Login",
+      text: `Your OTP for login is: ${otp}. It is valid for only 10 minutes.`,
+    };
 
-      sgMail
-          .send(msg)
-          .then(() => {
-              res.json({ exists: true });
-          })
-          .catch((error) => {
-              console.error("Error sending mail:", error.response?.body?.errors);
-              res.status(500).json({ exists: false, message: "Error sending OTP. Please try again later." });
-          });
+    sgMail
+      .send(msg)
+      .then(() => {
+        // Redirect to enter-otp page
+        res.redirect("/enter-otp?email=" + encodeURIComponent(email));
+      })
+      .catch((error) => {
+        console.error("Error sending mail:", error.response?.body?.errors);
+        res.redirect(
+          "/verify-email?error=Error sending OTP. Please try again later."
+        );
+      });
   } else {
-      res.json({ exists: false, message: "Email not found in our records." });
+    res.redirect("/verify-email?error=Email not found in our records.");
   }
 });
 
@@ -275,5 +297,9 @@ app.post("/admin", async (req, res) => {
     res.status(500).send("Internal server error");
   }
 });
+
+app.get('/admin/view-products', (req,res) => {
+  res.render('admin-view-products')
+})
 
 app.listen(3000, () => console.log("running at port 3000"));
