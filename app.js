@@ -4,13 +4,26 @@ const app = express();
 const path = require("path");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { User, Admin } = require("./mongodb");
-const secretKey = process.env.SESSION_SECRET;
-const JWT_SECRET = secretKey;
+const { User, Admin, Product } = require("./mongodb");
+const JWT_SECRET = process.env.SESSION_SECRET;
 const cookieParser = require("cookie-parser");
 const sgMail = require("@sendgrid/mail");
-const { rmSync } = require("fs");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const multer = require("multer");
+
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUD_API_KEY,
+  api_secret: process.env.CLOUD_API_SECRET,
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  folder: "shoecart",
+});
+const parser = multer({ storage: storage });
 
 app.use(cookieParser());
 app.use(express.json());
@@ -35,6 +48,21 @@ function authenticateJWT(req, res, next) {
   } else {
     res.redirect("/login");
   }
+}
+
+function authenticateAdmin(req, res, next) {
+  let token = req.cookies.adminJwt;
+  if (!token) {
+    return res.redirect("/admin");
+  }
+
+  jwt.verify(token, JWT_SECRET, (err, admin) => {
+    if (err) {
+      return res.redirect("/admin");
+    }
+    req.admin = admin;
+    next();
+  });
 }
 
 function generateOTP() {
@@ -62,11 +90,11 @@ app.get("/admin", (req, res) => {
   res.render("admin-login");
 });
 
-app.get('/admin/add-product', (req,res) => {
-  res.render('admin-add-product');
-})
+app.get("/admin/add-product", authenticateAdmin, (req, res) => {
+  res.render("admin-add-product");
+});
 
-app.get("/admin/dashboard", (req, res) => {
+app.get("/admin/dashboard", authenticateAdmin, (req, res) => {
   res.render("admin-dashboard");
 });
 
@@ -114,12 +142,38 @@ app.post("/verify-email", async (req, res) => {
   }
 });
 
+app.post(
+  "/admin/add-product",
+  parser.array("image"),
+  async (req, res, next) => {
+    try {
+      let imageUrls = req.files.map((file) => file.path);
+      const product = new Product({
+        name: req.body.product_name,
+        color: req.body.product_color,
+        size: req.body.product_size,
+        brand: req.body.product_brand,
+        description: req.body.description,
+        price: req.body.price,
+        category: req.body.product_category,
+        images: imageUrls,
+        isDeleted: false
+      });
+      const result = await product.save();
+      console.log("result :", result);
+      res.redirect('/admin/view-products')
+    } catch (err) {
+      console.log("Error while adding product:", err);
+      res.end('error', err)
+    }
+  }
+);
+
 app.post("/signup", async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const otp = generateOTP();
     const otpExpires = Date.now() + 10 * 60 * 1000;
-
     const data = {
       name: req.body.name,
       email: req.body.email,
@@ -128,16 +182,13 @@ app.post("/signup", async (req, res) => {
       otp,
       otpExpires,
     };
-
     await User.create(data);
-
     const msg = {
       to: req.body.email,
       from: { email: process.env.EMAIL },
       subject: "Your OTP for Signup",
       text: `Your OTP for signup is: ${otp}. It is valid for only 10 minutes.`,
     };
-
     sgMail
       .send(msg)
       .then(() => {
@@ -211,6 +262,15 @@ app.post("/verify-otp", async (req, res) => {
     user.otp = undefined;
     user.otpExpires = undefined;
     await user.save();
+
+    const token = jwt.sign({ email: user.email, name: user.name }, JWT_SECRET, {
+      expiresIn: "730d",
+    });
+    res.cookie("jwt", token, {
+      httpOnly: true,
+      maxAge: 730 * 24 * 60 * 60 * 1000,
+    });
+
     res.redirect("/home");
   } else {
     res.redirect(
@@ -283,11 +343,17 @@ app.post("/verify-email", async (req, res) => {
   }
 });
 
-
 app.post("/admin", async (req, res) => {
   try {
     const admin = await Admin.findOne({ userName: req.body.userName });
     if (admin && (await bcrypt.compare(req.body.password, admin.password))) {
+      const adminToken = jwt.sign({ userName: admin.userName }, JWT_SECRET, {
+        expiresIn: "730d",
+      });
+      res.cookie("adminJwt", adminToken, {
+        httpOnly: true,
+        maxAge: 730 * 24 * 60 * 60 * 1000,
+      });
       res.redirect("/admin/dashboard");
     } else {
       res.render("admin-login", { notFound: "Incorrect username or password" });
@@ -298,8 +364,80 @@ app.post("/admin", async (req, res) => {
   }
 });
 
-app.get('/admin/view-products', (req,res) => {
-  res.render('admin-view-products')
+app.get("/admin/view-products", async (req, res) => {
+  try {
+    const products = await Product.find();
+    res.render('admin-view-products', { products });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.get('/admin/edit-product/:productId', async (req,res)=> {
+  const productId = req.params.productId;
+  const product = await Product.findOne({ _id: productId });
+  if(product){
+    res.render('admin-edit-product', { product })
+  }else {
+    res.send('invalid product')
+  }
 })
+
+app.post('/admin/edit-product/:productId', parser.array('image'), async (req, res) => {
+  const productId = req.params.productId;
+  const updatedProductData = {
+    name: req.body.product_name,
+    color: req.body.product_color,
+    size: req.body.product_size,
+    brand: req.body.product_brand,
+    description: req.body.description,
+    price: req.body.price,
+    category: req.body.product_category,
+  };
+
+  // Retrieve existing images from hidden input fields
+  const existingImages = req.body.existingImages || [];
+
+  // Retrieve new image URLs from the uploaded files
+  const newImageUrls = req.files.map(file => file.path);
+
+  // Combine existing and new image URLs
+  const allImageUrls = existingImages.concat(newImageUrls);
+
+  // Update the product with all image URLs
+  updatedProductData.images = allImageUrls;
+
+  try {
+    await Product.findByIdAndUpdate(productId, updatedProductData);
+    res.redirect('/admin/view-products');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
+// Soft Delete
+app.get('/admin/delete-product/:productId', async (req, res) => {
+  const productId = req.params.productId;
+  try {
+      await Product.findByIdAndUpdate(productId, { isDeleted: true });
+      res.redirect('/admin-view-product');
+  } catch (err) {
+      res.status(500).send('Internal Server Error');
+  }
+});
+
+// Search Product
+app.get('/admin/search-product', async (req, res) => {
+  const searchTerm = req.query.q;
+  try {
+      const products = await Product.find({ name: new RegExp(searchTerm, 'i'), isDeleted: false });
+      res.render('admin-view-product', { products });
+  } catch (err) {
+      res.status(500).send('Internal Server Error');
+  }
+});
 
 app.listen(3000, () => console.log("running at port 3000"));

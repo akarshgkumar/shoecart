@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    // unique: true,
+    unique: true,
   },
   phoneNo: {
     type: String,
@@ -39,10 +39,22 @@ const userSchema = new mongoose.Schema({
   }
 });
 
+const productSchema = new mongoose.Schema({
+  name: String,
+  color: String,
+  size: String,
+  brand: String,
+  description: String,
+  price: Number,
+  category: String,
+  images: [String]
+});
+const Product = mongoose.model('Product', productSchema);
+
 const adminSchema = new mongoose.Schema({}, { strict: false });
 
 const Admin = mongoose.model("Admin", adminSchema);
 
 const User = mongoose.model("User", userSchema);
 
-module.exports = { User, Admin };
+module.exports = { User, Admin, Product };

@@ -30,6 +30,21 @@ a:hover {
   color: #4b6bbb;
 }
 
+.selected-images-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px; /* Adjust the gap between images as needed */
+}
+
+.selected-image {
+  border: 1px solid #ccc; /* Add a border to each selected image */
+  padding: 5px; /* Add padding around each selected image */
+}
+
+.selected-image img {
+  max-width: 100px; /* Limit the width of the images to prevent them from being too large */
+}
+
 p {
   font-weight: 400;
   font-size: 14px;
@@ -94,14 +109,22 @@ button:hover {
   color: #4b6bbb;
 }
 
+#admin-delete-product-icon {
+  background: #C61E31;
+}
+
 .js-disabled-alert {
   background-color: #ffcccc;
-  color: red;
+  color: #C61E31;
   padding: 10px;
   border: 1px solid red;
   margin: 10px;
   font-weight: bold;
   text-align: center;
+}
+
+.alert-danger {
+  font-size: 17px;
 }
 
 .wrap-login100 {
