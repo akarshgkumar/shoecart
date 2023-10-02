@@ -1,7 +1,6 @@
 $.validator.addMethod(
   "customEmail",
   function (value, element) {
-    // Standard regex for email validation
     let pattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
     return pattern.test(value);
   },
@@ -49,13 +48,13 @@ $(function () {
       } else {
         error.insertAfter(element);
       }
-      errorSpan.css("color", "#e63946");
     },
   });
   $(".login-form").validate({
     rules: {
       email: {
         required: true,
+        customEmail: true,
       },
       password: {
         required: true,
@@ -82,7 +81,6 @@ $(function () {
       } else {
         error.insertAfter(element);
       }
-      errorSpan.css("color", "#e63946");
     },
   });
   $(".admin-login-form").validate({
@@ -115,17 +113,49 @@ $(function () {
       } else {
         error.insertAfter(element);
       }
-      errorSpan.css("color", "#e63946");
     },
   });
-  $(".otp-login-form").submit(function (e) {
-    if ($('input[name="otp"]').parent().css("display") === "none") {
-      e.preventDefault();
-      $('input[name="otp"]').parent().show();
-      $(".otp-wrapper").show();
-      $(".otp-login-btn").text("Submit OTP");
-    }
+  $(".otp-login-form").validate({
+    rules: {
+      email: {
+        required: true,
+        customEmail: true,
+      },
+    },
+    errorPlacement: function (error, element) {
+      let errorSpan = element.next(".error-span");
+      if (errorSpan.length) {
+        error.appendTo(errorSpan);
+      } else {
+        error.insertAfter(element);
+      }
+    },
+    submitHandler: function (form) {
+      if (!$("#otp-email-input").prop("readonly")) {
+        fetch("/verify-email", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: $("#otp-email-input").val() }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.exists) {
+              $("#otp-email-input").prop("readonly", true);
+              $('input[name="otp"]').parent().show();
+              $(".otp-wrapper").show();
+              $(".login100-form-btn").text("Submit OTP");
+            }else {
+              window.location.href = "/otp-login?error=User%20not%20found";
+            }
+          });
+      } else {
+        form.submit();
+      }
+    },
   });
+
   setInterval(updateTimer, 1000);
 });
 if (window.history.replaceState && location.search.includes("error")) {
@@ -133,7 +163,7 @@ if (window.history.replaceState && location.search.includes("error")) {
 }
 
 let expiryTimestamp = sessionStorage.getItem("otpExpiry");
-console.log(expiryTimestamp)
+console.log(expiryTimestamp);
 if (!expiryTimestamp) {
   expiryTimestamp = Date.now() + 10 * 60 * 1000;
   sessionStorage.setItem("otpExpiry", expiryTimestamp);

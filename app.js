@@ -71,27 +71,24 @@ app.get("/enter-otp", (req, res) => {
   res.render("enter-otp", { error, email });
 });
 
-app.get('/otp-login', (req,res)=> {
-  res.render('otp-login');
-})
+app.get("/otp-login", (req, res) => {
+  const error = req.query.error;
+  res.render("otp-login", { error });
+});
 
 app.post("/otp-login", async (req, res) => {
-  const { email, otp } = req.body;
+  const { email,otp } = req.body;
   const user = await User.findOne({ email });
   if (!user) {
     console.log(`No user found with email: ${email}`);
-    return res.redirect("/signup?error=User%20not%20found");
+    return res.redirect("/otp-login?error=User%20not%20found");
   }
 
   if (otp === user.otp && Date.now() <= user.otpExpires) {
-    user.verified = true;
-    user.otp = undefined;
-    user.otpExpires = undefined;
-    await user.save();
     res.redirect("/home");
   } else {
     res.redirect(
-      `/enter-otp?error=Invalid%20or%20expired%20OTP&email=${encodeURIComponent(
+      `/otp-login?error=Invalid%20or%20expired%20OTP&email=${encodeURIComponent(
         email
       )}`
     );
@@ -227,6 +224,43 @@ app.post("/login", async (req, res) => {
     res.status(500).send("Internal server error");
   }
 });
+
+app.post("/verify-email", async (req, res) => {
+  const email = req.body.email;
+  const user = await User.findOne({ email });
+
+  if (user) {
+      // 1. Generate the OTP
+      const otp = generateOTP();
+      const otpExpires = Date.now() + 10 * 60 * 1000; // valid for 10 minutes
+
+      // 2. Save the OTP and its expiration time in the database
+      user.otp = otp;
+      user.otpExpires = otpExpires;
+      await user.save();
+
+      // 3. Send the OTP via email
+      const msg = {
+          to: email,
+          from: { email: process.env.EMAIL },
+          subject: "Your OTP for Login",
+          text: `Your OTP for login is: ${otp}. It is valid for only 10 minutes.`,
+      };
+
+      sgMail
+          .send(msg)
+          .then(() => {
+              res.json({ exists: true });
+          })
+          .catch((error) => {
+              console.error("Error sending mail:", error.response?.body?.errors);
+              res.status(500).json({ exists: false, message: "Error sending OTP. Please try again later." });
+          });
+  } else {
+      res.json({ exists: false, message: "Email not found in our records." });
+  }
+});
+
 
 app.post("/admin", async (req, res) => {
   try {

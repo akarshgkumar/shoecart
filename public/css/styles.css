@@ -86,6 +86,16 @@ button:hover {
   background: #edf1f9;
 }
 
+.js-disabled-alert {
+  background-color: #ffcccc;
+  color: red;
+  padding: 10px;
+  border: 1px solid red;
+  margin: 10px;
+  font-weight: bold;
+  text-align: center;
+}
+
 .wrap-login100 {
   width: 960px;
   background: #fff;
@@ -205,6 +215,10 @@ button:hover {
   text-decoration: none;
 }
 
+.error-span {
+  color: #e63946;
+}
+
 .otp-login-anchor {
   width: 100%;
 }
@@ -298,7 +312,7 @@ button:hover {
   font-size: 15px;
 }
 
-#resend-otp:hover{
+#resend-otp:hover {
   text-decoration: underline;
 }
 
