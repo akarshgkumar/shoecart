@@ -4,7 +4,14 @@ const app = express();
 const path = require("path");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { User, Admin, Product, category, Category, Brand } = require("./mongodb");
+const {
+  User,
+  Admin,
+  Product,
+  category,
+  Category,
+  Brand,
+} = require("./mongodb");
 const JWT_SECRET = process.env.SESSION_SECRET;
 const cookieParser = require("cookie-parser");
 const sgMail = require("@sendgrid/mail");
@@ -12,6 +19,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const multer = require("multer");
+const mongoose = require("mongoose");
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -140,22 +148,25 @@ app.post("/verify-email", async (req, res) => {
 
 app.post(
   "/admin/add-product",
-  parser.array("image"),
+  parser.fields([
+    { name: "image", maxCount: 8 },
+    { name: "mainImage", maxCount: 1 },
+  ]),
   async (req, res, next) => {
     try {
-      let imageUrls = req.files.map((file) => file.path);
+      let imageUrls = req.files.image.map((file) => file.path);
       const product = new Product({
         name: req.body.product_name,
         color: req.body.product_color,
         size: req.body.product_size,
-        category: mongoose.Types.ObjectId(req.body.product_category),
-        brand: mongoose.Types.ObjectId(req.body.product_brand),
+        category: new mongoose.Types.ObjectId(req.body.product_category),
+        brand: new mongoose.Types.ObjectId(req.body.product_brand),
         description: req.body.description,
         stock: req.body.stock,
         price: req.body.price,
         estProfit: req.body.estProfit,
+        mainImage: req.files && req.files[0] ? req.files[0].path : undefined,
         images: imageUrls,
-        isDeleted: false,
       });
 
       const result = await product.save();
@@ -376,8 +387,10 @@ app.get("/admin/view-products", async (req, res) => {
 app.get("/admin/edit-product/:productId", async (req, res) => {
   const productId = req.params.productId;
   const product = await Product.findOne({ _id: productId });
+  const categories = await Category.find({ isDeleted: false });
+  const brands = await Brand.find({ isDeleted: false });
   if (product) {
-    res.render("admin-edit-product", { product });
+    res.render("admin-edit-product", { product, categories, brands });
   } else {
     res.send("invalid product");
   }
@@ -385,7 +398,10 @@ app.get("/admin/edit-product/:productId", async (req, res) => {
 
 app.post(
   "/admin/edit-product/:productId",
-  parser.array("image"),
+  parser.fields([
+    { name: "image", maxCount: 8 },
+    { name: "mainImage", maxCount: 1 },
+  ]),
   async (req, res) => {
     const productId = req.params.productId;
     try {
@@ -401,12 +417,12 @@ app.post(
         name: req.body.product_name,
         color: req.body.product_color,
         sizes: numericSizes,
-        category: mongoose.Types.ObjectId(req.body.product_category),
-        brand: mongoose.Types.ObjectId(req.body.product_brand),
+        category: new mongoose.Types.ObjectId(req.body.product_category),
+        brand: new mongoose.Types.ObjectId(req.body.product_brand),
         description: req.body.description,
         price: req.body.price,
         stock: req.body.stock,
-        mainImage: req.files[0].path,
+        mainImage: req.files && req.files[0] ? req.files[0].path : undefined,
         estProfit: req.body.estProfit,
       };
 
@@ -465,31 +481,35 @@ app.get("/admin/search-product", async (req, res) => {
 
 app.get("/admin/add-product", authenticateAdmin, async (req, res) => {
   try {
-    const brands = await Brand.find({});
-    const categories = await Category.find({});
-    res.render("admin-add-product", { brands, categories });
+    const categories = await Category.find({ isDeleted: false });
+    const brands = await Brand.find({ isDeleted: false });
+    res.render("admin-add-product", { categories, brands });
   } catch (error) {
-    console.error("Error fetching brands or categories:", error);
+    console.error("Error fetching categories and brands:", error);
     res.status(500).send("Internal Server Error");
   }
 });
 
-app.get("/admin/edit-product/:productId", authenticateAdmin, async (req, res) => {
-  const productId = req.params.productId;
-  try {
-    const product = await Product.findOne({ _id: productId });
-    const brands = await Brand.find({});
-    const categories = await Category.find({});
-    if (product) {
-      res.render("admin-edit-product", { product, brands, categories });
-    } else {
-      res.send("Invalid product");
+app.get(
+  "/admin/edit-product/:productId",
+  authenticateAdmin,
+  async (req, res) => {
+    const productId = req.params.productId;
+    try {
+      const product = await Product.findOne({ _id: productId });
+      const brands = await Brand.find({ isDeleted: false });
+      const categories = await Category.find({ isDeleted: false });
+      if (product) {
+        res.render("admin-edit-product", { product, brands, categories });
+      } else {
+        res.send("Invalid product");
+      }
+    } catch (error) {
+      console.error("Error fetching product, brands, or categories:", error);
+      res.status(500).send("Internal Server Error");
     }
-  } catch (error) {
-    console.error("Error fetching product, brands, or categories:", error);
-    res.status(500).send("Internal Server Error");
   }
-});
+);
 
 app.get("/admin/edit-brand/:brandId", async (req, res) => {
   const brandId = req.params.brandId;
@@ -521,8 +541,8 @@ app.post("/admin/edit-category/:categoryId", async (req, res) => {
     }
 
     const updatedcategoryData = {
-      name: req.body.category_name
-    } 
+      name: req.body.category_name,
+    };
 
     await Category.findByIdAndUpdate(categoryId, updatedcategoryData);
 
@@ -543,8 +563,8 @@ app.post("/admin/edit-brand/:brandId", async (req, res) => {
     }
 
     const updatedbrandData = {
-      name: req.body.brand_name
-    } 
+      name: req.body.brand_name,
+    };
 
     await Brand.findByIdAndUpdate(brandId, updatedbrandData);
 
@@ -559,7 +579,6 @@ app.get("/admin/view-brands", async (req, res) => {
   const brands = await Brand.find();
   res.render("admin-view-brands", { brands });
 });
-
 
 app.get("/admin/view-category", async (req, res) => {
   const category = await Category.find();
@@ -619,7 +638,6 @@ app.get("/admin/delete-brand/:brandsId", async (req, res) => {
   }
 });
 
-
 app.get("/admin/add-category", (req, res) => {
   res.render("admin-add-category");
 });
@@ -627,7 +645,6 @@ app.get("/admin/add-category", (req, res) => {
 app.get("/admin/add-brands", (req, res) => {
   res.render("admin-add-brands");
 });
-
 
 app.get("/admin/search-category", async (req, res) => {
   const searchTerm = req.query.q;
@@ -651,11 +668,9 @@ app.get("/admin/search-brands", async (req, res) => {
     });
     res.render("admin-view-brands", { brands });
   } catch (err) {
-    console.log(err)
+    console.log(err);
     res.status(500).send("Internal Server Error");
   }
 });
-
-
 
 app.listen(3000, () => console.log("running at port 3000"));
