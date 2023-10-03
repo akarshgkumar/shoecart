@@ -248,3 +248,4 @@ $('.darkmode').on('click', function () {
 });
 
 })(jQuery);
+

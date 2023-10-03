@@ -22,22 +22,49 @@
                         name="product_name" value="<%= product.name %>">
                     </div>
                     <div class="row gx-3">
-                      <div class="col-md-6  mb-3">
-                        <label for="product_color" class="form-label">Color</label>
-                        <input type="text" placeholder="Type here" class="form-control" id="product_color"
-                          name="product_color" value="<%= product.color %>">
+                      <div class="row">
+                        <div class="col-md-6 mb-3">
+                          <label for="product_color" class="form-label">Color</label>
+                          <input type="text" placeholder="Type here" class="form-control" id="product_color"
+                            name="product_color" value="<%= product.color %>">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                          <label class="form-label d-block">Sizes</label>
+                          <div class="d-inline-block me-2">
+                            <input type="checkbox" class="form-check-input" name="product_sizes" value="6" <% if
+                              (product.sizes.includes('6')) { %> checked <% } %>>
+                              <label class="form-check-label">6</label>
+                          </div>
+                          <div class="d-inline-block me-2">
+                            <input type="checkbox" class="form-check-input" name="product_sizes" value="7" <% if
+                              (product.sizes.includes('7')) { %> checked <% } %>>
+                              <label class="form-check-label">7</label>
+                          </div>
+                          <div class="d-inline-block me-2">
+                            <input type="checkbox" class="form-check-input" name="product_sizes" value="8" <% if
+                              (product.sizes.includes('8')) { %> checked <% } %>>
+                              <label class="form-check-label">8</label>
+                          </div>
+                          <div class="d-inline-block">
+                            <input type="checkbox" class="form-check-input" name="product_sizes" value="9" <% if
+                              (product.sizes.includes('9')) { %> checked <% } %>>
+                              <label class="form-check-label">9</label>
+                          </div>
+                        </div>
+
+
                       </div>
-                      <div class="col-md-6 mb-3">
-                        <label for="product_size" class="form-label">Size</label>
-                        <input type="number" placeholder="Type here" class="form-control" id="product_size"
-                          name="product_size" value="<%= product.size %>">
-                      </div>
+
+
                     </div>
                     <div class="mb-4">
-                      <label for="product_brand" class="form-label">Brand</label>
-                      <input type="text" placeholder="Type here" class="form-control" id="product_brand"
-                        name="product_brand" value="<%= product.brand %>">
-                    </div>
+                      <label for="product_brand" class="form-label custom-select">Brand</label>
+                      <select class="form-control" id="product_brand" name="product_brand">
+                        <option value="Brand1" <%=product.brand === 'Brand1' ? 'selected' : ''%>>Brand1</option>
+                        <option value="Brand2" <%=product.brand === 'Brand2' ? 'selected' : ''%>>Brand2</option>
+                        <option value="Brand3" <%=product.brand === 'Brand3' ? 'selected' : ''%>>Brand3</option>
+                        <!-- Add more brands as necessary -->
+                      </select>
                   </div>
                 </div>
                 <div class="card mb-4">
@@ -48,6 +75,10 @@
                         name="description"><%= product.description %></textarea>
                     </div>
                   </div>
+                </div>
+                <div class="card-body">
+                  <label class="form-label">Main Image</label>
+                  <input class="form-control" type="file" name="mainImage">
                 </div>
                 <div class="card mb-4">
                   <div class="card-body">
@@ -61,11 +92,15 @@
                   <div class="card-body">
                     <label class="form-label">Existing Images</label>
                     <div class="selected-images-container">
-                      <% product.images.forEach(imageUrl=> { %>
+                      <% product.images.forEach((imageUrl, index)=> { %>
                         <div class="selected-image">
-                          <img src="<%= imageUrl %>" alt="Selected Image">
-                          <input type="hidden" name="existingImages" value="<%= imageUrl %>">
+                          <label>
+                            <input type="checkbox" name="deleteImage<%= index %>" checked>
+                            <img src="<%= imageUrl %>" alt="Selected Image">
+                          </label>
                         </div>
+                        <!-- Add hidden input fields for each existing image -->
+                        <input type="hidden" name="existingImages" value="<%= imageUrl %>">
                         <% }) %>
                     </div>
                   </div>
@@ -78,6 +113,16 @@
                       <label class="form-label">Price</label>
                       <input type="number" placeholder="Type here" class="form-control" name="price"
                         value="<%= product.price %>">
+                    </div>
+                    <div class="mb-4">
+                      <label class="form-label">Stock</label>
+                      <input type="number" placeholder="Type here" class="form-control" name="stock"
+                        value="<%= product.stock %>">
+                    </div>
+                    <div class="mb-4">
+                      <label class="form-label">Estimated Profit</label>
+                      <input type="number" placeholder="Type here" class="form-control" name="estProfit"
+                        value="<%= product.estProfit %>">
                     </div>
                     <hr>
                     <h5 class="mb-3">Categories</h5>

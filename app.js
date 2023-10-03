@@ -4,7 +4,7 @@ const app = express();
 const path = require("path");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { User, Admin, Product } = require("./mongodb");
+const { User, Admin, Product, Brand, Category } = require("./mongodb");
 const JWT_SECRET = process.env.SESSION_SECRET;
 const cookieParser = require("cookie-parser");
 const sgMail = require("@sendgrid/mail");
@@ -94,6 +94,14 @@ app.get("/admin/add-product", authenticateAdmin, (req, res) => {
   res.render("admin-add-product");
 });
 
+app.get('/admin/view-brands', (req, res) => {
+  res.render('admin-view-brands');
+})
+
+app.get('/admin/view-categories', (req, res) => {
+  res.render('admin-view-categories');
+})
+
 app.get("/admin/dashboard", authenticateAdmin, (req, res) => {
   res.render("admin-dashboard");
 });
@@ -152,19 +160,22 @@ app.post(
         name: req.body.product_name,
         color: req.body.product_color,
         size: req.body.product_size,
-        brand: req.body.product_brand,
+        brand: mongoose.Types.ObjectId(req.body.product_brand),
+        category: mongoose.Types.ObjectId(req.body.product_category),
         description: req.body.description,
+        stock: req.body.stock,
         price: req.body.price,
-        category: req.body.product_category,
+        estProfit: req.body.estProfit,
         images: imageUrls,
-        isDeleted: false
+        isDeleted: false,
       });
+
       const result = await product.save();
       console.log("result :", result);
-      res.redirect('/admin/view-products')
+      res.redirect("/admin/view-products");
     } catch (err) {
       console.log("Error while adding product:", err);
-      res.end('error', err)
+      res.end("error", err);
     }
   }
 );
@@ -367,76 +378,100 @@ app.post("/admin", async (req, res) => {
 app.get("/admin/view-products", async (req, res) => {
   try {
     const products = await Product.find();
-    res.render('admin-view-products', { products });
+    res.render("admin-view-products", { products });
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal Server Error");
   }
 });
 
-app.get('/admin/edit-product/:productId', async (req,res)=> {
+app.get("/admin/edit-product/:productId", async (req, res) => {
   const productId = req.params.productId;
   const product = await Product.findOne({ _id: productId });
-  if(product){
-    res.render('admin-edit-product', { product })
-  }else {
-    res.send('invalid product')
-  }
-})
-
-app.post('/admin/edit-product/:productId', parser.array('image'), async (req, res) => {
-  const productId = req.params.productId;
-  const updatedProductData = {
-    name: req.body.product_name,
-    color: req.body.product_color,
-    size: req.body.product_size,
-    brand: req.body.product_brand,
-    description: req.body.description,
-    price: req.body.price,
-    category: req.body.product_category,
-  };
-
-  // Retrieve existing images from hidden input fields
-  const existingImages = req.body.existingImages || [];
-
-  // Retrieve new image URLs from the uploaded files
-  const newImageUrls = req.files.map(file => file.path);
-
-  // Combine existing and new image URLs
-  const allImageUrls = existingImages.concat(newImageUrls);
-
-  // Update the product with all image URLs
-  updatedProductData.images = allImageUrls;
-
-  try {
-    await Product.findByIdAndUpdate(productId, updatedProductData);
-    res.redirect('/admin/view-products');
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Internal Server Error');
+  if (product) {
+    res.render("admin-edit-product", { product });
+  } else {
+    res.send("invalid product");
   }
 });
 
+app.post(
+  "/admin/edit-product/:productId",
+  parser.array("image"),
+  async (req, res) => {
+    const productId = req.params.productId;
+    try {
+      const product = await Product.findById(productId);
+
+      if (!product) {
+        return res.status(404).send("Product not found");
+      }
+
+      const sizes = req.body.product_sizes || []; 
+      const numericSizes = sizes.map(Number); // Convert the sizes to numbers
+      const updatedProductData = {
+        name: req.body.product_name,
+        color: req.body.product_color,
+        sizes: numericSizes,
+        brand: mongoose.Types.ObjectId(req.body.product_brand),
+        category: mongoose.Types.ObjectId(req.body.product_category),
+        description: req.body.description,
+        price: req.body.price,
+        stock: req.body.stock,
+        mainImage: req.files[0].path,
+        estProfit: req.body.estProfit
+      };
+
+      // Retrieve new image URLs from the uploaded files, excluding the first (main) image
+      const newImageUrls = req.files.slice(1).map((file) => file.path);
+
+      // Check which images to delete based on checkboxes
+      const retainedImages = [];
+      for (let i = 0; i < product.images.length; i++) {
+        const deleteCheckbox = req.body[`deleteImage${i}`];
+        if (deleteCheckbox === "on") {
+          retainedImages.push(product.images[i]);
+        }
+      }
+
+      // Update the allImageUrls with retained and new images
+      const allImageUrls = retainedImages.concat(newImageUrls);
+      updatedProductData.images = allImageUrls;
+
+      // Update the product data in the database
+      await Product.findByIdAndUpdate(productId, updatedProductData);
+
+      // Redirect to the product view page
+      res.redirect("/admin/view-products");
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Internal Server Error");
+    }
+  }
+);
 
 // Soft Delete
-app.get('/admin/delete-product/:productId', async (req, res) => {
+app.get("/admin/delete-product/:productId", async (req, res) => {
   const productId = req.params.productId;
   try {
-      await Product.findByIdAndUpdate(productId, { isDeleted: true });
-      res.redirect('/admin-view-product');
+    await Product.findByIdAndUpdate(productId, { isDeleted: true });
+    res.redirect("/admin/view-products");
   } catch (err) {
-      res.status(500).send('Internal Server Error');
+    res.status(500).send("Internal Server Error");
   }
 });
 
 // Search Product
-app.get('/admin/search-product', async (req, res) => {
+app.get("/admin/search-product", async (req, res) => {
   const searchTerm = req.query.q;
   try {
-      const products = await Product.find({ name: new RegExp(searchTerm, 'i'), isDeleted: false });
-      res.render('admin-view-product', { products });
+    const products = await Product.find({
+      name: new RegExp(searchTerm, "i"),
+      isDeleted: false,
+    });
+    res.render("admin-view-products", { products });
   } catch (err) {
-      res.status(500).send('Internal Server Error');
+    res.status(500).send("Internal Server Error");
   }
 });
 
