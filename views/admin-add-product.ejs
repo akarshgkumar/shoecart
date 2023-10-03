@@ -51,9 +51,12 @@
                     <div class="mb-4">
                       <label for="product_brand" class="form-label">Brand</label>
                       <select class="form-control custom-select" id="product_brand" name="product_brand">
-                        <option value="Brand1">Brand1</option>
-                        <option value="Brand2">Brand2</option>
-                        <!-- Add more brands as needed -->
+                        <% brands.forEach(brand=> { %>
+                          <option value="<%= brand._id %>" <%=(product &&
+                            product.brand.toString()===brand._id.toString()) ? 'selected' : '' %>>
+                            <%= brand.name %>
+                          </option>
+                          <% }); %>
                       </select>
                     </div>
 
@@ -93,41 +96,16 @@
                     </div>
                     <hr>
                     <h5 class="mb-3">Categories</h5>
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="product_category" value="Athletic"
-                        id="product-cat">
-                      <label class="form-check-label" for="product-cat"> Athletic </label>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="product_category" value="Casual"
-                        id="product-cat-1">
-                      <label class="form-check-label" for="product-cat-1"> Casual </label>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="product_category" value="Formal"
-                        id="product-cat-2">
-                      <label class="form-check-label" for="product-cat-2"> Formal </label>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="product_category" value="Boots"
-                        id="product-cat-3">
-                      <label class="form-check-label" for="product-cat-3"> Boots </label>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="product_category" value="Sneakers"
-                        id="product-cat-4">
-                      <label class="form-check-label" for="product-cat-4"> Sneakers </label>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="product_category" value="Flats"
-                        id="product-cat-5">
-                      <label class="form-check-label" for="product-cat-5"> Flats </label>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="product_category" value="High Heels"
-                        id="product-cat-8">
-                      <label class="form-check-label" for="product-cat-8"> High Heels </label>
-                    </div>
+                    <% categories.forEach(category=> { %>
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="product_category" value="<%= category._id %>"
+                          id="product-cat-<%= category._id %>" <%=(product &&
+                          product.category.toString()===category._id.toString()) ? 'checked' : '' %>>
+                        <label class="form-check-label" for="product-cat-<%= category._id %>">
+                          <%= category.name %>
+                        </label>
+                      </div>
+                      <% }); %>
                   </div>
                 </div>
               </div>

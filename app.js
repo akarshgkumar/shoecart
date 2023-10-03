@@ -463,17 +463,31 @@ app.get("/admin/search-product", async (req, res) => {
   }
 });
 
-app.get("/admin/add-product", authenticateAdmin, (req, res) => {
-  res.render("admin-add-product");
+app.get("/admin/add-product", authenticateAdmin, async (req, res) => {
+  try {
+    const brands = await Brand.find({});
+    const categories = await Category.find({});
+    res.render("admin-add-product", { brands, categories });
+  } catch (error) {
+    console.error("Error fetching brands or categories:", error);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
-app.get("/admin/edit-category/:categoryId", async (req, res) => {
-  const categoryId = req.params.categoryId;
-  const category = await Category.findOne({ _id: categoryId });
-  if (category) {
-    res.render("admin-edit-category", { category });
-  } else {
-    res.send("invalid category");
+app.get("/admin/edit-product/:productId", authenticateAdmin, async (req, res) => {
+  const productId = req.params.productId;
+  try {
+    const product = await Product.findOne({ _id: productId });
+    const brands = await Brand.find({});
+    const categories = await Category.find({});
+    if (product) {
+      res.render("admin-edit-product", { product, brands, categories });
+    } else {
+      res.send("Invalid product");
+    }
+  } catch (error) {
+    console.error("Error fetching product, brands, or categories:", error);
+    res.status(500).send("Internal Server Error");
   }
 });
 
@@ -482,6 +496,16 @@ app.get("/admin/edit-brand/:brandId", async (req, res) => {
   const brand = await Brand.findOne({ _id: brandId });
   if (brand) {
     res.render("admin-edit-brand", { brand });
+  } else {
+    res.send("invalid brand");
+  }
+});
+
+app.get("/admin/edit-category/:categoryId", async (req, res) => {
+  const categoryId = req.params.categoryId;
+  const category = await Category.findOne({ _id: categoryId });
+  if (category) {
+    res.render("admin-edit-category", { category });
   } else {
     res.send("invalid brand");
   }
