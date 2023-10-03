@@ -80,21 +80,30 @@ const productSchema = new mongoose.Schema(
 const categorySchema = new mongoose.Schema(
   {
     name: String,
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    }
+  },
+  {
+    timestamps: true,
+  }
+);
+
+
+const brandSchema = new mongoose.Schema(
+  {
+    name: String,
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    }
   },
   {
     timestamps: true,
   }
 );
 const Category = mongoose.model("Category", categorySchema);
-
-const brandSchema = new mongoose.Schema(
-  {
-    name: String,
-  },
-  {
-    timestamps: true,
-  }
-);
 const Brand = mongoose.model("Brand", brandSchema);
 const Product = mongoose.model("Product", productSchema);
 

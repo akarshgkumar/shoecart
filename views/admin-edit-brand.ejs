@@ -1,0 +1,29 @@
+<%- include('header') %>
+  <%- include('aside-nav') %>
+    <main class="main-wrap">
+      <%- include('admin-header') %>
+        <section class="content-main">
+          <form action="/admin/edit-brand/<%= brand._id %>" method="POST">
+            <div class="row">
+              <div class="col-9">
+                <div class="content-header">
+                  <h2 class="content-title">Edit New Brand</h2>
+                  <div>
+                    <button type="submit" class="btn btn-md rounded font-sm hover-up">Edit</button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="card mb-4">
+                  <div class="card-body">
+                    <div class="mb-4">
+                      <label for="brand_name" class="form-label">Brand Name : </label>
+                      <input type="text" placeholder="Type here" class="form-control" id="brand_name" name="brand_name">
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </form>
+        </section>
+    </main>
+    <%- include('footer') %>

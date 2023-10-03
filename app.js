@@ -4,7 +4,7 @@ const app = express();
 const path = require("path");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { User, Admin, Product, Brand, Category } = require("./mongodb");
+const { User, Admin, Product, category, Category, Brand } = require("./mongodb");
 const JWT_SECRET = process.env.SESSION_SECRET;
 const cookieParser = require("cookie-parser");
 const sgMail = require("@sendgrid/mail");
@@ -90,18 +90,6 @@ app.get("/admin", (req, res) => {
   res.render("admin-login");
 });
 
-app.get("/admin/add-product", authenticateAdmin, (req, res) => {
-  res.render("admin-add-product");
-});
-
-app.get('/admin/view-brands', (req, res) => {
-  res.render('admin-view-brands');
-})
-
-app.get('/admin/view-categories', (req, res) => {
-  res.render('admin-view-categories');
-})
-
 app.get("/admin/dashboard", authenticateAdmin, (req, res) => {
   res.render("admin-dashboard");
 });
@@ -160,7 +148,7 @@ app.post(
         name: req.body.product_name,
         color: req.body.product_color,
         size: req.body.product_size,
-        brand: mongoose.Types.ObjectId(req.body.product_brand),
+        category: mongoose.Types.ObjectId(req.body.product_category),
         category: mongoose.Types.ObjectId(req.body.product_category),
         description: req.body.description,
         stock: req.body.stock,
@@ -407,19 +395,19 @@ app.post(
         return res.status(404).send("Product not found");
       }
 
-      const sizes = req.body.product_sizes || []; 
+      const sizes = req.body.product_sizes || [];
       const numericSizes = sizes.map(Number); // Convert the sizes to numbers
       const updatedProductData = {
         name: req.body.product_name,
         color: req.body.product_color,
         sizes: numericSizes,
-        brand: mongoose.Types.ObjectId(req.body.product_brand),
+        category: mongoose.Types.ObjectId(req.body.product_category),
         category: mongoose.Types.ObjectId(req.body.product_category),
         description: req.body.description,
         price: req.body.price,
         stock: req.body.stock,
         mainImage: req.files[0].path,
-        estProfit: req.body.estProfit
+        estProfit: req.body.estProfit,
       };
 
       // Retrieve new image URLs from the uploaded files, excluding the first (main) image
@@ -474,5 +462,176 @@ app.get("/admin/search-product", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+app.get("/admin/add-product", authenticateAdmin, (req, res) => {
+  res.render("admin-add-product");
+});
+
+app.get("/admin/edit-category/:categoryId", async (req, res) => {
+  const categoryId = req.params.categoryId;
+  const category = await Category.findOne({ _id: categoryId });
+  if (category) {
+    res.render("admin-edit-category", { category });
+  } else {
+    res.send("invalid category");
+  }
+});
+
+app.get("/admin/edit-brand/:brandId", async (req, res) => {
+  const brandId = req.params.brandId;
+  const brand = await Brand.findOne({ _id: brandId });
+  if (brand) {
+    res.render("admin-edit-brand", { brand });
+  } else {
+    res.send("invalid brand");
+  }
+});
+
+app.post("/admin/edit-category/:categoryId", async (req, res) => {
+  const categoryId = req.params.categoryId;
+  try {
+    const category = await Category.findById(categoryId);
+
+    if (!category) {
+      return res.status(404).send("category not found");
+    }
+
+    const updatedcategoryData = {
+      name: req.body.category_name
+    } 
+
+    await Category.findByIdAndUpdate(categoryId, updatedcategoryData);
+
+    res.redirect("/admin/view-category");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.post("/admin/edit-brand/:brandId", async (req, res) => {
+  const brandId = req.params.brandId;
+  try {
+    const brand = await Brand.findById(brandId);
+
+    if (!brand) {
+      return res.status(404).send("brand not found");
+    }
+
+    const updatedbrandData = {
+      name: req.body.brand_name
+    } 
+
+    await Brand.findByIdAndUpdate(brandId, updatedbrandData);
+
+    res.redirect("/admin/view-brands");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.get("/admin/view-brands", async (req, res) => {
+  const brands = await Brand.find();
+  res.render("admin-view-brands", { brands });
+});
+
+
+app.get("/admin/view-category", async (req, res) => {
+  const category = await Category.find();
+  console.log(category);
+  res.render("admin-view-category", { category });
+});
+
+app.post("/admin/add-category", async (req, res) => {
+  try {
+    const newCategory = new Category({
+      name: req.body.category_name,
+      isDeleted: false,
+    });
+    await newCategory.save();
+    res.redirect("/admin/view-category");
+  } catch (err) {
+    console.error("Error while adding category:", err);
+    res.end("error", err);
+  }
+});
+
+app.post("/admin/add-brands", async (req, res) => {
+  try {
+    const newBrands = new Brand({
+      name: req.body.brand_name,
+      isDeleted: false,
+    });
+    await newBrands.save();
+    res.redirect("/admin/view-brands");
+  } catch (err) {
+    console.error("Error while adding brand:", err);
+    res.end("error", err);
+  }
+});
+
+app.get("/admin/delete-category/:categoryId", async (req, res) => {
+  try {
+    await Category.findByIdAndUpdate(req.params.categoryId, {
+      isDeleted: true,
+    });
+    res.redirect("/admin/view-category");
+  } catch (err) {
+    console.error("Error while deleting category:", err);
+    res.end("error", err);
+  }
+});
+
+app.get("/admin/delete-brand/:brandsId", async (req, res) => {
+  try {
+    await Brand.findByIdAndUpdate(req.params.brandsId, {
+      isDeleted: true,
+    });
+    res.redirect("/admin/view-brands");
+  } catch (err) {
+    console.error("Error while deleting brands:", err);
+    res.end("error", err);
+  }
+});
+
+
+app.get("/admin/add-category", (req, res) => {
+  res.render("admin-add-category");
+});
+
+app.get("/admin/add-brands", (req, res) => {
+  res.render("admin-add-brands");
+});
+
+
+app.get("/admin/search-category", async (req, res) => {
+  const searchTerm = req.query.q;
+  try {
+    const category = await Category.find({
+      name: new RegExp(searchTerm, "i"),
+      isDeleted: false,
+    });
+    res.render("admin-view-category", { category });
+  } catch (err) {
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.get("/admin/search-brands", async (req, res) => {
+  const searchTerm = req.query.q;
+  try {
+    const brands = await Brand.find({
+      name: new RegExp(searchTerm, "i"),
+      isDeleted: false,
+    });
+    res.render("admin-view-brands", { brands });
+  } catch (err) {
+    console.log(err)
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+
 
 app.listen(3000, () => console.log("running at port 3000"));
