@@ -3573,12 +3573,17 @@ table .product-thumbnail img {
 }
 
 .product-cart-wrap .product-content-wrap .product-category {
-  margin-bottom: 5px;
+  margin-bottom: 2px;
+}
+
+.product-cart-wrap .product-content-wrap .product-brand {
+  margin-bottom: 4px;
 }
 
 .product-cart-wrap .product-content-wrap .product-category a {
   color: #90908e;
-  font-size: 12px;
+  font-size: 13px;
+  text-transform: capitalize;
 }
 
 .product-cart-wrap .product-content-wrap .product-category a:hover {

@@ -154,7 +154,9 @@ app.post(
   ]),
   async (req, res, next) => {
     try {
-      let imageUrls = req.files.image ? req.files.image.map((file) => file.path) : [];
+      let imageUrls = req.files.image
+        ? req.files.image.map((file) => file.path)
+        : [];
       const product = new Product({
         name: req.body.product_name,
         color: req.body.product_color,
@@ -681,8 +683,18 @@ app.get("/admin/search-brands", async (req, res) => {
   }
 });
 
-app.get('/view-full-products', (req, res) => {
-  res.render('user-view-full-products');
-})
+app.get("/view-full-products", async (req, res) => {
+  try {
+    const products = await Product.find({ isDeleted: false })
+      .populate("category")
+      .populate("brand");
+    console.log(products);
+    const productCount = await Product.countDocuments({ isDeleted: false });
+    res.render("user-view-full-products", { products: products, productCount: productCount });
+  } catch (err) {
+    console.error("Error fetching products:", err);
+    res.status(500).send("Internal Server Error");
+  }
+});
 
 app.listen(3000, () => console.log("running at port 3000"));
