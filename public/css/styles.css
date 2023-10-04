@@ -83,6 +83,10 @@ button:hover {
   cursor: pointer;
 }
 
+.user-email {
+  font-size: 16px;
+}
+
 .txt1 {
   font-weight: 400;
   font-size: 13px;

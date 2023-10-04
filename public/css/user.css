@@ -23,6 +23,10 @@ time, mark, audio, video {
   vertical-align: baseline;
 }
 
+html {
+  overflow-x: hidden;
+}
+
 thead {
   font-weight: 600;
 }
@@ -6993,11 +6997,29 @@ span.fi-rs-apps {
   background: #088178;
 }
 
+.slider-nav-thumbnails div {
+  display: inline-block;
+  width: 1000px;
+}
+
 .main-menu.hover-boder > nav > ul > li:hover > a::after {
   width: 100%;
   left: 0;
   right: auto;
 }
+figure.border-radius-10 {
+  background-color: #F6F6F6; /* Setting the background color to black */
+  display: flex; /* Using flex to center the image */
+  align-items: center; /* Center the image vertically */
+  justify-content: center; /* Center the image horizontally */
+}
+
+figure.border-radius-10 img {
+  max-width: 100%; /* Ensures the image won't exceed the container's width */
+  max-height: 100%; /* Ensures the image won't exceed the container's height */
+  display: block; /* Removes any default spacing around the image */
+}
+
 
 .main-menu.hover-boder.hover-boder-white > nav > ul > li > a::after {
   bottom: 18px;
