@@ -14,7 +14,9 @@
                     <div class="col-lg-9">
                         <div class="shop-product-fillter">
                             <div class="totall-product">
-                                <p> We found <strong class="text-brand"><%= productCount %></strong> items for you!</p>
+                                <p> We found <strong class="text-brand">
+                                        <%= productCount %>
+                                    </strong> items for you!</p>
                             </div>
                             <div class="sort-by-product-area">
                                 <div class="sort-by-cover mr-10">
@@ -50,75 +52,89 @@
                             </div>
                         </div>
                         <div class="row product-grid-3">
-                            <% products.forEach(product => { %>
+                            <% products.forEach(product=> { %>
                                 <div class="col-lg-4 col-md-4 col-12 col-sm-6">
                                     <div class="product-cart-wrap mb-30">
                                         <div class="product-img-action-wrap">
                                             <div class="product-img product-img-zoom">
                                                 <a href="/view-single-product/<%= product._id %>">
-                                                    <img class="default-img" src="<%= product.mainImage %>" alt="<%= product.name %>">                                                </a>
+                                                    <img class="default-img" src="<%= product.mainImage %>"
+                                                        alt="<%= product.name %>"> </a>
                                             </div>
                                             <div class="product-action-1">
-                                                <a aria-label="Quick view" class="action-btn hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal">
+                                                <a aria-label="Quick view" class="action-btn hover-up"
+                                                    data-bs-toggle="modal" data-bs-target="#quickViewModal">
                                                     <i class="fi-rs-search"></i>
                                                 </a>
-                                                <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html">
+                                                <a aria-label="Add To Wishlist" class="action-btn hover-up"
+                                                    href="shop-wishlist.html">
                                                     <i class="fi-rs-heart"></i>
                                                 </a>
-                                                <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html">
+                                                <a aria-label="Compare" class="action-btn hover-up"
+                                                    href="shop-compare.html">
                                                     <i class="fi-rs-shuffle"></i>
                                                 </a>
                                             </div>
                                         </div>
                                         <div class="product-content-wrap">
                                             <div class="product-category">
-                                                <a href="/view-full-products"><%= product.category.name %></a>
+                                                <a href="/view-full-products">
+                                                    <%= product.category.name %>
+                                                </a>
                                             </div>
                                             <div class="product-brand">
-                                                <a href="/view-full-products"><%= product.brand.name %></a>
+                                                <a href="/view-full-products">
+                                                    <%= product.brand.name %>
+                                                </a>
                                             </div>
-                                            <h2><a href="shop-product-right.html" class="uppercase"><%= product.name %></a></h2>
+                                            <h2><a href="shop-product-right.html" class="uppercase">
+                                                    <%= product.name %>
+                                                </a></h2>
                                             <div class="product-price">
                                                 <span>$<%= product.price %> </span>
                                             </div>
                                             <div class="product-action-1 show">
-                                                <a aria-label="Add To Cart" class="action-btn hover-up" href="shop-cart.html">
+                                                <a aria-label="Add To Cart" class="action-btn hover-up"
+                                                    href="shop-cart.html">
                                                     <i class="fi-rs-shopping-bag-add"></i>
                                                 </a>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            <% }); %>
+                                <% }); %>
                         </div>
-                        
                         <!--pagination-->
                         <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
                             <nav aria-label="Page navigation example">
                                 <ul class="pagination justify-content-start">
-                                    <li class="page-item active"><a class="page-link" href="#">01</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">02</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">03</a></li>
-                                    <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">16</a></li>
-                                    <li class="page-item"><a class="page-link" href="#"><i
-                                                class="fi-rs-angle-double-small-right"></i></a></li>
+                                    <% for (let i=1; i <=pages; i++) { %>
+                                        <li class="page-item <%= current == i ? 'active' : '' %>"><a class="page-link"
+                                                href="/view-full-products?page=<%= i %>">
+                                                <%= i %>
+                                            </a></li>
+                                        <% } %>
+                                            <% if(current < pages) { %>
+                                                <li class="page-item"><a class="page-link"
+                                                        href="/view-full-products?page=<%= current + 1 %>"><i
+                                                            class="fi-rs-angle-double-small-right"></i></a></li>
+                                                <% } %>
                                 </ul>
                             </nav>
                         </div>
+
                     </div>
                     <div class="col-lg-3 primary-sidebar sticky-sidebar">
                         <div class="widget-category mb-30">
                             <h5 class="section-title style-1 mb-30 wow fadeIn animated">Category</h5>
                             <ul class="categories">
-                                <li><a href="/view-full-products">Shoes & Bags</a></li>
-                                <li><a href="/view-full-products">Blouses & Shirts</a></li>
-                                <li><a href="/view-full-products">Dresses</a></li>
-                                <li><a href="/view-full-products">Swimwear</a></li>
-                                <li><a href="/view-full-products">Beauty</a></li>
-                                <li><a href="/view-full-products">Jewelry & Watch</a></li>
-                                <li><a href="/view-full-products">Accessories</a></li>
+                                <% categories.forEach(category=> { %>
+                                    <li><a href="/view-full-products" class="capitalize">
+                                            <%= category.name %>
+                                        </a></li>
+                                    <% }); %>
                             </ul>
+
                         </div>
                         <!-- Fillter By Price -->
                         <div class="sidebar-widget price_range range mb-30">
@@ -184,43 +200,25 @@
                                 <h5 class="widget-title mb-10">New products</h5>
                                 <div class="bt-1 border-color-1"></div>
                             </div>
-                            <div class="single-post clearfix">
-                                <div class="image">
-                                    <img src="/static/images/shop/thumbnail-3.jpg" alt="#">
-                                </div>
-                                <div class="content pt-10">
-                                    <h5><a href="shop-product-detail.html">Chen Cardigan</a></h5>
-                                    <p class="price mb-0 mt-5">$99.50</p>
-                                    <div class="product-rate">
-                                        <div class="product-rating" style="width:90%"></div>
+                            <% latestProducts.forEach(product=> { %>
+                                <div class="single-post clearfix">
+                                    <div class="image">
+                                        <img src="<%= product.mainImage %>" alt="<%= product.name %>">
+                                    </div>
+                                    <div class="content pt-10">
+                                        <h5><a href="/view-single-product/<%= product._id %>">
+                                                <%= product.name %>
+                                            </a></h5>
+                                        <p class="price mb-0 mt-5">₹<%= product.price %>
+                                        </p>
+                                        <div class="product-brand">
+                                            <p><%= product.brand.name %></p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="single-post clearfix">
-                                <div class="image">
-                                    <img src="/static/images/shop/thumbnail-4.jpg" alt="#">
-                                </div>
-                                <div class="content pt-10">
-                                    <h6><a href="shop-product-detail.html">Chen Sweater</a></h6>
-                                    <p class="price mb-0 mt-5">$89.50</p>
-                                    <div class="product-rate">
-                                        <div class="product-rating" style="width:80%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="single-post clearfix">
-                                <div class="image">
-                                    <img src="/static/images/shop/thumbnail-5.jpg" alt="#">
-                                </div>
-                                <div class="content pt-10">
-                                    <h6><a href="shop-product-detail.html">Colorful Jacket</a></h6>
-                                    <p class="price mb-0 mt-5">$25</p>
-                                    <div class="product-rate">
-                                        <div class="product-rating" style="width:60%"></div>
-                                    </div>
-                                </div>
-                            </div>
+                                <% }); %>
                         </div>
+
                     </div>
                 </div>
             </div>

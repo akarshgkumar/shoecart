@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const mongoosePaginate = require('mongoose-paginate-v2');
 
 mongoose
   .connect("mongodb://localhost:27017/shoecart")
@@ -76,6 +77,8 @@ const productSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+productSchema.plugin(mongoosePaginate);
 
 const categorySchema = new mongoose.Schema(
   {

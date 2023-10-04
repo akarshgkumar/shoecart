@@ -4,13 +4,7 @@ const app = express();
 const path = require("path");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const {
-  User,
-  Admin,
-  Product,
-  Category,
-  Brand,
-} = require("./mongodb");
+const { User, Admin, Product, Category, Brand } = require("./mongodb");
 const JWT_SECRET = process.env.SESSION_SECRET;
 const cookieParser = require("cookie-parser");
 const sgMail = require("@sendgrid/mail");
@@ -702,7 +696,7 @@ app.get("/admin/search-users", async (req, res) => {
   try {
     const users = await User.find({
       name: new RegExp(searchTerm, "i"),
-      verified: true
+      verified: true,
     });
     res.render("admin-view-users", { users });
   } catch (err) {
@@ -712,15 +706,31 @@ app.get("/admin/search-users", async (req, res) => {
 });
 
 app.get("/view-full-products", async (req, res) => {
+  const options = {
+    page: parseInt(req.query.page) || 1,
+    limit: 10,
+    populate: ["category", "brand"],
+    customLabels: {
+      docs: "products",
+      totalDocs: "productCount",
+    },
+  };
+
   try {
-    const products = await Product.find({ isDeleted: false })
-      .populate("category")
-      .populate("brand");
-    console.log(products);
-    const productCount = await Product.countDocuments({ isDeleted: false });
+    const result = await Product.paginate({ isDeleted: false }, options);
+    const categories = await Category.find({ isDeleted: false });
+    const latestProducts = await Product.find({ isDeleted: false })
+      .sort({ createdAt: -1 }) // Sort by creation date in descending order to get the latest products.
+      .limit(3) // Limit to only 3 products.
+      .populate(["category", "brand"]); // Populate the category and brand.
+
     res.render("user-view-full-products", {
-      products: products,
-      productCount: productCount,
+      products: result.products,
+      productCount: result.productCount,
+      current: result.page,
+      pages: result.totalPages,
+      categories: categories,
+      latestProducts: latestProducts
     });
   } catch (err) {
     console.error("Error fetching products:", err);
@@ -733,53 +743,56 @@ app.get("/view-single-product/:productId", async (req, res) => {
   const product = await Product.findOne({ _id: productId })
     .populate("category")
     .populate("brand");
-    console.log(product);
+  console.log(product);
   res.render("user-single-product", { product });
 });
 
-
 app.get("/admin/view-users", async (req, res) => {
-  const users = await User.find({verified: true});
-  res.render('admin-view-users', { users });
-})
+  const users = await User.find({ verified: true });
+  res.render("admin-view-users", { users });
+});
 
-app.get('/admin/unblock-user/:userId', async (req, res) => {
+app.get("/admin/unblock-user/:userId", async (req, res) => {
   const { userId } = req.params;
-  
+
   try {
-
-      if (!mongoose.Types.ObjectId.isValid(userId)) {
-          return res.status(400).send('Invalid User ID');
-      }
-      const user = await User.findByIdAndUpdate(userId, { isBlocked: false }, { new: true });
-      if (!user) {
-          return res.status(404).send('User not found');
-      }
-      res.redirect('/admin/view-users');
-
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).send("Invalid User ID");
+    }
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { isBlocked: false },
+      { new: true }
+    );
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    res.redirect("/admin/view-users");
   } catch (err) {
-      console.error(err);
-      res.status(500).send('Server Error');
+    console.error(err);
+    res.status(500).send("Server Error");
   }
 });
 
-app.get('/admin/block-user/:userId', async (req, res) => {
+app.get("/admin/block-user/:userId", async (req, res) => {
   const { userId } = req.params;
-  
-  try {
 
-      if (!mongoose.Types.ObjectId.isValid(userId)) {
-          return res.status(400).send('Invalid User ID');
-      }
-      const user = await User.findByIdAndUpdate(userId, { isBlocked: true }, { new: true });
-      if (!user) {
-          return res.status(404).send('User not found');
-      }
-      res.redirect('/admin/view-users');
-      
+  try {
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).send("Invalid User ID");
+    }
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { isBlocked: true },
+      { new: true }
+    );
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    res.redirect("/admin/view-users");
   } catch (err) {
-      console.error(err);
-      res.status(500).send('Server Error');
+    console.error(err);
+    res.status(500).send("Server Error");
   }
 });
 
