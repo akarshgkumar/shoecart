@@ -648,10 +648,8 @@
     $("#zoom_01").elevateZoom({
       zoomType: "inner", // Set the zoom type to "inner"
       cursor: "crosshair", // Change the cursor type to crosshair when hovering
-      zoomWindowPosition: 1, // Set the zoom window position (you can adjust the number)
       responsive: true, // Ensure the zoom is responsive across devices
       scrollZoom: true, // Enable zooming with the mouse scroll
-      lensSize: 200, // Set the size of the zoom lens
       tint: true, // Enable tint
       tintColour: "#F90", // Set the tint color
       tintOpacity: 0.5, // Set the opacity of the tint
