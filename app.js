@@ -154,7 +154,7 @@ app.post(
   ]),
   async (req, res, next) => {
     try {
-      let imageUrls = req.files.image.map((file) => file.path);
+      let imageUrls = req.files.image ? req.files.image.map((file) => file.path) : [];
       const product = new Product({
         name: req.body.product_name,
         color: req.body.product_color,
@@ -165,7 +165,10 @@ app.post(
         stock: req.body.stock,
         price: req.body.price,
         estProfit: req.body.estProfit,
-        mainImage: req.files && req.files[0] ? req.files[0].path : undefined,
+        mainImage:
+          req.files.mainImage && req.files.mainImage[0]
+            ? req.files.mainImage[0].path
+            : undefined,
         images: imageUrls,
       });
 
@@ -422,12 +425,17 @@ app.post(
         description: req.body.description,
         price: req.body.price,
         stock: req.body.stock,
-        mainImage: req.files && req.files[0] ? req.files[0].path : undefined,
+        mainImage:
+          req.files.mainImage && req.files.mainImage[0]
+            ? req.files.mainImage[0].path
+            : product.mainImage,
         estProfit: req.body.estProfit,
       };
 
       // Retrieve new image URLs from the uploaded files, excluding the first (main) image
-      const newImageUrls = req.files.slice(1).map((file) => file.path);
+      const newImageUrls = req.files.image
+        ? req.files.image.slice(1).map((file) => file.path)
+        : [];
 
       // Check which images to delete based on checkboxes
       const retainedImages = [];
@@ -672,5 +680,9 @@ app.get("/admin/search-brands", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+app.get('/view-full-products', (req, res) => {
+  res.render('user-view-full-products');
+})
 
 app.listen(3000, () => console.log("running at port 3000"));
