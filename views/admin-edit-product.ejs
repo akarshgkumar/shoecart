@@ -3,7 +3,7 @@
 <main class="main-wrap">
   <%- include('admin-header') %>
   <section class="content-main">
-    <form action="/admin/edit-product/<%= product._id %>" method="POST" enctype="multipart/form-data">
+    <form class="edit-product-form" action="/admin/edit-product/<%= product._id %>" method="POST" enctype="multipart/form-data">
       <div class="row">
         <div class="col-9">
           <div class="content-header">
@@ -123,7 +123,7 @@
               </div>
               <hr>
               <h5 class="mb-3">Categories</h5>
-              <% categories.forEach(category=> { %>
+              <% category.forEach(category=> { %>
                 <div class="form-check">
                   <input class="form-check-input" type="radio" name="product_category"
                     value="<%= category._id %>" id="product-cat-<%= category._id %>" <%=(product && product.category.toString()===category._id.toString()) ? 'checked' : '' %>>

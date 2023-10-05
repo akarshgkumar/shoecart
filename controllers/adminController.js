@@ -84,8 +84,8 @@ router.get("/view-products", async (req, res) => {
 router.get("/edit-product/:productId", async (req, res) => {
   const productId = req.params.productId;
   const product = await Product.findOne({ _id: productId });
-  const category = await Category.find({ isDeleted: false });
-  const brands = await Brand.find({ isDeleted: false });
+  const category = await Category.find();
+  const brands = await Brand.find();
   if (product) {
     res.render("admin-edit-product", { product, category, brands });
   } else {
@@ -96,7 +96,7 @@ router.get("/edit-product/:productId", async (req, res) => {
 router.post(
   "/edit-product/:productId",
   parser.fields([
-    { name: "image", maxCount: 8 },
+    { name: "image", maxCount: 3 },
     { name: "mainImage", maxCount: 1 },
   ]),
   async (req, res) => {
@@ -166,15 +166,15 @@ router.get("/search-product", async (req, res) => {
 });
 
 router.get("/add-product", async (req, res) => {
-  const category = await Category.find({ isDeleted: false });
-  const brands = await Brand.find({ isDeleted: false });
+  const category = await Category.find();
+  const brands = await Brand.find();
   res.render("admin-add-product", { category, brands });
 });
 
 router.post(
   "/add-product",
   parser.fields([
-    { name: "image", maxCount: 8 },
+    { name: "image", maxCount: 3 },
     { name: "mainImage", maxCount: 1 },
   ]),
   async (req, res, next) => {
@@ -218,44 +218,6 @@ router.get("/edit-brand/:brandId", async (req, res) => {
     res.send("invalid brand");
   }
 });
-
-router.post(
-  "/admin/add-product",
-  parser.fields([
-    { name: "image", maxCount: 8 },
-    { name: "mainImage", maxCount: 1 },
-  ]),
-  async (req, res, next) => {
-    try {
-      let imageUrls = req.files.image
-        ? req.files.image.map((file) => file.path)
-        : [];
-      const product = new Product({
-        name: req.body.product_name,
-        color: req.body.product_color,
-        size: req.body.product_size,
-        category: new mongoose.Types.ObjectId(req.body.product_category),
-        brand: new mongoose.Types.ObjectId(req.body.product_brand),
-        description: req.body.description,
-        stock: req.body.stock,
-        price: req.body.price,
-        estProfit: req.body.estProfit,
-        mainImage:
-          req.files.mainImage && req.files.mainImage[0]
-            ? req.files.mainImage[0].path
-            : undefined,
-        images: imageUrls,
-      });
-
-      const result = await product.save();
-      console.log("result :", result);
-      res.redirect("/admin/view-products");
-    } catch (err) {
-      console.log("Error while adding product:", err);
-      res.end("error", err);
-    }
-  }
-);
 
 router.get("/edit-category/:categoryId", async (req, res) => {
   const category = await Category.findById(req.params.categoryId);
@@ -320,11 +282,13 @@ router.post("/add-category", async (req, res) => {
   try {
     const newCategory = new Category({
       name: req.body.category_name,
-      isDeleted: false,
     });
     await newCategory.save();
     res.redirect("/admin/view-category");
   } catch (err) {
+    if (err.code === 11000) {
+        return res.status(400).send('Category name already exists');
+    }
     console.error("Error while adding category:", err);
     res.end("error", err);
   }
@@ -334,7 +298,6 @@ router.post("/add-brands", async (req, res) => {
   try {
     const newBrand = new Brand({
       name: req.body.brand_name,
-      isDeleted: false,
     });
     await newBrand.save();
     res.redirect("/admin/view-brands");
@@ -344,27 +307,55 @@ router.post("/add-brands", async (req, res) => {
   }
 });
 
+router.get("/check-category/:name", async (req, res) => {
+  try {
+    const category = await Category.findOne({
+      name: { $regex: `^${req.params.name}$`, $options: "i" },
+    });
+    console.log(category);
+    if (category) {
+      return res.json({ exists: true });
+    } else {
+      return res.json({ exists: false });
+    }
+  } catch (error) {
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/check-brand/:name", async (req, res) => {
+    try {
+      const brand = await Brand.findOne({
+        name: { $regex: `^${req.params.name}$`, $options: "i" },
+      });
+      console.log(brand);
+      if (brand) {
+        return res.json({ exists: true });
+      } else {
+        return res.json({ exists: false });
+      }
+    } catch (error) {
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
 router.get("/delete-category/:categoryId", async (req, res) => {
   try {
-    await Category.findByIdAndUpdate(req.params.categoryId, {
-      isDeleted: true,
-    });
+    await Category.findByIdAndDelete(req.params.categoryId);
     res.redirect("/admin/view-category");
   } catch (err) {
     console.error("Error while deleting category:", err);
-    res.end("error", err);
+    res.status(500).send("Error occurred while deleting the category.");
   }
 });
 
 router.get("/delete-brand/:brandsId", async (req, res) => {
   try {
-    await Brand.findByIdAndUpdate(req.params.brandsId, {
-      isDeleted: true,
-    });
+    await Brand.findByIdAndDelete(req.params.brandsId);
     res.redirect("/admin/view-brands");
   } catch (err) {
-    console.error("Error while deleting brand:", err);
-    res.end("error", err);
+    console.error("Error while deleting brands:", err);
+    res.status(500).send("Error occurred while deleting the brands.");
   }
 });
 
@@ -372,7 +363,6 @@ router.get("/search-category", async (req, res) => {
   const searchTerm = req.query.q;
   const category = await Category.find({
     name: new RegExp(searchTerm, "i"),
-    isDeleted: false,
   });
   res.render("admin-view-category", { category });
 });
@@ -381,7 +371,6 @@ router.get("/search-brands", async (req, res) => {
   const searchTerm = req.query.q;
   const brands = await Brand.find({
     name: new RegExp(searchTerm, "i"),
-    isDeleted: false,
   });
   res.render("admin-view-brands", { brands });
 });

@@ -2,10 +2,9 @@ const mongoose = require('mongoose');
 
 const categorySchema = new mongoose.Schema(
     {
-      name: String,
-      isDeleted: {
-        type: Boolean,
-        default: false,
+      name: {
+        type: String,
+        unique: true
       }
     },
     {

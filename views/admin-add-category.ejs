@@ -3,7 +3,7 @@
     <main class="main-wrap">
       <%- include('admin-header') %>
         <section class="content-main">
-          <form action="/admin/add-category" method="POST">
+          <form class="category-form" action="/admin/add-category" method="POST">
             <div class="row">
               <div class="col-9">
                 <div class="content-header">
@@ -19,6 +19,7 @@
                     <div class="mb-4">
                       <label for="category_name" class="form-label">Category Name : </label>
                       <input type="text" placeholder="Type here" class="form-control" id="category_name" name="category_name">
+                      <span class="error-span"></span>
                     </div>
                   </div>
                 </div>

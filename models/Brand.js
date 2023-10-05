@@ -1,18 +1,17 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const brandSchema = new mongoose.Schema(
-    {
-      name: String,
-      isDeleted: {
-        type: Boolean,
-        default: false,
-      }
-    },
-    {
-      timestamps: true,
+  {
+    name: {
+      type: String,
+      unique: true,
     }
-  );
+  },
+  {
+    timestamps: true,
+  }
+);
 
-const Brand = mongoose.model('Brand', brandSchema);
+const Brand = mongoose.model("Brand", brandSchema);
 
 module.exports = Brand;

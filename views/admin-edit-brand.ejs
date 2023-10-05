@@ -3,7 +3,7 @@
     <main class="main-wrap">
       <%- include('admin-header') %>
         <section class="content-main">
-          <form action="/admin/edit-brand/<%= brand._id %>" method="POST">
+          <form class="brand-form" action="/admin/edit-brand/<%= brand._id %>" method="POST">
             <div class="row">
               <div class="col-9">
                 <div class="content-header">
@@ -18,7 +18,8 @@
                   <div class="card-body">
                     <div class="mb-4">
                       <label for="brand_name" class="form-label">Brand Name : </label>
-                      <input type="text" placeholder="Type here" class="form-control" id="brand_name" name="brand_name">
+                      <input type="text" placeholder="Type here" class="form-control" id="brand_name" value="<%= brand.name %>" name="brand_name">
+                      <span class="error-span"></span>
                     </div>
                   </div>
                 </div>

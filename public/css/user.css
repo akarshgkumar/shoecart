@@ -4457,6 +4457,10 @@ table .product-thumbnail img {
   background: #ff596d;
 }
 
+.product-color-black {
+  background: #000;
+}
+
 .product-color-yellow {
   background: #ffdb33;
 }
@@ -5788,6 +5792,7 @@ h6.post-title {
   transition: all .3s ease 0s;
   -moz-appearance: none;
   -webkit-appearance: none;
+  appearance: none;
   position: relative;
 }
 
