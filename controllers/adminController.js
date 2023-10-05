@@ -41,20 +41,16 @@ function authenticateAdmin(req, res, next) {
 }
 
 router.get("/", async (req, res) => {
-  // Check if the adminJwt cookie exists
   const adminToken = req.cookies.adminJwt;
 
   if (adminToken) {
     try {
-      // If the adminJwt is valid, redirect to dashboard
       jwt.verify(adminToken, JWT_SECRET);
       res.redirect("/admin/dashboard");
     } catch (err) {
-      // If the JWT is invalid, render the login view
       res.render("admin-login");
     }
   } else {
-    // If there's no cookie, render the login view
     res.render("admin-login");
   }
 });
@@ -113,7 +109,7 @@ router.post(
       }
 
       const sizes = req.body.product_sizes || [];
-      const numericSizes = sizes.map(Number); // Convert the sizes to numbers
+      const numericSizes = sizes.map(Number);
       const updatedProductData = {
         name: req.body.product_name,
         color: req.body.product_color,
@@ -130,12 +126,10 @@ router.post(
         estProfit: req.body.estProfit,
       };
 
-      // Retrieve new image URLs from the uploaded files, excluding the first (main) image
       const newImageUrls = req.files.image
         ? req.files.image.slice(1).map((file) => file.path)
         : [];
 
-      // Check which images to delete based on checkboxes
       const retainedImages = [];
       for (let i = 0; i < product.images.length; i++) {
         const deleteCheckbox = req.body[`deleteImage${i}`];
@@ -144,14 +138,11 @@ router.post(
         }
       }
 
-      // Update the allImageUrls with retained and new images
       const allImageUrls = retainedImages.concat(newImageUrls);
       updatedProductData.images = allImageUrls;
 
-      // Update the product data in the database
       await Product.findByIdAndUpdate(productId, updatedProductData);
 
-      // Redirect to the product view page
       res.redirect("/admin/view-products");
     } catch (err) {
       console.error(err);
