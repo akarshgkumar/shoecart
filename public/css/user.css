@@ -23,6 +23,14 @@ time, mark, audio, video {
   vertical-align: baseline;
 }
 
+header {
+  z-index: 9999;
+  position: relative;
+}
+.zoomContainer {
+  z-index: 1; 
+}
+
 html {
   overflow-x: hidden;
 }
@@ -9881,5 +9889,3 @@ figure.border-radius-10 img {
     padding: 30px;
   }
 }
-.zoomContainer{ z-index: 9999;}
-.zoomWindow{ z-index: 9999;}

@@ -78,11 +78,14 @@
                     <div class="attr-detail attr-size">
                       <strong class="mr-10">Size</strong>
                       <ul class="list-filter size-filter font-small">
-                        <% product.sizes.forEach(function(size) { %>
-                          <li><a href="#">
-                              <%= size %>
-                            </a></li>
-                          <% }); %>
+                        <% if (product && Array.isArray(product.sizes)) { %>
+                          <% product.sizes.forEach(function(size) { %>
+                            <li><a href="#">
+                                <%= size %>
+                              </a></li>
+                            <% }); %>
+                              <% } %>
+
                       </ul>
 
                     </div>

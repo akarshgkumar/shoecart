@@ -19,8 +19,8 @@
                 </div>
               </div>
             </header>
-            <% users.forEach(user=> { %>
-              <div class="card-body">
+            <div class="card-body">
+                <% users.forEach(user=> { %>
                 <article class="itemlist">
                   <div class="row align-items-center">
                     <div class="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
@@ -63,9 +63,9 @@
                     </div>
                   </div>
                 </article>
+                <% }) %>
               </div>
           </div>
-          <% }) %>
             <div class="pagination-area mt-30 mb-50">
               <nav aria-label="Page navigation example">
                 <ul class="pagination justify-content-start">

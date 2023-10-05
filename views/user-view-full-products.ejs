@@ -57,7 +57,7 @@
                                     <div class="product-cart-wrap mb-30">
                                         <div class="product-img-action-wrap">
                                             <div class="product-img product-img-zoom">
-                                                <a href="/view-single-product/<%= product._id %>">
+                                                <a href="/product/view-single-product/<%= product._id %>">
                                                     <img class="default-img" src="<%= product.mainImage %>"
                                                         alt="<%= product.name %>"> </a>
                                             </div>
@@ -78,12 +78,12 @@
                                         </div>
                                         <div class="product-content-wrap">
                                             <div class="product-category">
-                                                <a href="/view-full-products">
+                                                <a href="/product/view-full-products">
                                                     <%= product.category.name %>
                                                 </a>
                                             </div>
                                             <div class="product-brand">
-                                                <a href="/view-full-products">
+                                                <a href="/product/view-full-products">
                                                     <%= product.brand.name %>
                                                 </a>
                                             </div>
@@ -110,13 +110,13 @@
                                 <ul class="pagination justify-content-start">
                                     <% for (let i=1; i <=pages; i++) { %>
                                         <li class="page-item <%= current == i ? 'active' : '' %>"><a class="page-link"
-                                                href="/view-full-products?page=<%= i %>">
+                                                href="/product/view-full-products?page=<%= i %>">
                                                 <%= i %>
                                             </a></li>
                                         <% } %>
                                             <% if(current < pages) { %>
                                                 <li class="page-item"><a class="page-link"
-                                                        href="/view-full-products?page=<%= current + 1 %>"><i
+                                                        href="/product/view-full-products?page=<%= current + 1 %>"><i
                                                             class="fi-rs-angle-double-small-right"></i></a></li>
                                                 <% } %>
                                 </ul>
@@ -129,7 +129,7 @@
                             <h5 class="section-title style-1 mb-30 wow fadeIn animated">Category</h5>
                             <ul class="categories">
                                 <% categories.forEach(category=> { %>
-                                    <li><a href="/view-full-products" class="capitalize">
+                                    <li><a href="/product/view-full-products" class="capitalize">
                                             <%= category.name %>
                                         </a></li>
                                     <% }); %>
@@ -191,7 +191,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <a href="/view-full-products" class="btn btn-sm btn-default"><i
+                            <a href="/product/view-full-products" class="btn btn-sm btn-default"><i
                                     class="fi-rs-filter mr-5"></i> Fillter</a>
                         </div>
                         <!-- Product sidebar Widget -->
@@ -206,7 +206,7 @@
                                         <img src="<%= product.mainImage %>" alt="<%= product.name %>">
                                     </div>
                                     <div class="content pt-10">
-                                        <h5><a href="/view-single-product/<%= product._id %>">
+                                        <h5><a href="/product/view-single-product/<%= product._id %>">
                                                 <%= product.name %>
                                             </a></h5>
                                         <p class="price mb-0 mt-5">₹<%= product.price %>
