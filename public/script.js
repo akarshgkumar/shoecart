@@ -65,9 +65,9 @@ $(function () {
         element.attr("type") === "checkbox" ||
         element.attr("type") === "radio"
       ) {
-        error.appendTo(element.parent().parent()); 
+        error.appendTo(element.parent().parent());
       } else {
-        error.insertAfter(element); 
+        error.insertAfter(element);
       }
     },
   });
@@ -131,13 +131,13 @@ $(function () {
         element.attr("type") === "checkbox" ||
         element.attr("type") === "radio"
       ) {
-        error.appendTo(element.parent().parent()); 
+        error.appendTo(element.parent().parent());
       } else {
-        error.insertAfter(element); 
+        error.insertAfter(element);
       }
     },
   });
- 
+
   $(".signup-form").validate({
     rules: {
       name: {
@@ -262,47 +262,51 @@ $(function () {
     },
   });
 
-  $('.category-form').submit(async function(event) {
+  $(".category-form").submit(async function (event) {
     event.preventDefault();
-    const categoryNameInput = $('#category_name');
+    const categoryNameInput = $("#category_name");
     const categoryName = categoryNameInput.val();
 
     try {
-        const response = await $.get(`/admin/check-category/${categoryName}`);
-        console.log(response)
-        if (response.exists) {
-          $('.error-span').text('Category name already exists');
-          categoryNameInput.focus();
-        } else {
-            $('.error-span').text(''); 
-            this.submit();
-        }
-    } catch (error) {
-        console.error('Error checking category:', error);
-        event.preventDefault();
-    }
-});
-
-$('.brand-form').submit(async function(event) {
-  event.preventDefault();
-  const brandNameInput = $('#brand_name');
-  const brandName = brandNameInput.val();
-
-  try {
-      const response = await $.get(`/admin/check-brand/${brandName}`);
-      console.log(response)
+      const response = await $.get(`/admin/check-category/${categoryName}`);
+      console.log(response);
       if (response.exists) {
-        $('.error-span').text('brand name already exists');
+        $(".error-span").text("Category name already exists");
+        categoryNameInput.focus();
+      } else {
+        $(".error-span").text("");
+        this.submit();
+      }
+    } catch (error) {
+      console.error("Error checking category:", error);
+      event.preventDefault();
+    }
+  });
+
+  $(".brand-form").submit(async function (event) {
+    event.preventDefault();
+    const brandNameInput = $("#brand_name");
+    const brandName = brandNameInput.val();
+
+    try {
+      const response = await $.get(`/admin/check-brand/${brandName}`);
+      console.log(response);
+      if (response.exists) {
+        $(".error-span").text("brand name already exists");
         brandNameInput.focus();
       } else {
-          $('.error-span').text(''); 
-          this.submit();
+        $(".error-span").text("");
+        this.submit();
       }
-  } catch (error) {
-      console.error('Error checking brand:', error);
+    } catch (error) {
+      console.error("Error checking brand:", error);
       event.preventDefault();
+    }
+  });
+
+  if ($("#otp-input").length) {
+    setOtpExpiry();
   }
-});
 
   setInterval(updateTimer, 1000);
 });
@@ -310,29 +314,14 @@ if (window.history.replaceState && location.search.includes("error")) {
   window.history.replaceState({}, document.title, location.pathname);
 }
 
-let loginExpiryTimestamp = sessionStorage.getItem("loginOtpExpiry");
-let signupExpiryTimestamp = sessionStorage.getItem("signupOtpExpiry");
-
-const isLoginPage = document.querySelector(".login-form") !== null;
-const isSignupPage = document.querySelector(".signup-form") !== null;
-
-if (isLoginPage && !loginExpiryTimestamp) {
-  loginExpiryTimestamp = Date.now() + 10 * 60 * 1000;
-  sessionStorage.setItem("loginOtpExpiry", loginExpiryTimestamp);
-} else if (isSignupPage && !signupExpiryTimestamp) {
-  signupExpiryTimestamp = Date.now() + 10 * 60 * 1000;
-  sessionStorage.setItem("signupOtpExpiry", signupExpiryTimestamp);
-}
+let otpExpiryTimestamp = sessionStorage.getItem("otpExpiry");
 
 function updateTimer() {
   const otpTimerElement = document.getElementById("otp-timer");
   if (!otpTimerElement) return;
 
   const currentTime = Date.now();
-  let currentExpiryTimestamp = isLoginPage
-    ? loginExpiryTimestamp
-    : signupExpiryTimestamp;
-  const remainingTime = currentExpiryTimestamp - currentTime;
+  const remainingTime = otpExpiryTimestamp - currentTime;
 
   if (remainingTime <= 0) {
     document.getElementById("otp-timer").textContent = "OTP expired";
@@ -348,9 +337,14 @@ function updateTimer() {
   }${seconds}`;
 }
 
+function setOtpExpiry() {
+  otpExpiryTimestamp = Date.now() + 10 * 60 * 1000;
+  sessionStorage.setItem("otpExpiry", otpExpiryTimestamp);
+  updateTimer();
+}
+
 function resendOTP() {
   const email = $("#otp-email-input").val();
-  console.log(email);
   fetch("/resend-otp", {
     method: "POST",
     headers: {
@@ -361,16 +355,7 @@ function resendOTP() {
     .then((response) => response.json())
     .then((data) => {
       if (data.success) {
-        if (isLoginPage) {
-          const newLoginExpiryTimestamp = Date.now() + 10 * 60 * 1000;
-          sessionStorage.setItem("loginOtpExpiry", newLoginExpiryTimestamp);
-          loginExpiryTimestamp = newLoginExpiryTimestamp;
-        } else if (isSignupPage) {
-          const newSignupExpiryTimestamp = Date.now() + 10 * 60 * 1000;
-          sessionStorage.setItem("signupOtpExpiry", newSignupExpiryTimestamp);
-          signupExpiryTimestamp = newSignupExpiryTimestamp;
-        }
-        updateTimer();
+        setOtpExpiry();
         alert("OTP sent!");
       } else {
         alert("Error resending OTP.");
