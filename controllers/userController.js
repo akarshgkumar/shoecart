@@ -69,13 +69,13 @@ router.post("/verify-otp", async (req, res) => {
   }
 });
 
-router.get("/enter-otp",noCache, (req, res) => {
+router.get("/enter-otp",noCache,redirectIfLoggedIn, (req, res) => {
   const error = req.query.error;
   const email = req.query.email;
   res.render("enter-otp", { error, email });
 });
 
-router.get("/verify-email",noCache, (req, res) => {
+router.get("/verify-email",noCache,redirectIfLoggedIn, (req, res) => {
   const error = req.query.error;
   res.render("verify-email", { error });
 });

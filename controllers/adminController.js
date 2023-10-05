@@ -8,6 +8,7 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
+const Admin = require('../models/Admin')
 const JWT_SECRET = process.env.JWT_SECRET;
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
@@ -55,10 +56,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/dashboard", authenticateAdmin, (req, res) => {
-  res.render("admin-dashboard");
-});
-
 router.post("/", async (req, res) => {
   const { userName, password } = req.body;
   const admin = await Admin.findOne({ userName });
@@ -75,6 +72,18 @@ router.post("/", async (req, res) => {
     res.render("admin-login", { notFound: "Incorrect username or password" });
   }
 });
+
+router.use(authenticateAdmin)
+
+router.get("/dashboard",  (req, res) => {
+  res.render("admin-dashboard");
+});
+
+router.get('/logout', (req, res) => {
+    res.clearCookie('adminJwt');  
+    res.redirect('/admin'); 
+  });
+
 
 router.get("/view-products", async (req, res) => {
   const products = await Product.find().populate("category").populate("brand");
