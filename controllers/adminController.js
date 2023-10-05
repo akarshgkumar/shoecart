@@ -77,7 +77,7 @@ router.post("/", async (req, res) => {
 });
 
 router.get("/view-products", async (req, res) => {
-  const products = await Product.find();
+  const products = await Product.find().populate("category").populate("brand");
   res.render("admin-view-products", { products });
 });
 
@@ -287,7 +287,7 @@ router.post("/add-category", async (req, res) => {
     res.redirect("/admin/view-category");
   } catch (err) {
     if (err.code === 11000) {
-        return res.status(400).send('Category name already exists');
+      return res.status(400).send("Category name already exists");
     }
     console.error("Error while adding category:", err);
     res.end("error", err);
@@ -324,20 +324,20 @@ router.get("/check-category/:name", async (req, res) => {
 });
 
 router.get("/check-brand/:name", async (req, res) => {
-    try {
-      const brand = await Brand.findOne({
-        name: { $regex: `^${req.params.name}$`, $options: "i" },
-      });
-      console.log(brand);
-      if (brand) {
-        return res.json({ exists: true });
-      } else {
-        return res.json({ exists: false });
-      }
-    } catch (error) {
-      return res.status(500).json({ error: "Internal server error" });
+  try {
+    const brand = await Brand.findOne({
+      name: { $regex: `^${req.params.name}$`, $options: "i" },
+    });
+    console.log(brand);
+    if (brand) {
+      return res.json({ exists: true });
+    } else {
+      return res.json({ exists: false });
     }
-  });
+  } catch (error) {
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 router.get("/delete-category/:categoryId", async (req, res) => {
   try {

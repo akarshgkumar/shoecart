@@ -1,63 +1,76 @@
 <%- include('header') %>
-<%- include('aside-nav') %>
-<main class="main-wrap">
-  <%- include('admin-header') %>
-  <section class="content-main">
-    <div class="content-header">
-      <div>
-        <h2 class="content-title card-title">All Products</h2>
-        <p>List of all products.</p>
-      </div>
-      <div>
-        <a href="/admin/add-product" class="btn btn-primary btn-sm rounded">Create new</a>
-      </div>
-    </div>
-    <header class="card card-body mb-4">
-      <div class="row gx-3">
-        <div class="col-lg-4 col-md-6 me-auto">
-          <form action="/admin/search-product" method="get">
-            <input type="text" placeholder="Search..." name="q" class="form-control">
-          </form>
-        </div>
-        <div class="col-lg-2 col-6 col-md-3">
-          <select class="form-select">
-            <option>All category</option>
-            <option>Electronics</option>
-            <option>Clothings</option>
-            <option>Something else</option>
-          </select>
-        </div>
-        <div class="col-lg-2 col-6 col-md-3">
-          <select class="form-select">
-            <option>Latest added</option>
-            <option>Cheap first</option>
-            <option>Most viewed</option>
-          </select>
-        </div>
-      </div>
-    </header>
-    <div class="row">
-      <% products.filter(product => !product.isDeleted).forEach(product => { %>
-      <div class="col-xl-3 col-lg-4 col-md-6">
-        <div class="card card-product-grid">
-          <a href="#" class="img-wrap">
-            <img src="<%= product.mainImage %>" alt="Product">
-          </a>
-          <div class="info-wrap">
-            <div class="dropdown float-end">
-              <a href="/admin/edit-product/<%= product._id %>" class="btn btn-sm btn-brand rounded">
-                <i class="material-icons md-edit mr-5"></i>Edit
-              </a>
-              <a href="/admin/delete-product/<%= product._id %>" class="btn btn-sm btn-brand rounded" id="admin-delete-product-icon">
-                <i class="material-icons  md-delete mr-5"></i>Delete
-              </a>
+  <%- include('aside-nav') %>
+    <main class="main-wrap">
+      <%- include('admin-header') %>
+        <section class="content-main">
+          <div class="content-header">
+            <div>
+              <h2 class="content-title card-title">All Products</h2>
+              <p>List of all products.</p>
             </div>
-            <a href="#" class="title capitalize"><%= product.name %></a>
-            <div class="price mt-1">₹<%= product.price %></div>
+            <div>
+              <a href="/admin/add-product" class="btn btn-primary btn-sm rounded">Create new</a>
+            </div>
           </div>
-        </div>
-      </div>
-      <% }) %>
-    </div>
-  </section>
-</main>
+          <header class="card card-body mb-4">
+            <div class="row gx-3">
+              <div class="col-lg-4 col-md-6 me-auto">
+                <form action="/admin/search-product" method="get">
+                  <input type="text" placeholder="Search..." name="q" class="form-control">
+                </form>
+              </div>
+              <div class="col-lg-2 col-6 col-md-3">
+                <select class="form-select">
+                  <option>All category</option>
+                  <option>Electronics</option>
+                  <option>Clothings</option>
+                  <option>Something else</option>
+                </select>
+              </div>
+              <div class="col-lg-2 col-6 col-md-3">
+                <select class="form-select">
+                  <option>Latest added</option>
+                  <option>Cheap first</option>
+                  <option>Most viewed</option>
+                </select>
+              </div>
+            </div>
+          </header>
+          <div class="row">
+            <% products.filter(product=> !product.isDeleted).forEach(product => { %>
+              <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="card card-product-grid">
+                  <a href="#" class="img-wrap">
+                    <img src="<%= product.mainImage %>" alt="Product">
+                  </a>
+                  <div class="info-wrap">
+                    <div class="dropdown float-end">
+                      <a href="/admin/edit-product/<%= product._id %>" class="btn btn-sm btn-brand rounded">
+                        <i class="material-icons md-edit mr-5"></i>Edit
+                      </a>
+                      <a href="/admin/delete-product/<%= product._id %>" class="btn btn-sm btn-brand rounded"
+                        id="admin-delete-product-icon">
+                        <i class="material-icons  md-delete mr-5"></i>Delete
+                      </a>
+                    </div>
+                    <a href="/admin/edit-product/<%= product._id %>" class="title capitalize">
+                      <%= product.name %>
+                    </a>
+                    <div class="price mt-1">₹<%= product.price %>
+                    </div>
+                    <% if (product.category) { %>
+                      <div class="category">Category: <span class="text-brand capitalize"> <%= product.category.name %> </span>
+                      </div>
+                      <% } %>
+                      <% if (product.brand) { %>
+                        <div class="brand mt-1 mb-2">Brand: <span class="text-brand capitalize"> <%= product.brand.name %> </span>
+                        </div>
+                        <% } %>
+                      </div>
+                  </div>
+                </div>
+                <% }) %>
+              </div>
+          </div>
+        </section>
+    </main>
