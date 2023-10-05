@@ -158,7 +158,7 @@ router.post("/verify-email", async (req, res) => {
     sgMail
       .send(msg)
       .then(() => {
-        res.redirect("/enter-otp?email=" + encodeURIComponent(email));
+        res.redirect(`/enter-otp?email=${encodeURIComponent(email)}&otpExpires=${otpExpires}`);
       })
       .catch((error) => {
         console.error("Error sending mail:", error.response?.body?.errors);
@@ -170,6 +170,7 @@ router.post("/verify-email", async (req, res) => {
     res.redirect("/verify-email?error=Email not found in our records.");
   }
 });
+
 
 router.post("/signup", async (req, res) => {
   try {
@@ -194,7 +195,7 @@ router.post("/signup", async (req, res) => {
     sgMail
       .send(msg)
       .then(() => {
-        res.redirect("/enter-otp?email=" + encodeURIComponent(req.body.email));
+        res.redirect(`/enter-otp?email=${encodeURIComponent(req.body.email)}&otpExpires=${otpExpires}`);
       })
       .catch((error) => {
         console.error(error);
@@ -210,5 +211,6 @@ router.post("/signup", async (req, res) => {
     }
   }
 });
+
 
 module.exports = router;

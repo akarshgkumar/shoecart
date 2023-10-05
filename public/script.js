@@ -304,15 +304,21 @@ $(function () {
     }
   });
 
-  if ($("#otp-input").length) {
-    setOtpExpiry();
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('otpExpires')) {
+    otpExpiryTimestamp = urlParams.get('otpExpires');
+    sessionStorage.setItem("otpExpiry", otpExpiryTimestamp);
+    updateTimer();
   }
-
   setInterval(updateTimer, 1000);
 });
+
 if (window.history.replaceState && location.search.includes("error")) {
   window.history.replaceState({}, document.title, location.pathname);
 }
+
+
+
 
 let otpExpiryTimestamp = sessionStorage.getItem("otpExpiry");
 
@@ -354,6 +360,7 @@ function resendOTP() {
   })
     .then((response) => response.json())
     .then((data) => {
+      console.log(data)
       if (data.success) {
         setOtpExpiry();
         alert("OTP sent!");
