@@ -3,15 +3,39 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = process.env.JWT_SECRET; 
+const JWT_SECRET = process.env.JWT_SECRET;
 const sgMail = require("@sendgrid/mail");
 const User = require("../models/User");
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+function noCache(req, res, next) {
+  res.header("Cache-Control", "private, no-cache, no-store, must-revalidate");
+  res.header("Expires", "-1");
+  res.header("Pragma", "no-cache");
+  next();
+}
+
 function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
+
+function redirectIfLoggedIn(req, res, next) {
+  if (req.cookies.jwt) {
+    res.redirect("/home");
+  } else {
+    next();
+  }
+}
+
+router.get("/login", noCache, redirectIfLoggedIn, (req, res) => {
+  res.render("login");
+});
+
+router.get("/signup", noCache, redirectIfLoggedIn, (req, res) => {
+  const error = req.query.error;
+  res.render("signup", { error });
+});
 
 router.post("/verify-otp", async (req, res) => {
   const { email, otp } = req.body;
@@ -45,13 +69,13 @@ router.post("/verify-otp", async (req, res) => {
   }
 });
 
-router.get("/enter-otp", (req, res) => {
+router.get("/enter-otp",noCache, (req, res) => {
   const error = req.query.error;
   const email = req.query.email;
   res.render("enter-otp", { error, email });
 });
 
-router.get("/verify-email", (req, res) => {
+router.get("/verify-email",noCache, (req, res) => {
   const error = req.query.error;
   res.render("verify-email", { error });
 });
@@ -60,11 +84,16 @@ router.get("/", (req, res) => {
   res.redirect("/home");
 });
 
-router.get("/login", (req, res) => {
+router.get("/login", noCache, redirectIfLoggedIn, (req, res) => {
   res.render("login");
 });
 
-router.get("/signup", (req, res) => {
+router.get("/logout", (req, res) => {
+  res.clearCookie("jwt");
+  res.redirect("/login");
+});
+
+router.get("/signup", noCache, redirectIfLoggedIn, (req, res) => {
   const error = req.query.error;
   res.render("signup", { error });
 });
@@ -158,7 +187,11 @@ router.post("/verify-email", async (req, res) => {
     sgMail
       .send(msg)
       .then(() => {
-        res.redirect(`/enter-otp?email=${encodeURIComponent(email)}&otpExpires=${otpExpires}`);
+        res.redirect(
+          `/enter-otp?email=${encodeURIComponent(
+            email
+          )}&otpExpires=${otpExpires}`
+        );
       })
       .catch((error) => {
         console.error("Error sending mail:", error.response?.body?.errors);
@@ -170,7 +203,6 @@ router.post("/verify-email", async (req, res) => {
     res.redirect("/verify-email?error=Email not found in our records.");
   }
 });
-
 
 router.post("/signup", async (req, res) => {
   try {
@@ -195,7 +227,11 @@ router.post("/signup", async (req, res) => {
     sgMail
       .send(msg)
       .then(() => {
-        res.redirect(`/enter-otp?email=${encodeURIComponent(req.body.email)}&otpExpires=${otpExpires}`);
+        res.redirect(
+          `/enter-otp?email=${encodeURIComponent(
+            req.body.email
+          )}&otpExpires=${otpExpires}`
+        );
       })
       .catch((error) => {
         console.error(error);
@@ -211,6 +247,5 @@ router.post("/signup", async (req, res) => {
     }
   }
 });
-
 
 module.exports = router;
