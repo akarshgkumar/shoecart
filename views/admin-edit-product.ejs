@@ -1,142 +1,154 @@
 <%- include('header') %>
-<%- include('aside-nav') %>
-<main class="main-wrap">
-  <%- include('admin-header') %>
-  <section class="content-main">
-    <form class="edit-product-form" action="/admin/edit-product/<%= product._id %>" method="POST" enctype="multipart/form-data">
-      <div class="row">
-        <div class="col-9">
-          <div class="content-header">
-            <h2 class="content-title">Edit Product</h2>
-            <div>
-              <button type="submit" class="btn btn-md rounded font-sm hover-up">Publish</button>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-6">
-          <div class="card mb-4">
-            <div class="card-body">
-              <div class="mb-4">
-                <label for="product_name" class="form-label">Product title</label>
-                <input type="text" placeholder="Type here" class="form-control" id="product_name"
-                  name="product_name" value="<%= product.name %>">
-              </div>
-              <div class="row gx-3">
-                <div class="row">
-                  <div class="col-md-6 mb-3">
-                    <label for="product_color" class="form-label">Color</label>
-                    <input type="text" placeholder="Type here" class="form-control" id="product_color"
-                      name="product_color" value="<%= product.color %>">
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label d-block">Sizes</label>
-                    <div class="d-inline-block me-2">
-                      <input type="checkbox" class="form-check-input" name="product_sizes" value="6" <% if
-                        (product.sizes.includes('6')) { %> checked <% } %>>
-                        <label class="form-check-label">6</label>
-                    </div>
-                    <div class="d-inline-block me-2">
-                      <input type="checkbox" class="form-check-input" name="product_sizes" value="7" <% if
-                        (product.sizes.includes('7')) { %> checked <% } %>>
-                        <label class="form-check-label">7</label>
-                    </div>
-                    <div class="d-inline-block me-2">
-                      <input type="checkbox" class="form-check-input" name="product_sizes" value="8" <% if
-                        (product.sizes.includes('8')) { %> checked <% } %>>
-                        <label class="form-check-label">8</label>
-                    </div>
-                    <div class="d-inline-block">
-                      <input type="checkbox" class="form-check-input" name="product_sizes" value="9" <% if
-                        (product.sizes.includes('9')) { %> checked <% } %>>
-                        <label class="form-check-label">9</label>
-                    </div>
+  <%- include('aside-nav') %>
+    <main class="main-wrap">
+      <%- include('admin-header') %>
+        <section class="content-main">
+          <form class="edit-product-form" action="/admin/edit-product/<%= product._id %>" method="POST"
+            enctype="multipart/form-data">
+            <div class="row">
+              <div class="col-9">
+                <div class="content-header">
+                  <h2 class="content-title">Edit Product</h2>
+                  <div>
+                    <button type="submit" class="btn btn-md rounded font-sm hover-up">Publish</button>
                   </div>
                 </div>
               </div>
-              <div class="mb-4">
-                <label for="product_brand" class="form-label">Brand</label>
-                <select class="form-control" id="product_brand" name="product_brand">
-                  <% brands.forEach(brand=> { %>
-                    <option value="<%= brand._id %>" <%=(product && product.brand.toString()===brand._id.toString()) ? 'selected' : '' %>>
-                      <%= brand.name %>
-                    </option>
-                  <% }); %>
-                </select>
-              </div>
-            </div>
-            <div class="card mb-4">
-              <div class="card-body">
-                <div>
-                  <label class="form-label">Description</label>
-                  <textarea placeholder="Type here" class="form-control" rows="4"
-                    name="description"><%= product.description %></textarea>
-                </div>
-              </div>
-            </div>
-            <div class="card-body">
-              <label class="form-label">Main Image</label>
-              <input class="form-control" type="file" name="mainImage">
-            </div>
-            <div class="card mb-4">
-              <div class="card-body">
-                <div>
-                  <label class="form-label">Images</label>
-                  <input class="form-control" type="file" name="image" multiple>
-                </div>
-              </div>
-            </div>
-            <div class="card mb-4">
-              <div class="card-body">
-                <label class="form-label">Existing Images</label>
-                <div class="selected-images-container">
-                  <% product.images.forEach((imageUrl, index)=> { %>
-                    <div class="selected-image">
-                      <label>
-                        <input type="checkbox" name="deleteImage<%= index %>" checked>
-                        <img src="<%= imageUrl %>" alt="Selected Image">
-                      </label>
+              <div class="col-lg-6">
+                <div class="card mb-4">
+                  <div class="card-body">
+                    <div class="mb-4">
+                      <label for="product_name" class="form-label">Product title</label>
+                      <input type="text" placeholder="Type here" class="form-control" id="product_name"
+                        name="product_name" value="<%= product.name %>">
                     </div>
-                    <input type="hidden" name="existingImages" value="<%= imageUrl %>">
-                  <% }) %>
+                    <div class="row gx-3">
+                      <div class="row">
+                        <div class="col-md-6  mb-3">
+                          <label for="product_color" class="form-label">Color</label>
+                          <select class="form-control custom-select" id="product_color" name="product_color">
+                            <option value="">Select a color</option>
+                            <option value="white" <%=(product.color==='white' ) ? 'selected' : '' %>>White</option>
+                            <option value="black" <%=(product.color==='black' ) ? 'selected' : '' %>>Black</option>
+                            <option value="orange" <%=(product.color==='orange' ) ? 'selected' : '' %>>Orange</option>
+                            <option value="red" <%=(product.color==='red' ) ? 'selected' : '' %>>Red</option>
+                            <option value="yellow" <%=(product.color==='yellow' ) ? 'selected' : '' %>>Yellow</option>
+                            <option value="green" <%=(product.color==='green' ) ? 'selected' : '' %>>Green</option>
+                            <option value="purple" <%=(product.color==='purple' ) ? 'selected' : '' %>>Purple</option>
+                          </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                          <label class="form-label d-block">Sizes</label>
+                          <div class="d-inline-block me-2">
+                            <input type="checkbox" class="form-check-input" name="product_sizes" value="6" <% if
+                              (product.sizes.includes('6')) { %> checked <% } %>>
+                              <label class="form-check-label">6</label>
+                          </div>
+                          <div class="d-inline-block me-2">
+                            <input type="checkbox" class="form-check-input" name="product_sizes" value="7" <% if
+                              (product.sizes.includes('7')) { %> checked <% } %>>
+                              <label class="form-check-label">7</label>
+                          </div>
+                          <div class="d-inline-block me-2">
+                            <input type="checkbox" class="form-check-input" name="product_sizes" value="8" <% if
+                              (product.sizes.includes('8')) { %> checked <% } %>>
+                              <label class="form-check-label">8</label>
+                          </div>
+                          <div class="d-inline-block">
+                            <input type="checkbox" class="form-check-input" name="product_sizes" value="9" <% if
+                              (product.sizes.includes('9')) { %> checked <% } %>>
+                              <label class="form-check-label">9</label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="mb-4">
+                      <label for="product_brand" class="form-label">Brand</label>
+                      <select class="form-control" id="product_brand" name="product_brand">
+                        <% brands.forEach(brand=> { %>
+                          <option value="<%= brand._id %>" <%=(product &&
+                            product.brand.toString()===brand._id.toString()) ? 'selected' : '' %>>
+                            <%= brand.name %>
+                          </option>
+                          <% }); %>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="card mb-4">
+                    <div class="card-body">
+                      <div>
+                        <label class="form-label">Description</label>
+                        <textarea placeholder="Type here" class="form-control" rows="4"
+                          name="description"><%= product.description %></textarea>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <label class="form-label">Main Image</label>
+                    <input class="form-control" type="file" name="mainImage">
+                  </div>
+                  <div class="card mb-4">
+                    <div class="card-body">
+                      <div>
+                        <label class="form-label">Images</label>
+                        <input class="form-control" type="file" name="image" multiple>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card mb-4">
+                    <div class="card-body">
+                      <label class="form-label">Existing Images</label>
+                      <div class="selected-images-container">
+                        <% product.images.forEach((imageUrl, index)=> { %>
+                          <div class="selected-image">
+                            <label>
+                              <input type="checkbox" name="deleteImage<%= index %>" checked>
+                              <img src="<%= imageUrl %>" alt="Selected Image">
+                            </label>
+                          </div>
+                          <input type="hidden" name="existingImages" value="<%= imageUrl %>">
+                          <% }) %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="card mb-4">
+                  <div class="card-body">
+                    <div class="mb-4">
+                      <label class="form-label">Price</label>
+                      <input type="number" placeholder="Type here" class="form-control" name="price"
+                        value="<%= product.price %>">
+                    </div>
+                    <div class="mb-4">
+                      <label class="form-label">Stock</label>
+                      <input type="number" placeholder="Type here" class="form-control" name="stock"
+                        value="<%= product.stock %>">
+                    </div>
+                    <div class="mb-4">
+                      <label class="form-label">Estimated Profit</label>
+                      <input type="number" placeholder="Type here" class="form-control" name="estProfit"
+                        value="<%= product.estProfit %>">
+                    </div>
+                    <hr>
+                    <h5 class="mb-3">Categories</h5>
+                    <% category.forEach(category=> { %>
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="product_category" value="<%= category._id %>"
+                          id="product-cat-<%= category._id %>" <%=(product &&
+                          product.category.toString()===category._id.toString()) ? 'checked' : '' %>>
+                        <label class="form-check-label" for="product-cat-<%= category._id %>">
+                          <%= category.name %>
+                        </label>
+                      </div>
+                      <% }); %>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-        <div class="col-lg-3">
-          <div class="card mb-4">
-            <div class="card-body">
-              <div class="mb-4">
-                <label class="form-label">Price</label>
-                <input type="number" placeholder="Type here" class="form-control" name="price"
-                  value="<%= product.price %>">
-              </div>
-              <div class="mb-4">
-                <label class="form-label">Stock</label>
-                <input type="number" placeholder="Type here" class="form-control" name="stock"
-                  value="<%= product.stock %>">
-              </div>
-              <div class="mb-4">
-                <label class="form-label">Estimated Profit</label>
-                <input type="number" placeholder="Type here" class="form-control" name="estProfit"
-                  value="<%= product.estProfit %>">
-              </div>
-              <hr>
-              <h5 class="mb-3">Categories</h5>
-              <% category.forEach(category=> { %>
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" name="product_category"
-                    value="<%= category._id %>" id="product-cat-<%= category._id %>" <%=(product && product.category.toString()===category._id.toString()) ? 'checked' : '' %>>
-                  <label class="form-check-label" for="product-cat-<%= category._id %>">
-                    <%= category.name %>
-                  </label>
-                </div>
-              <% }); %>
-            </div>
-          </div>
-        </div>
-      </div>
-    </form>
-  </section>
-</main>
-<%- include('footer') %>
+          </form>
+        </section>
+    </main>
+    <%- include('footer') %>
