@@ -7,12 +7,17 @@ $.validator.addMethod(
   "Please enter a valid email address."
 );
 
+$.validator.addMethod("noSpaceMinLength", function(value, element, param) {
+  return value.replace(/\s+/g, '').length >= param;
+}, $.validator.format("Enter at least {0} characters, spaces not included."));
+
+
 $(function () {
   $(".edit-product-form").validate({
     rules: {
       product_name: {
         required: true,
-        minlength: 2,
+        noSpaceMinLength: 3
       },
       product_color: {
         required: true,
@@ -75,7 +80,7 @@ $(function () {
     rules: {
       product_name: {
         required: true,
-        minlength: 2,
+        noSpaceMinLength: 3
       },
       product_color: {
         required: true,
@@ -142,7 +147,7 @@ $(function () {
     rules: {
       name: {
         required: true,
-        minlength: 3,
+        noSpaceMinLength: 3,
       },
       email: {
         required: true,
@@ -155,7 +160,7 @@ $(function () {
       },
       password: {
         required: true,
-        minlength: 4,
+        noSpaceMinLength: 4,
       },
     },
     highlight: function (element, errorClass, validClass) {
@@ -188,7 +193,7 @@ $(function () {
       },
       password: {
         required: true,
-        minlength: 4,
+        noSpaceMinLength: 4,
       },
     },
     highlight: function (element, errorClass, validClass) {
