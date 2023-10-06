@@ -16,7 +16,7 @@ router.get("/view-full-products", async (req, res) => {
 
     try {
         const result = await Product.paginate({ isDeleted: false }, options);
-        const categories = await Category.find({ isDeleted: false });
+        const categories = await Category.find({});
         const latestProducts = await Product.find({ isDeleted: false })
             .sort({ createdAt: -1 })
             .limit(3)

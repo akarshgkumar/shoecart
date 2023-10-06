@@ -75,9 +75,7 @@ $(function () {
         minlength: "Product name should be at least 2 characters",
       },
       product_color: {
-        required: "Please enter a color",
-        pattern:
-          "Only colors: white, black, orange, red, yellow, green, purple are allowed",
+        required: "Please enter a color"
       },
     },
     errorPlacement: function (error, element) {
@@ -164,6 +162,7 @@ $(function () {
       name: {
         required: true,
         noSpaceMinLength: 3,
+        noSpaceStartEnd: true
       },
       email: {
         required: true,
