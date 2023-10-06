@@ -35,7 +35,6 @@ function authenticateAdmin(req, res, next) {
     if (err) {
       return res.redirect("/admin");
     }
-    req.admin = admin;
     next();
   });
 }

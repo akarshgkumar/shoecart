@@ -7,6 +7,11 @@ $.validator.addMethod(
   "Please enter a valid email address."
 );
 
+$.validator.addMethod("maxFiles", function(value, element, param) {
+  return element.files.length <= param;
+}, $.validator.format("You can only upload a maximum of {0} files."));
+
+
 $.validator.addMethod(
   "noSpaceMinLength",
   function (value, element, param) {
@@ -55,12 +60,6 @@ $(function () {
       description: {
         required: true,
         noSpaceStartEnd: true
-      },
-      mainImage: {
-        extension: "jpeg|jpg|png|gif|webp",
-      },
-      image: {
-        extension: "jpeg|jpg|png|gif|webp",
       },
       product_category: {
         required: true,
@@ -123,11 +122,11 @@ $(function () {
       },
       mainImage: {
         required: true,
-        extension: "jpeg|jpg|png|gif|webp",
+        maxFiles: 3
       },
       image: {
         required: true,
-        extension: "jpeg|jpg|png|gif|webp",
+        maxFiles: 3
       },
       product_category: {
         required: true,
