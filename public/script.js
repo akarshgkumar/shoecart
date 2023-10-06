@@ -270,6 +270,8 @@ $(function () {
       category_name: {
         required: true,
         noSpaceStartEnd: true,
+        noSpaceMinLength: 3,     
+        maxlength: 10 
       },
     },
     messages: {
@@ -324,6 +326,8 @@ $(function () {
       brand_name: {
         required: true,
         noSpaceStartEnd: true,
+        noSpaceMinLength: 3,     
+        maxlength: 10 
       },
     },
     messages: {

@@ -68,13 +68,13 @@ router.post("/verify-otp", async (req, res) => {
   }
 });
 
-router.get("/enter-otp",noCache,redirectIfLoggedIn, (req, res) => {
+router.get("/enter-otp", noCache, redirectIfLoggedIn, (req, res) => {
   const error = req.query.error;
   const email = req.query.email;
   res.render("enter-otp", { error, email });
 });
 
-router.get("/verify-email",noCache,redirectIfLoggedIn, (req, res) => {
+router.get("/verify-email", noCache, redirectIfLoggedIn, (req, res) => {
   const error = req.query.error;
   res.render("verify-email", { error });
 });
@@ -83,18 +83,9 @@ router.get("/", (req, res) => {
   res.redirect("/home");
 });
 
-router.get("/login", noCache, redirectIfLoggedIn, (req, res) => {
-  res.render("login");
-});
-
 router.get("/logout", (req, res) => {
   res.clearCookie("jwt");
   res.redirect("/login");
-});
-
-router.get("/signup", noCache, redirectIfLoggedIn, (req, res) => {
-  const error = req.query.error;
-  res.render("signup", { error });
 });
 
 router.get("/home", (req, res) => {
@@ -104,7 +95,12 @@ router.get("/home", (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
-    if (user && (await bcrypt.compare(req.body.password, user.password))) {
+    if (user.isBlocked === true) {
+      res.render("login", { notFound: "User is blocked" });
+    } else if (
+      user &&
+      (await bcrypt.compare(req.body.password, user.password))
+    ) {
       const token = jwt.sign(
         { email: user.email, name: user.name },
         JWT_SECRET,

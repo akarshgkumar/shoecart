@@ -14,6 +14,17 @@ html {
   font-family: "Lato", sans-serif;
 }
 
+.logout-btn {
+  background-color: #383e50;
+  color: #fff;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.logout-btn:hover{
+  background-color: #fff;
+  color: #383e50;
+}
+
 label.error {
   color: #C51E3A !important;
 }
@@ -2620,7 +2631,7 @@ a.itemside:hover .title {
   display: block;
   overflow: hidden;
   position: relative;
-  background: white;
+  background: #fff;
 }
 
 [class*="card-product"] .img-wrap img {
@@ -4601,7 +4612,7 @@ body.aside-mini .menu-aside .submenu {
   border-radius: 0.25rem;
   -webkit-box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-  background-color: white;
+  background-color: #fff;
   margin-left: 0;
   padding: 10px;
   position: absolute;
@@ -4749,7 +4760,7 @@ body.dark .form-select {
 }
 
 body.dark .btn {
-  color: white;
+  color: #fff;
 }
 
 body.dark .btn-light {
