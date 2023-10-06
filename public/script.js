@@ -7,20 +7,33 @@ $.validator.addMethod(
   "Please enter a valid email address."
 );
 
-$.validator.addMethod("noSpaceMinLength", function(value, element, param) {
-  return value.replace(/\s+/g, '').length >= param;
-}, $.validator.format("Enter at least {0} characters, spaces not included."));
+$.validator.addMethod(
+  "noSpaceMinLength",
+  function (value, element, param) {
+    return value.replace(/\s+/g, "").length >= param;
+  },
+  $.validator.format("Enter at least {0} characters, spaces not included.")
+);
 
+$.validator.addMethod(
+  "noSpaceStartEnd",
+  function (value, element) {
+    return this.optional(element) || !/^\s|\s$/.test(value);
+  },
+  "Leading and trailing spaces are not allowed."
+);
 
 $(function () {
   $(".edit-product-form").validate({
     rules: {
       product_name: {
         required: true,
-        noSpaceMinLength: 3
+        noSpaceMinLength: 3,
+        noSpaceStartEnd: true
       },
       product_color: {
         required: true,
+        noSpaceStartEnd: true
       },
       product_brand: {
         required: true,
@@ -28,6 +41,7 @@ $(function () {
       price: {
         required: true,
         min: 0,
+        digits: true
       },
       stock: {
         required: true,
@@ -40,6 +54,7 @@ $(function () {
       },
       description: {
         required: true,
+        noSpaceStartEnd: true
       },
       mainImage: {
         extension: "jpeg|jpg|png|gif|webp",
@@ -80,11 +95,12 @@ $(function () {
     rules: {
       product_name: {
         required: true,
-        noSpaceMinLength: 3
+        noSpaceMinLength: 3,
+        noSpaceStartEnd: true
       },
       product_color: {
         required: true,
-        pattern: /^(white|black|orange|red|yellow|green|purple)$/i,
+        noSpaceStartEnd: true
       },
       product_brand: {
         required: true,
@@ -92,6 +108,7 @@ $(function () {
       price: {
         required: true,
         min: 0,
+        digits: true
       },
       stock: {
         required: true,
@@ -104,6 +121,7 @@ $(function () {
       },
       description: {
         required: true,
+        noSpaceStartEnd: true,
       },
       mainImage: {
         required: true,
@@ -123,12 +141,9 @@ $(function () {
     messages: {
       product_name: {
         required: "Please enter a product name",
-        minlength: "Product name should be at least 2 characters",
       },
       product_color: {
-        required: "Please enter a color",
-        pattern:
-          "Only colors: white, black, orange, red, yellow, green, purple are allowed",
+        required: "Please enter a color"
       },
     },
     errorPlacement: function (error, element) {
@@ -141,6 +156,7 @@ $(function () {
         error.insertAfter(element);
       }
     },
+    
   });
 
   $(".signup-form").validate({
@@ -155,7 +171,7 @@ $(function () {
       },
       phoneNo: {
         required: true,
-        minlength: 8,
+        minlength: 10,
         digits: true,
       },
       password: {
@@ -225,7 +241,7 @@ $(function () {
       },
       password: {
         required: true,
-        minlength: 4,
+        noSpaceMinLength: 4,
       },
     },
     highlight: function (element, errorClass, validClass) {
@@ -250,6 +266,46 @@ $(function () {
       }
     },
   });
+
+  $(".category-form").validate({
+    rules: {
+      category_name: {
+        required: true,
+        noSpaceStartEnd: true,
+      },
+    },
+    messages: {
+      category_name: {
+        required: "Please enter a category name",
+      },
+    },
+    errorPlacement: function (error, element) {
+      if (element.next(".error-span").length) {
+        error.appendTo(element.next(".error-span"));
+      } else {
+        error.insertAfter(element);
+      }
+    },
+    submitHandler: function (form) {
+      const categoryNameInput = $("#category_name");
+      const categoryName = categoryNameInput.val();
+
+      $.get(`/admin/check-category/${categoryName}`)
+        .done(function (response) {
+          if (response.exists) {
+            $(".error-span").text("Category name already exists");
+            categoryNameInput.focus();
+          } else {
+            $(".error-span").text("");
+            form.submit();
+          }
+        })
+        .fail(function (error) {
+          console.error("Error checking category:", error);
+        });
+    },
+  });
+
   $(".email-login-form").validate({
     rules: {
       email: {
@@ -261,57 +317,90 @@ $(function () {
       let errorSpan = element.next(".error-span");
       if (errorSpan.length) {
         error.appendTo(errorSpan);
-      } else {
-        error.insertAfter(element);
       }
     },
   });
 
-  $(".category-form").submit(async function (event) {
-    event.preventDefault();
-    const categoryNameInput = $("#category_name");
-    const categoryName = categoryNameInput.val();
-
-    try {
-      const response = await $.get(`/admin/check-category/${categoryName}`);
-      console.log(response);
-      if (response.exists) {
-        $(".error-span").text("Category name already exists");
-        categoryNameInput.focus();
-      } else {
-        $(".error-span").text("");
-        this.submit();
+  $(".brand-form").validate({
+    rules: {
+      brand_name: {
+        required: true,
+        noSpaceStartEnd: true,
+      },
+    },
+    messages: {
+      brand_name: {
+        required: "Please enter a brand name",
+      },
+    },
+    errorPlacement: function (error, element) {
+      if (element.next(".error-span").length) {
+        error.appendTo(element.next(".error-span"));
       }
-    } catch (error) {
-      console.error("Error checking category:", error);
-      event.preventDefault();
+    },
+    submitHandler: function (form) {
+      const brandNameInput = $("#brand_name");
+      const brandName = brandNameInput.val();
+
+      $.get(`/admin/check-brand/${brandName}`)
+        .done(function (response) {
+          if (response.exists) {
+            $(".error-span").text("Brand name already exists");
+            brandNameInput.focus();
+          } else {
+            $(".error-span").text("");
+            form.submit();
+          }
+        })
+        .fail(function (error) {
+          console.error("Error checking brand:", error);
+        });
+    },
+  });
+
+  $("#brand_name").on("input", function () {
+    const brandName = $(this).val();
+
+    if (brandName.trim()) {
+      $.get(`/admin/check-brand/${brandName}`)
+        .done(function (response) {
+          if (response.exists) {
+            $(".error-span").text("Brand name already exists");
+          } else {
+            $(".error-span").text("");
+          }
+        })
+        .fail(function (error) {
+          console.error("Error checking brand:", error);
+        });
+    } else {
+      $(".error-span").text("");
     }
   });
 
-  $(".brand-form").submit(async function (event) {
-    event.preventDefault();
-    const brandNameInput = $("#brand_name");
-    const brandName = brandNameInput.val();
+  $("#category_name").on("input", function () {
+    const categoryName = $(this).val();
 
-    try {
-      const response = await $.get(`/admin/check-brand/${brandName}`);
-      console.log(response);
-      if (response.exists) {
-        $(".error-span").text("brand name already exists");
-        brandNameInput.focus();
-      } else {
-        $(".error-span").text("");
-        this.submit();
-      }
-    } catch (error) {
-      console.error("Error checking brand:", error);
-      event.preventDefault();
+    if (categoryName.trim()) {
+      $.get(`/admin/check-category/${categoryName}`)
+        .done(function (response) {
+          if (response.exists) {
+            $(".error-span").text("category name already exists");
+          } else {
+            $(".error-span").text("");
+          }
+        })
+        .fail(function (error) {
+          console.error("Error checking category:", error);
+        });
+    } else {
+      $(".error-span").text("");
     }
   });
 
   const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.has('otpExpires')) {
-    otpExpiryTimestamp = urlParams.get('otpExpires');
+  if (urlParams.has("otpExpires")) {
+    otpExpiryTimestamp = urlParams.get("otpExpires");
     sessionStorage.setItem("otpExpiry", otpExpiryTimestamp);
     updateTimer();
   }
@@ -321,9 +410,6 @@ $(function () {
 if (window.history.replaceState && location.search.includes("error")) {
   window.history.replaceState({}, document.title, location.pathname);
 }
-
-
-
 
 let otpExpiryTimestamp = sessionStorage.getItem("otpExpiry");
 
@@ -365,7 +451,7 @@ function resendOTP() {
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log(data)
+      console.log(data);
       if (data.success) {
         setOtpExpiry();
         alert("OTP sent!");
