@@ -1,7 +1,9 @@
+require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
+const config = require('./config/default');
 const userController = require("./controllers/userController");
 const adminController = require("./controllers/adminController");
 const productController = require("./controllers/productController");
@@ -9,10 +11,7 @@ const productController = require("./controllers/productController");
 const app = express();
 
 mongoose
-  .connect("mongodb://localhost:27017/shoecart", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(config.database.uri, config.database.options)
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
@@ -36,4 +35,4 @@ app.use((err, req, res, next) => {
   res.status(500).send('something broke!');
 });
 
-app.listen(3000, () => console.log("running at port 3000"));
+app.listen(config.server.port, () => console.log("running at port 3000"));

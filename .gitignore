@@ -1,1 +1,11 @@
+# Environment variables file
 .env
+
+# Node modules directory
+node_modules/
+
+# Configuration files
+default.js
+
+# Log files
+*.log
