@@ -26,7 +26,7 @@ const storage = new CloudinaryStorage({
 const parser = multer({ storage: storage });
 
 function authenticateAdmin(req, res, next) {
-  let token = req.cookies.adminJwt;
+  const token = req.cookies.adminJwt;
   if (!token) {
     return res.redirect("/admin");
   }
