@@ -7,10 +7,13 @@ $.validator.addMethod(
   "Please enter a valid email address."
 );
 
-$.validator.addMethod("maxFiles", function(value, element, param) {
-  return element.files.length <= param;
-}, $.validator.format("You can only upload a maximum of {0} files."));
-
+$.validator.addMethod(
+  "maxFiles",
+  function (value, element, param) {
+    return element.files.length <= param;
+  },
+  $.validator.format("You can only upload a maximum of {0} files.")
+);
 
 $.validator.addMethod(
   "noSpaceMinLength",
@@ -34,11 +37,12 @@ $(function () {
       product_name: {
         required: true,
         noSpaceMinLength: 3,
-        noSpaceStartEnd: true
+        noSpaceStartEnd: true,
+        maxlength: 50,
       },
       product_color: {
         required: true,
-        noSpaceStartEnd: true
+        noSpaceStartEnd: true,
       },
       product_brand: {
         required: true,
@@ -46,7 +50,7 @@ $(function () {
       price: {
         required: true,
         min: 0,
-        digits: true
+        digits: true,
       },
       stock: {
         required: true,
@@ -59,7 +63,7 @@ $(function () {
       },
       description: {
         required: true,
-        noSpaceStartEnd: true
+        noSpaceStartEnd: true,
       },
       product_category: {
         required: true,
@@ -71,10 +75,9 @@ $(function () {
     messages: {
       product_name: {
         required: "Please enter a product name",
-        minlength: "Product name should be at least 2 characters",
       },
       product_color: {
-        required: "Please enter a color"
+        required: "Please enter a color",
       },
     },
     errorPlacement: function (error, element) {
@@ -93,11 +96,12 @@ $(function () {
       product_name: {
         required: true,
         noSpaceMinLength: 3,
-        noSpaceStartEnd: true
+        noSpaceStartEnd: true,
+        maxlength: 50,
       },
       product_color: {
         required: true,
-        noSpaceStartEnd: true
+        noSpaceStartEnd: true,
       },
       product_brand: {
         required: true,
@@ -105,7 +109,7 @@ $(function () {
       price: {
         required: true,
         min: 0,
-        digits: true
+        digits: true,
       },
       stock: {
         required: true,
@@ -122,11 +126,11 @@ $(function () {
       },
       mainImage: {
         required: true,
-        maxFiles: 3
+        maxFiles: 3,
       },
       image: {
         required: true,
-        maxFiles: 3
+        maxFiles: 3,
       },
       product_category: {
         required: true,
@@ -140,7 +144,7 @@ $(function () {
         required: "Please enter a product name",
       },
       product_color: {
-        required: "Please enter a color"
+        required: "Please enter a color",
       },
     },
     errorPlacement: function (error, element) {
@@ -153,7 +157,6 @@ $(function () {
         error.insertAfter(element);
       }
     },
-    
   });
 
   $(".signup-form").validate({
@@ -161,7 +164,8 @@ $(function () {
       name: {
         required: true,
         noSpaceMinLength: 3,
-        noSpaceStartEnd: true
+        noSpaceStartEnd: true,
+        maxlength: 20,
       },
       email: {
         required: true,
@@ -204,6 +208,7 @@ $(function () {
       email: {
         required: true,
         customEmail: true,
+        noSpaceStartEnd: true,
       },
       password: {
         required: true,
@@ -236,6 +241,8 @@ $(function () {
     rules: {
       userName: {
         required: true,
+        noSpaceStartEnd: true,
+        maxlength: 20,
       },
       password: {
         required: true,
@@ -270,8 +277,8 @@ $(function () {
       category_name: {
         required: true,
         noSpaceStartEnd: true,
-        noSpaceMinLength: 3,     
-        maxlength: 10 
+        noSpaceMinLength: 3,
+        maxlength: 10,
       },
     },
     messages: {
@@ -326,8 +333,8 @@ $(function () {
       brand_name: {
         required: true,
         noSpaceStartEnd: true,
-        noSpaceMinLength: 3,     
-        maxlength: 10 
+        noSpaceMinLength: 3,
+        maxlength: 10,
       },
     },
     messages: {
@@ -461,6 +468,32 @@ function resendOTP() {
         alert("Error resending OTP.");
       }
     });
+}
+
+function togglePassword() {
+  let passwordField = document.getElementById("password");
+  let toggleSpan = passwordField.nextElementSibling;
+
+  if (passwordField.type === "password") {
+    passwordField.type = "text";
+    toggleSpan.textContent = "HIDE";
+  } else {
+    passwordField.type = "password";
+    toggleSpan.textContent = "SHOW";
+  }
+}
+
+function toggleConfirmPassword() {
+  let confirmPasswordField = document.getElementById("confirmPassword");
+  let toggleSpan = confirmPasswordField.nextElementSibling;
+
+  if (confirmPasswordField.type === "password") {
+    confirmPasswordField.type = "text";
+    toggleSpan.textContent = "HIDE";
+  } else {
+    confirmPasswordField.type = "password";
+    toggleSpan.textContent = "SHOW";
+  }
 }
 
 (function ($) {

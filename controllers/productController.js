@@ -15,9 +15,10 @@ router.get("/view-full-products", async (req, res) => {
     };
 
     try {
-        const result = await Product.paginate({ isDeleted: false }, options);
+        const filter = { isDeleted: false, brand: { "$exists": true, "$ne": null }, category: { "$exists": true, "$ne": null } };
+        const result = await Product.paginate(filter, options);
         const categories = await Category.find({});
-        const latestProducts = await Product.find({ isDeleted: false })
+        const latestProducts = await Product.find(filter)
             .sort({ createdAt: -1 })
             .limit(3)
             .populate(["category", "brand"]);
@@ -35,6 +36,7 @@ router.get("/view-full-products", async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 });
+
 
 router.get("/view-single-product/:productId", async (req, res) => {
     const productId = req.params.productId;

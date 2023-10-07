@@ -7,7 +7,7 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
-const Admin = require('../models/Admin')
+const Admin = require("../models/Admin");
 const JWT_SECRET = process.env.JWT_SECRET;
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
@@ -71,17 +71,16 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.use(authenticateAdmin)
+router.use(authenticateAdmin);
 
-router.get("/dashboard",  (req, res) => {
+router.get("/dashboard", (req, res) => {
   res.render("admin-dashboard");
 });
 
-router.get('/logout', (req, res) => {
-    res.clearCookie('adminJwt');  
-    res.redirect('/admin'); 
-  });
-
+router.get("/logout", (req, res) => {
+  res.clearCookie("adminJwt");
+  res.redirect("/admin");
+});
 
 router.get("/view-products", async (req, res) => {
   const products = await Product.find().populate("category").populate("brand");
@@ -348,7 +347,12 @@ router.get("/check-brand/:name", async (req, res) => {
 
 router.get("/delete-category/:categoryId", async (req, res) => {
   try {
-    await Category.findByIdAndDelete(req.params.categoryId);
+    const categoryId = req.params.categoryId;
+    await Product.updateMany(
+      { category: categoryId },
+      { $set: { category: null } }
+    );
+    await Category.findByIdAndDelete(categoryId);
     res.redirect("/admin/view-category");
   } catch (err) {
     console.error("Error while deleting category:", err);
@@ -358,7 +362,9 @@ router.get("/delete-category/:categoryId", async (req, res) => {
 
 router.get("/delete-brand/:brandsId", async (req, res) => {
   try {
-    await Brand.findByIdAndDelete(req.params.brandsId);
+    const brandId = req.params.brandsId;
+    await Product.updateMany({ brand: brandId }, { $set: { brand: null } });
+    await Brand.findByIdAndDelete(brandId);
     res.redirect("/admin/view-brands");
   } catch (err) {
     console.error("Error while deleting brands:", err);

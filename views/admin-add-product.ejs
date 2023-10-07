@@ -59,6 +59,7 @@
                     <div class="mb-4">
                       <label for="product_brand" class="form-label">Brand</label>
                       <select class="form-control custom-select" id="product_brand" name="product_brand">
+                        <option value="">Select a brand</option>
                         <% brands.forEach(brand=> { %>
                           <option value="<%= brand._id %>">
                             <%= brand.name %>

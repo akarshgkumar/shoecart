@@ -201,6 +201,9 @@ router.post("/verify-email", async (req, res) => {
 
 router.post("/signup", async (req, res) => {
   try {
+    if (req.body.password !== req.body.confirmPassword) {
+      return res.redirect("/signup?error=Passwords%20do%20not%20match");
+    }
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const otp = generateOTP();
     const otpExpires = Date.now() + 10 * 60 * 1000;

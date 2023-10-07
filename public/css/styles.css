@@ -8,6 +8,13 @@
   box-sizing: border-box;
 }
 
+.toggle-password {
+  cursor: pointer;
+  font-size: 12px;
+  color: #4b6bbb;
+  text-decoration: underline;
+}
+
 body,
 html {
   height: 100%;
