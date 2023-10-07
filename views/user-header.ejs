@@ -153,10 +153,11 @@
                   <li>
                     <a href="#">Profile</a>
                   </li>
-                  <li><a href="/login">Login</a>
-                  </li>
-                  <li><a href="/logout">Logout</a>
-                  </li>
+                  <% if (!isLoggedIn) { %>
+                    <li><a href="/login">Login</a></li>
+                    <% } else { %>
+                      <li><a href="/logout">Logout</a></li>
+                      <% } %>
                 </ul>
               </nav>
             </div>
@@ -275,8 +276,7 @@
             <ul class="mobile-menu">
               <li class="menu-item"><span class="menu-expand"></span><a href="/home">Home</a>
               </li>
-              <li class="menu-item"><span class="menu-expand"></span><a
-                  href="shop-grid-right.html">Shop</a>
+              <li class="menu-item"><span class="menu-expand"></span><a href="shop-grid-right.html">Shop</a>
               </li>
               <li class="menu-item"><span class="menu-expand"></span><a href="#">Mega menu</a>
                 <ul class="dropdown">
@@ -306,8 +306,7 @@
                   </li>
                 </ul>
               </li>
-              <li class="menu-item"><span class="menu-expand"></span><a
-                  href="blog-category-fullwidth.html">Blog</a>
+              <li class="menu-item"><span class="menu-expand"></span><a href="blog-category-fullwidth.html">Blog</a>
                 <ul class="dropdown">
                   <li><a href="blog-category-grid.html">Blog Category Grid</a></li>
                   <li><a href="blog-category-list.html">Blog Category List</a></li>
