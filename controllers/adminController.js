@@ -90,8 +90,8 @@ router.get("/view-products", async (req, res) => {
 router.get("/edit-product/:productId", async (req, res) => {
   const productId = req.params.productId;
   const product = await Product.findOne({ _id: productId });
-  const category = await Category.find();
-  const brands = await Brand.find();
+  const category = await Category.find({isDeleted: false});
+  const brands = await Brand.find({isDeleted: false});
   if (product) {
     res.render("admin-edit-product", { product, category, brands });
   } else {
@@ -172,8 +172,8 @@ router.get("/search-product", async (req, res) => {
 });
 
 router.get("/add-product", async (req, res) => {
-  const category = await Category.find();
-  const brands = await Brand.find();
+  const category = await Category.find({isDeleted: false});
+  const brands = await Brand.find({isDeleted: false});
   res.render("admin-add-product", { category, brands });
 });
 
@@ -267,12 +267,12 @@ router.post("/edit-brand/:brandId", async (req, res) => {
 });
 
 router.get("/view-brands", async (req, res) => {
-  const brands = await Brand.find();
+  const brands = await Brand.find({isDeleted: false});
   res.render("admin-view-brands", { brands });
 });
 
 router.get("/view-category", async (req, res) => {
-  const category = await Category.find();
+  const category = await Category.find({isDeleted: false});
   res.render("admin-view-category", { category });
 });
 
@@ -352,7 +352,7 @@ router.get("/delete-category/:categoryId", async (req, res) => {
       { category: categoryId },
       { $set: { category: null } }
     );
-    await Category.findByIdAndDelete(categoryId);
+    await Category.findByIdAndUpdate(categoryId, { $set: { isDeleted: true } });
     res.redirect("/admin/view-category");
   } catch (err) {
     console.error("Error while deleting category:", err);
@@ -364,7 +364,7 @@ router.get("/delete-brand/:brandsId", async (req, res) => {
   try {
     const brandId = req.params.brandsId;
     await Product.updateMany({ brand: brandId }, { $set: { brand: null } });
-    await Brand.findByIdAndDelete(brandId);
+    await Brand.findByIdAndUpdate(brandId, { $set: { isDeleted: true } });
     res.redirect("/admin/view-brands");
   } catch (err) {
     console.error("Error while deleting brands:", err);
