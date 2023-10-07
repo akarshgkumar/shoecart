@@ -280,4 +280,8 @@ router.post("/signup", async (req, res) => {
   }
 });
 
+router.get('/cart', (req, res) => {
+  res.render('shop-cart')
+})
+
 module.exports = router;
