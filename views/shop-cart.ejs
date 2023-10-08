@@ -26,31 +26,47 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td class="image product-thumbnail"><img src="assets/imgs/shop/product-1-2.jpg" alt="#"></td>
-                    <td class="product-des product-name">
-                      <h5 class="product-name"><a href="shop-product-right.html">J.Crew Mercantile Women's
-                          Short-Sleeve</a></h5>
-                    </td>
-                    <td class="price" data-title="Price"><span>$65.00 </span></td>
-                    <td class="text-center" data-title="Stock">
-                      <div class="detail-qty border radius  m-auto">
-                        <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
-                        <span class="qty-val">1</span>
-                        <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
-                      </div>
-                    </td>
-                    <td class="text-right" data-title="Cart">
-                      <span>$65.00 </span>
-                    </td>
-                    <td class="action" data-title="Remove"><a href="#" class="text-muted"><i
-                          class="fi-rs-trash"></i></a></td>
-                  </tr>
-                  <tr>
-                    <td colspan="6" class="text-end">
-                      <a href="#" class="text-muted"> <i class="fi-rs-cross-small"></i> Clear Cart</a>
-                    </td>
-                  </tr>
+                  <% products.forEach(product=> { %>
+                    <tr>
+                      <td class="image product-thumbnail"><img src="<%= product.image %>" alt="#"></td>
+                      <td class="product-des product-name">
+                        <h5 class="product-name"><a href="#">
+                            <%= product.name %>
+                          </a></h5>
+                      </td>
+                      <td class="price" data-title="Price"><span>₹
+                          <%= product.price.toFixed(2) %>
+                        </span></td>
+                      <td class="text-center" data-title="Stock">
+                        <div class="detail-qty border radius m-auto">
+                          <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
+                          <span class="qty-val">
+                            <%= product.quantity %>
+                          </span>
+                          <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
+                        </div>
+                      </td>
+                      <td class="text-right" data-title="Cart">
+                        <span>₹
+                          <%= (product.price * product.quantity).toFixed(2) %>
+                        </span>
+                      </td>
+                      <td class="action" data-title="Remove">
+                        <form action="/remove-from-cart" method="post">
+                          <input type="hidden" name="userEmail" value="<%= userEmail %>">
+                          <input type="hidden" name="productId" value="<%= product.productId %>">
+                          <button id="remove-btn-cart" type="submit" class="text-muted">
+                            <i class="fi-rs-trash"></i>
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                    <% }); %>
+                      <tr>
+                        <td colspan="6" class="text-end">
+                          <a href="#" class="text-muted"> <i class="fi-rs-cross-small"></i> Clear Cart</a>
+                        </td>
+                      </tr>
                 </tbody>
               </table>
             </div>
@@ -365,7 +381,8 @@
                       <tbody>
                         <tr>
                           <td class="cart_total_label">Cart Subtotal</td>
-                          <td class="cart_total_amount"><span class="font-lg fw-900 text-brand">$240.00</span></td>
+                          <td class="cart_total_amount"><span class="font-lg fw-900 text-brand">₹
+                              240.00</span></td>
                         </tr>
                         <tr>
                           <td class="cart_total_label">Shipping</td>
@@ -373,8 +390,8 @@
                         </tr>
                         <tr>
                           <td class="cart_total_label">Total</td>
-                          <td class="cart_total_amount"><strong><span
-                                class="font-xl fw-900 text-brand">$240.00</span></strong></td>
+                          <td class="cart_total_amount"><strong><span class="font-xl fw-900 text-brand">₹
+                                240.00</span></strong></td>
                         </tr>
                       </tbody>
                     </table>

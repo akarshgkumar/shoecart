@@ -70,8 +70,11 @@
                                                     href="shop-wishlist.html">
                                                     <i class="fi-rs-heart"></i>
                                                 </a>
-                                                <a aria-label="Add To Cart" class="action-btn hover-up"
-                                                    href="shop-compare.html">
+                                                <a aria-label="Add To Cart" class="action-btn hover-up addToCartButton"
+                                                    href="javascript:void(0);" data-product-id="<%= product._id %>"
+                                                    data-product-name="<%= product.name %>"
+                                                    data-product-price="<%= product.price %>"
+                                                    data-product-image="<%= product.mainImage %>">
                                                     <i class="fi-rs-shopping-bag-add"></i>
                                                 </a>
                                             </div>
@@ -94,8 +97,11 @@
                                                 <span>₹<%= product.price %> </span>
                                             </div>
                                             <div class="product-action-1 show">
-                                                <a aria-label="Add To Cart" class="action-btn hover-up"
-                                                    href="shop-cart.html">
+                                                <a aria-label="Add To Cart" class="action-btn hover-up addToCartButton"
+                                                    href="javascript:void(0);" data-product-id="<%= product._id %>"
+                                                    data-product-name="<%= product.name %>"
+                                                    data-product-price="<%= product.price %>"
+                                                    data-product-image="<%= product.mainImage %>">
                                                     <i class="fi-rs-shopping-bag-add"></i>
                                                 </a>
                                             </div>
@@ -136,7 +142,6 @@
                             </ul>
 
                         </div>
-                        <!-- Fillter By Price -->
                         <div class="sidebar-widget price_range range mb-30">
                             <div class="widget-header position-relative mb-20 pb-10">
                                 <h5 class="widget-title mb-10">Fill by price</h5>
@@ -192,9 +197,8 @@
                                 </div>
                             </div>
                             <a href="/product/view-full-products" class="btn btn-sm btn-default"><i
-                                    class="fi-rs-filter mr-5"></i> Fillter</a>
+                                    class="fi-rs-filter mr-5"></i> Filter</a>
                         </div>
-                        <!-- Product sidebar Widget -->
                         <div class="sidebar-widget product-sidebar  mb-30 p-30 bg-grey border-radius-10">
                             <div class="widget-header position-relative mb-20 pb-10">
                                 <h5 class="widget-title mb-10">New products</h5>
@@ -212,7 +216,9 @@
                                         <p class="price mb-0 mt-5">₹<%= product.price %>
                                         </p>
                                         <div class="product-brand">
-                                            <p><%= product.brand.name %></p>
+                                            <p>
+                                                <%= product.brand.name %>
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -225,4 +231,5 @@
         </section>
     </main>
     <%- include('user-footer') %>
+        <script defer src="/static/cart.js"></script>
         <%- include('footer') %>

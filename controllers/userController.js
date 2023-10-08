@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
 const sgMail = require("@sendgrid/mail");
 const User = require("../models/User");
+const Cart = require("../models/Cart");
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -41,8 +42,8 @@ async function setLoginStatus(req, res, next) {
     const user = await User.findOne({ email: userEmail });
 
     if (user && user.verified) {
-      if(user.isBlocked) {
-        res.clearCookie('jwt');
+      if (user.isBlocked) {
+        res.clearCookie("jwt");
         res.locals.isLoggedIn = false;
       } else {
         res.locals.isLoggedIn = true;
@@ -59,7 +60,6 @@ async function setLoginStatus(req, res, next) {
   }
 }
 router.use(setLoginStatus);
-
 
 router.get("/login", noCache, redirectIfLoggedIn, (req, res) => {
   res.render("login");
@@ -280,8 +280,81 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-router.get('/cart', (req, res) => {
-  res.render('shop-cart')
-})
+router.post("/add-to-cart", async (req, res) => {
+  console.log('on post add to cart')
+  try {
+    if (!req.cookies.jwt) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Not authenticated" });
+    }
+
+    const decoded = jwt.verify(req.cookies.jwt, JWT_SECRET);
+    const userEmail = decoded.email;
+
+    const { productId, name, price, image } = req.body;
+
+    let cart = await Cart.findOne({ userEmail });
+    if (!cart) {
+      cart = new Cart({ userEmail, products: [] });
+    }
+
+    const productIndex = cart.products.findIndex(
+      (p) => p.productId === productId
+    );
+
+    if (productIndex > -1) {
+      cart.products[productIndex].quantity += 1;
+    } else {
+      cart.products.push({ productId, quantity: 1, name, price, image });
+    }
+
+    await cart.save();
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error adding to cart:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+});
+
+router.post("/remove-from-cart", async (req, res) => {
+  const { userEmail, productId } = req.body;
+  console.log(userEmail)
+
+  const cart = await Cart.findOne({ userEmail });
+  if (!cart) return res.json({ success: false, message: "No cart found" });
+
+  cart.products = cart.products.filter((p) => p.productId !== productId);
+
+  await cart.save();
+  res.redirect('/cart')
+});
+
+router.post("/clear-cart", async (req, res) => {
+  const { userEmail } = req.body;
+
+  await Cart.findOneAndRemove({ userEmail });
+  res.json({ success: true });
+});
+
+router.get("/cart", async (req, res) => {
+  try {
+    const token = req.cookies.jwt;
+
+    if (!token) {
+      return res.redirect("/login");
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userEmail = decoded.email;
+
+    const cart = await Cart.findOne({ userEmail })
+
+    res.render("shop-cart", { products: cart?.products || [],userEmail });
+  } catch (error) {
+    console.error("Error fetching cart:", error);
+    res.status(500).send("Internal server error");
+  }
+});
 
 module.exports = router;

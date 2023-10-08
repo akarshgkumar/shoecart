@@ -546,9 +546,7 @@ function toggleConfirmPassword() {
     const demo = document.querySelector("#offcanvas_aside");
     const ps = new PerfectScrollbar(demo);
   }
-
-  // Dark mode toogle
-  $(".darkmode").on("click", function () {
-    $("body").toggleClass("dark");
-  });
 })(jQuery);
+
+
+// Cart js

@@ -161,6 +161,11 @@ a:hover {
   float: right;
 }
 
+#remove-btn-cart {
+  background-color: transparent;
+  border: none;
+}
+
 .capitalize {
   text-transform: capitalize;
 }
