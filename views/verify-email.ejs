@@ -8,10 +8,10 @@
         <div class="container-login100">
           <div class="wrap-login100">
             <div class="login100-pic">
-              <img class="otp-shoe-img" src="static/images/login-shoe.png" alt="IMG">
+              <img class="otp-shoe-img" src="/static/images/login-shoe.png" alt="IMG">
             </div>
 
-            <form action="/verify-email" class="login100-form email-login-form" method="post">
+            <form action="/verify-email/<%= forgot %>" class="login100-form email-login-form" method="post">
               <span class="login100-form-title login-text">
                 OTP Login
               </span>

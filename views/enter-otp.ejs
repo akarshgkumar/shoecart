@@ -8,7 +8,7 @@
         <div class="container-login100">
           <div class="wrap-login100">
             <div class="login100-pic">
-              <img class="otp-shoe-img" src="static/images/login-shoe.png" alt="IMG">
+              <img class="otp-shoe-img" src="/static/images/login-shoe.png" alt="IMG">
             </div>
 
             <form action="/verify-otp" class="login100-form login-form" method="post">
@@ -23,6 +23,7 @@
                   <i class="fa fa-envelope" aria-hidden="true"></i>
                 </span>
               </div>
+              <input type="hidden" value="<%= forgot %>">
 
               <div class="wrap-input100">
                 <input class="input100" type="text" name="otp" id="otp-input" placeholder="Enter OTP">

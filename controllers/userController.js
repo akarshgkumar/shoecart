@@ -59,7 +59,35 @@ async function setLoginStatus(req, res, next) {
     next();
   }
 }
+
+async function fetchCartForUser(req, res, next) {
+  try {
+      const token = req.cookies.jwt;
+      if (!token) {
+          res.locals.cartItems = 0;
+          return next();
+      }
+
+      const decoded = jwt.verify(token, JWT_SECRET);
+      const userEmail = decoded.email;
+
+      const cart = await Cart.findOne({ userEmail });
+      if (cart) {
+          const totalItems = cart.products.reduce((acc, product) => acc + product.quantity, 0);
+          res.locals.cartItems = totalItems;
+      } else {
+          res.locals.cartItems = 0;
+      }
+      next();
+  } catch (error) {
+      console.error("Error fetching cart in middleware:", error);
+      res.locals.cartItems = 0;
+      next();
+  }
+}
+
 router.use(setLoginStatus);
+router.use(fetchCartForUser)
 
 router.get("/login", noCache, redirectIfLoggedIn, (req, res) => {
   res.render("login");
@@ -71,7 +99,7 @@ router.get("/signup", noCache, redirectIfLoggedIn, (req, res) => {
 });
 
 router.post("/verify-otp", async (req, res) => {
-  const { email, otp } = req.body;
+  const { email, otp, forgot } = req.body;
   const user = await User.findOne({ email });
   if (!user) {
     console.log(`No user found with email: ${email}`);
@@ -91,8 +119,11 @@ router.post("/verify-otp", async (req, res) => {
       httpOnly: true,
       maxAge: 730 * 24 * 60 * 60 * 1000,
     });
-
-    res.redirect("/home");
+    if (forgot === "true") {
+      res.redirect(`/reset-password?email=${encodeURIComponent(email)}`);
+    } else {
+      res.redirect("/home");
+    }
   } else {
     res.redirect(
       `/enter-otp?error=Invalid%20or%20expired%20OTP&email=${encodeURIComponent(
@@ -102,15 +133,53 @@ router.post("/verify-otp", async (req, res) => {
   }
 });
 
+router.get("/reset-password", (req, res) => {
+  const email = req.params.email;
+  res.render("reset-password", { email });
+});
+
+router.post("/reset-password", async (req, res) => {
+  try {
+    const { email, password, confirmPassword } = req.body;
+
+    if (password !== confirmPassword) {
+      return res.render("reset-password", { error: "Passwords do not match" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await User.findOneAndUpdate({ email: email }, { password: hashedPassword });
+    res.redirect("/login");
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    res
+      .status(500)
+      .render("reset-password", { error: "Internal Server Error" });
+  }
+});
+
+router.get('/account', (req, res) => {
+  res.render('user-account');
+})
+
 router.get("/enter-otp", noCache, redirectIfLoggedIn, (req, res) => {
   const error = req.query.error;
   const email = req.query.email;
-  res.render("enter-otp", { error, email });
+  const forgot = req.query.forgot;
+  res.render("enter-otp", { error, email, forgot });
 });
 
-router.get("/verify-email", noCache, redirectIfLoggedIn, (req, res) => {
+router.get("/verify-email/:forgot", noCache, redirectIfLoggedIn, (req, res) => {
   const error = req.query.error;
-  res.render("verify-email", { error });
+  let forgot = false;
+  if (req.params.forgot === "true") {
+    forgot = true;
+    res.render("verify-email", { error, forgot });
+  } else if (req.params.forgot === "false") {
+    forgot = false;
+    res.render("verify-email", { error, forgot });
+  } else {
+    res.redirect("/home");
+  }
 });
 
 router.get("/", (req, res) => {
@@ -194,7 +263,8 @@ router.post("/resend-otp", async (req, res) => {
   }
 });
 
-router.post("/verify-email", async (req, res) => {
+router.post("/verify-email/:forgot", async (req, res) => {
+  const forgot = req.params.forgot;
   const email = req.body.email;
   const user = await User.findOne({ email });
 
@@ -219,21 +289,21 @@ router.post("/verify-email", async (req, res) => {
         res.redirect(
           `/enter-otp?email=${encodeURIComponent(
             email
-          )}&otpExpires=${otpExpires}`
+          )}&otpExpires=${otpExpires}&forgot=${forgot}`
         );
       })
       .catch((error) => {
         console.error("Error sending mail:", error.response?.body?.errors);
         res.redirect(
-          "/verify-email?error=Error sending OTP. Please try again later."
+          `/verify-email?${forgot}error=Error sending OTP. Please try again later.`
         );
       });
   } else {
-    res.redirect("/verify-email?error=Email not found in our records.");
+    res.redirect(
+      `/verify-email/${forgot}?error=Email not found in our records.`
+    );
   }
 });
-
-
 
 router.post("/signup", async (req, res) => {
   try {
@@ -283,7 +353,7 @@ router.post("/signup", async (req, res) => {
 });
 
 router.post("/add-to-cart", async (req, res) => {
-  console.log('on post add to cart')
+  console.log("on post add to cart");
   try {
     if (!req.cookies.jwt) {
       return res
@@ -321,7 +391,7 @@ router.post("/add-to-cart", async (req, res) => {
 
 router.post("/remove-from-cart", async (req, res) => {
   const { userEmail, productId } = req.body;
-  console.log(userEmail)
+  console.log(userEmail);
 
   const cart = await Cart.findOne({ userEmail });
   if (!cart) return res.json({ success: false, message: "No cart found" });
@@ -329,14 +399,14 @@ router.post("/remove-from-cart", async (req, res) => {
   cart.products = cart.products.filter((p) => p.productId !== productId);
 
   await cart.save();
-  res.redirect('/cart')
+  res.redirect("/cart");
 });
 
 router.post("/clear-cart", async (req, res) => {
   const { userEmail } = req.body;
 
   await Cart.findOneAndRemove({ userEmail });
-  res.redirect('/cart');
+  res.redirect("/cart");
 });
 
 router.get("/cart", async (req, res) => {
@@ -350,9 +420,9 @@ router.get("/cart", async (req, res) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     const userEmail = decoded.email;
 
-    const cart = await Cart.findOne({ userEmail })
+    const cart = await Cart.findOne({ userEmail });
 
-    res.render("shop-cart", { products: cart?.products || [],userEmail });
+    res.render("shop-cart", { products: cart?.products || [], userEmail });
   } catch (error) {
     console.error("Error fetching cart:", error);
     res.status(500).send("Internal server error");

@@ -80,7 +80,7 @@
                 <div class="header-action-icon-2">
                   <a class="mini-cart-icon" href="/cart">
                     <img alt="Evara" src="/static/images/theme/icons/icon-cart.svg">
-                    <span class="pro-count blue">2</span>
+                    <span class="pro-count blue"><%= cartItems %></span>
                   </a>
                 </div>
               </div>
@@ -112,7 +112,7 @@
                   <li><a href="/product/view-full-products">Shop</a>
                   </li>
                   <li>
-                    <a href="#">Profile</a>
+                    <a href="/account">My Account</a>
                   </li>
                   <% if (!isLoggedIn) { %>
                     <li><a href="/login">Login</a></li>
@@ -138,7 +138,7 @@
               <div class="header-action-icon-2">
                 <a class="mini-cart-icon" href="/cart">
                   <img alt="Evara" src="/static/images/theme/icons/icon-cart.svg">
-                  <span class="pro-count white">2</span>
+                  <span class="pro-count white"><%= cartItems %></span>
                 </a>
               </div>
               <div class="header-action-icon-2 d-block d-lg-none">
