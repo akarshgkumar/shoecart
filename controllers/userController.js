@@ -334,7 +334,7 @@ router.post("/clear-cart", async (req, res) => {
   const { userEmail } = req.body;
 
   await Cart.findOneAndRemove({ userEmail });
-  res.json({ success: true });
+  res.redirect('/cart');
 });
 
 router.get("/cart", async (req, res) => {

@@ -55,7 +55,7 @@
                         <form action="/remove-from-cart" method="post">
                           <input type="hidden" name="userEmail" value="<%= userEmail %>">
                           <input type="hidden" name="productId" value="<%= product.productId %>">
-                          <button id="remove-btn-cart" type="submit" class="text-muted">
+                          <button type="submit" class="text-muted remove-btn-cart">
                             <i class="fi-rs-trash"></i>
                           </button>
                         </form>
@@ -64,7 +64,12 @@
                     <% }); %>
                       <tr>
                         <td colspan="6" class="text-end">
-                          <a href="#" class="text-muted"> <i class="fi-rs-cross-small"></i> Clear Cart</a>
+                          <form action="/clear-cart" method="post">
+                            <input type="hidden" name="userEmail" value="<%= userEmail %>">
+                            <button type="submit" class="btn btn-link text-muted remove-btn-cart">
+                              <i class="fi-rs-cross-small"></i> Clear Cart
+                            </button>
+                          </form>
                         </td>
                       </tr>
                 </tbody>

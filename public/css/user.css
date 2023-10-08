@@ -161,9 +161,14 @@ a:hover {
   float: right;
 }
 
-#remove-btn-cart {
+.remove-btn-cart[type=submit] {
   background-color: transparent;
   border: none;
+}
+
+.remove-btn-cart[type=submit]:hover {
+  background-color: transparent !important;
+  border: none !important;
 }
 
 .capitalize {
