@@ -32,6 +32,24 @@ $.validator.addMethod(
 );
 
 $(function () {
+  $(".stock-form").validate({
+    rules: {
+        stock_no: {
+            required: true,
+            min: 1,
+            number: true,
+            step: 1 
+        }
+    },
+    messages: {
+        stock_no: {
+            required: "This field is required.",
+            min: "Please enter a value greater than 0.",
+            number: "Please enter a valid number.",
+            step: "Only integers are allowed, no floating points."
+        }
+    }
+});
   $(".edit-product-form").validate({
     rules: {
       product_name: {

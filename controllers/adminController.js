@@ -360,6 +360,30 @@ router.get("/delete-category/:categoryId", async (req, res) => {
   }
 });
 
+router.get('/add-stock/:productId', async (req, res) => {
+  const productId = req.params.productId;
+  const product = await Product.findOne({_id: productId}, 'stock');
+  console.log(product)
+  res.render('admin-add-stock', {productId, stock: product.stock});
+})
+
+router.post('/add-stock/:productId', async (req, res) => {
+  try {
+      const { stock_no } = req.body;
+      const productId = req.params.productId;
+
+      await Product.findByIdAndUpdate(productId, {
+          $inc: { stock: stock_no } 
+      });
+
+      res.redirect('/admin/view-products'); 
+  } catch (err) {
+      console.error('Error while updating stock:', err);
+      res.status(500).send('Server error');
+  }
+});
+
+
 router.get("/delete-brand/:brandsId", async (req, res) => {
   try {
     const brandId = req.params.brandsId;

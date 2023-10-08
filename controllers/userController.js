@@ -233,6 +233,8 @@ router.post("/verify-email", async (req, res) => {
   }
 });
 
+
+
 router.post("/signup", async (req, res) => {
   try {
     if (req.body.password !== req.body.confirmPassword) {
