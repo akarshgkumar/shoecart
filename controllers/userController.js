@@ -62,32 +62,35 @@ async function setLoginStatus(req, res, next) {
 
 async function fetchCartForUser(req, res, next) {
   try {
-      const token = req.cookies.jwt;
-      if (!token) {
-          res.locals.cartItems = 0;
-          return next();
-      }
-
-      const decoded = jwt.verify(token, JWT_SECRET);
-      const userEmail = decoded.email;
-
-      const cart = await Cart.findOne({ userEmail });
-      if (cart) {
-          const totalItems = cart.products.reduce((acc, product) => acc + product.quantity, 0);
-          res.locals.cartItems = totalItems;
-      } else {
-          res.locals.cartItems = 0;
-      }
-      next();
-  } catch (error) {
-      console.error("Error fetching cart in middleware:", error);
+    const token = req.cookies.jwt;
+    if (!token) {
       res.locals.cartItems = 0;
-      next();
+      return next();
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userEmail = decoded.email;
+
+    const cart = await Cart.findOne({ userEmail });
+    if (cart) {
+      const totalItems = cart.products.reduce(
+        (acc, product) => acc + product.quantity,
+        0
+      );
+      res.locals.cartItems = totalItems;
+    } else {
+      res.locals.cartItems = 0;
+    }
+    next();
+  } catch (error) {
+    console.error("Error fetching cart in middleware:", error);
+    res.locals.cartItems = 0;
+    next();
   }
 }
 
 router.use(setLoginStatus);
-router.use(fetchCartForUser)
+router.use(fetchCartForUser);
 
 router.get("/login", noCache, redirectIfLoggedIn, (req, res) => {
   res.render("login");
@@ -157,9 +160,9 @@ router.post("/reset-password", async (req, res) => {
   }
 });
 
-router.get('/account', (req, res) => {
-  res.render('user-account');
-})
+router.get("/account", (req, res) => {
+  res.render("user-account");
+});
 
 router.get("/enter-otp", noCache, redirectIfLoggedIn, (req, res) => {
   const error = req.query.error;
@@ -382,7 +385,11 @@ router.post("/add-to-cart", async (req, res) => {
     }
 
     await cart.save();
-    res.json({ success: true });
+    const totalItems = cart.products.reduce(
+      (acc, product) => acc + product.quantity,
+      0
+    );
+    res.json({ success: true, cartItems: totalItems });
   } catch (error) {
     console.error("Error adding to cart:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
@@ -390,16 +397,26 @@ router.post("/add-to-cart", async (req, res) => {
 });
 
 router.post("/remove-from-cart", async (req, res) => {
-  const { userEmail, productId } = req.body;
-  console.log(userEmail);
+  try {
+    const productId = req.body.productId;
+    const decoded = jwt.verify(req.cookies.jwt, JWT_SECRET);
+    const userEmail = decoded.email;
+    
+    const cart = await Cart.findOne({ userEmail });
+    if (!cart) return res.json({ success: false, message: "No cart found" });
 
-  const cart = await Cart.findOne({ userEmail });
-  if (!cart) return res.json({ success: false, message: "No cart found" });
+    cart.products = cart.products.filter((p) => p.productId !== productId);
 
-  cart.products = cart.products.filter((p) => p.productId !== productId);
-
-  await cart.save();
-  res.redirect("/cart");
+    await cart.save();
+    const totalItems = cart.products.reduce(
+      (acc, product) => acc + product.quantity,
+      0
+    );
+    res.json({ success: true, cartItems: totalItems });
+  } catch (error) {
+    console.error("Error adding to cart:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
 });
 
 router.post("/clear-cart", async (req, res) => {

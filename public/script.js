@@ -565,6 +565,3 @@ function toggleConfirmPassword() {
     const ps = new PerfectScrollbar(demo);
   }
 })(jQuery);
-
-
-// Cart js

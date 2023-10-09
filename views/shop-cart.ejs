@@ -52,13 +52,10 @@
                         </span>
                       </td>
                       <td class="action" data-title="Remove">
-                        <form action="/remove-from-cart" method="post">
-                          <input type="hidden" name="userEmail" value="<%= userEmail %>">
-                          <input type="hidden" name="productId" value="<%= product.productId %>">
-                          <button type="submit" class="text-muted remove-btn-cart">
-                            <i class="fi-rs-trash"></i>
-                          </button>
-                        </form>
+                        <button data-product-id="<%= product.productId %>" class="text-muted remove-btn-cart removeFromCartButton">
+                          <i class="fi-rs-trash"></i>
+                      </button>
+                      
                       </td>
                     </tr>
                     <% }); %>
@@ -411,4 +408,6 @@
     </section>
   </main>
   <%- include('user-footer') %>
+    <script defer src="/static/cart.js"></script>
+
     <%- include('footer') %>
