@@ -397,6 +397,17 @@ label.error {
   color: #C51E3A !important;
 }
 
+.address-bold {
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+.user-account-address-display {
+  font-size: 16px;
+  line-height: 1.9;
+  margin-bottom: 10px;
+}
+
 .bg-brand {
   background-color: #088178 !important;
 }

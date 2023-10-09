@@ -198,6 +198,7 @@ router.get("/account", async (req, res) => {
       email: user.email,
       phoneNo: user.phoneNo,
       orders: orders,
+      addresses: user.addresses
     };
 
     res.render("user-account", userData);
