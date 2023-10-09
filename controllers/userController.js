@@ -193,6 +193,7 @@ router.get("/account", async (req, res) => {
     ];
 
     const userData = {
+      userId: user._id,
       username: user.name,
       email: user.email,
       phoneNo: user.phoneNo,
@@ -549,5 +550,27 @@ router.get("/cart", async (req, res) => {
     res.status(500).send("Internal server error");
   }
 });
+
+router.post('/edit-account', async(req, res) => {
+  const { userId, name, email, phoneNo } = req.body;
+
+  try {
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: userId }, 
+      { name, email, phoneNo },
+      { new: true }
+    );
+    
+    if (!updatedUser) {
+      return res.status(404).send('User not found.');
+    }
+
+    res.status(200).send(updatedUser);
+  } catch (error) {
+    console.error("Error updating the user:", error);
+    res.status(500).send("Internal server error");
+  }
+});
+
 
 module.exports = router;

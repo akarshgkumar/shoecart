@@ -1,3 +1,54 @@
+$.validator.addMethod(
+  "customEmail",
+  function (value, element) {
+    let pattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    return pattern.test(value);
+  },
+  "Please enter a valid email address."
+);
+
+$.validator.addMethod(
+  "noSpaceMinLength",
+  function (value, element, param) {
+    return value.replace(/\s+/g, "").length >= param;
+  },
+  $.validator.format("Enter at least {0} characters, spaces not included.")
+);
+
+$.validator.addMethod(
+  "noSpaceStartEnd",
+  function (value, element) {
+    return this.optional(element) || !/^\s|\s$/.test(value);
+  },
+  "Leading and trailing spaces are not allowed."
+);
+
+$(function(){
+  $(".edit-account-form").validate({
+    rules: {
+      email: {
+        required: true,
+        customEmail: true,
+        noSpaceStartEnd: true,
+        maxlength: 50,
+      },
+      name: {
+        required: true,
+        noSpaceMinLength: 3,
+        noSpaceStartEnd: true,
+        maxlength: 20,
+      },
+      phoneNo: {
+        digits: true,
+        minlength: 10
+      },
+      submitHandler: function(form) {
+        form.submit();
+      }
+    },
+  });
+});
+
 (function ($) {
   "use strict";
   // Page loading
