@@ -20,10 +20,19 @@ function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-function redirectIfLoggedIn(req, res, next) {
-  if (req.cookies.jwt) {
-    res.redirect("/home");
-  } else {
+async function redirectIfLoggedIn(req, res, next) {
+  try {
+    const token = req.cookies.jwt;
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userEmail = decoded.email;
+    const user = await User.findOne({ email: userEmail });
+    if (user && user.verified && !user.isBlocked) {
+      res.redirect("/home");
+    } else {
+      next();
+    }
+  } catch {
+    console.error("Error in setLoginStatus middleware:", error);
     next();
   }
 }
@@ -102,6 +111,7 @@ router.get("/signup", noCache, redirectIfLoggedIn, (req, res) => {
 });
 
 router.post("/verify-otp", async (req, res) => {
+  console.log('hi');
   const { email, otp, forgot } = req.body;
   const user = await User.findOne({ email });
   if (!user) {
@@ -160,8 +170,40 @@ router.post("/reset-password", async (req, res) => {
   }
 });
 
-router.get("/account", (req, res) => {
-  res.render("user-account");
+router.get("/account", async (req, res) => {
+  try {
+    const token = req.cookies.jwt;
+    if (!token) {
+      return res.redirect("/login");
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userEmail = decoded.email;
+    const user = await User.findOne({ email: userEmail });
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    const orders = [
+      {
+        id: "#1357",
+        date: "March 45, 2020",
+        status: "Processing",
+        total: "$125.00 for 2 items",
+      },
+    ];
+
+    const userData = {
+      username: user.name,
+      email: user.email,
+      phoneNo: user.phoneNo,
+      orders: orders,
+    };
+
+    res.render("user-account", userData);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal server error");
+  }
 });
 
 router.get("/enter-otp", noCache, redirectIfLoggedIn, (req, res) => {
@@ -201,6 +243,38 @@ router.get("/home", (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
+    if (!user) {
+      return res.render("login", { notFound: "Email not registered" });
+    }
+    if (!user.verified) {
+      const otp = generateOTP();
+      const otpExpires = Date.now() + 10 * 60 * 1000;
+      user.otp = otp;
+      user.otpExpires = otpExpires;
+      await user.save();
+
+      const msg = {
+        to: req.body.email,
+        from: { email: process.env.EMAIL },
+        subject: "Your OTP for Login",
+        text: `Your OTP for login is: ${otp}. It is valid for only 10 minutes.`,
+      };
+      sgMail
+        .send(msg)
+        .then(() => {
+          return res.redirect(
+            `/enter-otp?email=${encodeURIComponent(
+              req.body.email
+            )}&otpExpires=${otpExpires}`
+          );
+        })
+        .catch((error) => {
+          console.error("Error sending mail:", error.response?.body?.errors);
+          return res.redirect(
+            `/login?error=Error sending otp. Please try again later`
+          );
+        });
+    }
     if (user.isBlocked === true) {
       res.render("login", { notFound: "User is blocked" });
     } else if (
@@ -310,6 +384,36 @@ router.post("/verify-email/:forgot", async (req, res) => {
 
 router.post("/signup", async (req, res) => {
   try {
+    const user = await User.findOne({ email: req.body.email });
+    if (user && !user.verified) {
+      const otp = generateOTP();
+      const otpExpires = Date.now() + 10 * 60 * 1000;
+      user.otp = otp;
+      user.otpExpires = otpExpires;
+      await user.save();
+
+      const msg = {
+        to: req.body.email,
+        from: { email: process.env.EMAIL },
+        subject: "Your OTP for Login",
+        text: `Your OTP for login is: ${otp}. It is valid for only 10 minutes.`,
+      };
+      sgMail
+        .send(msg)
+        .then(() => {
+          return res.redirect(
+            `/enter-otp?email=${encodeURIComponent(
+              req.body.email
+            )}&otpExpires=${otpExpires}`
+          );
+        })
+        .catch((error) => {
+          console.error("Error sending mail:", error.response?.body?.errors);
+          return res.redirect(
+            `/signup?error=Error sending otp. Please try again later`
+          );
+        });
+    }
     if (req.body.password !== req.body.confirmPassword) {
       return res.redirect("/signup?error=Passwords%20do%20not%20match");
     }
@@ -401,7 +505,7 @@ router.post("/remove-from-cart", async (req, res) => {
     const productId = req.body.productId;
     const decoded = jwt.verify(req.cookies.jwt, JWT_SECRET);
     const userEmail = decoded.email;
-    
+
     const cart = await Cart.findOne({ userEmail });
     if (!cart) return res.json({ success: false, message: "No cart found" });
 
