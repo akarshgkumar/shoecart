@@ -28,7 +28,6 @@ function addToCart(buttonElement) {
     }),
     success: function (data) {
       if (data.success) {
-        alert("Product added to cart successfully!");
         $("#cart-count").text(data.cartItems);
       } else {
         alert("Failed to add product to cart!");

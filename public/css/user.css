@@ -242,14 +242,21 @@ a:hover {
   float: right;
 }
 
-.remove-btn-cart[type="submit"] {
+.clear-btn-cart[type="submit"] {
   background-color: transparent;
+  
   border: none;
 }
 
-.remove-btn-cart[type="submit"]:hover {
+.clear-btn-cart[type="submit"]:hover {
   background-color: transparent !important;
   border: none !important;
+}
+
+.removeFromCartButton {
+  background-color: transparent !important; 
+  border: none !important;
+  outline: none !important; 
 }
 
 .capitalize {
@@ -7504,7 +7511,7 @@ figure.border-radius-10 {
 figure.border-radius-10 img {
   max-width: 100%; /* Ensures the image won't exceed the container's width */
   max-height: 100%; /* Ensures the image won't exceed the container's height */
-  display: block; /* Removes any default spacing around the image */
+  display: block; /* clears any default spacing around the image */
 }
 
 .main-menu.hover-boder.hover-boder-white > nav > ul > li > a::after {

@@ -52,7 +52,7 @@
                         </span>
                       </td>
                       <td class="action" data-title="Remove">
-                        <button data-product-id="<%= product.productId %>" class="text-muted remove-btn-cart removeFromCartButton">
+                        <button data-product-id="<%= product.productId %>" class="text-muted removeFromCartButton">
                           <i class="fi-rs-trash"></i>
                       </button>
                       
@@ -63,7 +63,7 @@
                         <td colspan="6" class="text-end">
                           <form action="/clear-cart" method="post">
                             <input type="hidden" name="userEmail" value="<%= userEmail %>">
-                            <button type="submit" class="btn btn-link text-muted remove-btn-cart">
+                            <button type="submit" class="btn btn-link text-muted clear-btn-cart">
                               <i class="fi-rs-cross-small"></i> Clear Cart
                             </button>
                           </form>
