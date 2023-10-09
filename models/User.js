@@ -1,5 +1,13 @@
 const mongoose = require("mongoose");
 
+const AddressSchema = new mongoose.Schema({
+  address: String,
+  addressLine1: String,
+  city: String,
+  state: String,
+  postalCode: Number
+});
+
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -18,6 +26,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    addresses: [AddressSchema],
     verified: {
       type: Boolean,
       default: false,

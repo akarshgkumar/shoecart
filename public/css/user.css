@@ -401,13 +401,13 @@ label.error {
   background-color: #088178 !important;
 }
 
-#acc-number-change::-webkit-outer-spin-button,
-#acc-number-change::-webkit-inner-spin-button {
+.number-arrow-hide::-webkit-outer-spin-button,
+.number-arrow-hide::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-#acc-number-change {
+.number-arrow-hide {
   -moz-appearance: textfield;
   appearance: textfield;
 }

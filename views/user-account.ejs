@@ -36,6 +36,10 @@
                         aria-controls="address" aria-selected="true"><i class="fi-rs-marker mr-10"></i>My Address</a>
                     </li>
                     <li class="nav-item">
+                      <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#add-address" role="tab"
+                        aria-controls="address" aria-selected="true"><i class="fi-rs-marker mr-10"></i>Add Address</a>
+                    </li>
+                    <li class="nav-item">
                       <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab" href="#account-detail" role="tab"
                         aria-controls="account-detail" aria-selected="true"><i class="fi-rs-user mr-10"></i>Account
                         Details</a>
@@ -54,8 +58,9 @@
                       </a>
                     </li>
                     <li class="nav-item">
-                      <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab" href="#account-detail" role="tab"
-                        aria-controls="account-detail" aria-selected="true"><i class="fi-rs-user mr-10"></i>Forgot
+                      <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab" href="/verify-email/true"
+                        role="tab" aria-controls="account-detail" aria-selected="true"><i
+                          class="fi-rs-user mr-10"></i>Forgot
                         Password
                       </a>
                     </li>
@@ -177,26 +182,23 @@
                   <div class="tab-pane fade" id="account-detail" role="tabpanel" aria-labelledby="account-detail-tab">
                     <div class="card">
                       <div class="card-header">
-                        <h5>Account Details</h5>
+                        <h5>View Account Details</h5>
                       </div>
                       <div class="card-body">
-                        <p class="capitalize">View your account details from<span class="text-brand capitalize"> here
-                            itself</span></a></p>
                         <div class="row">
                           <div class="form-group col-md-12">
                             <label>Full Name (Read only)</label>
-                            <input value="<%= username %>" class="form-control square capitalize"
-                              name="name" type="text" readonly>
+                            <input value="<%= username %>" class="form-control square capitalize" name="name"
+                              type="text" readonly>
                           </div>
                           <div class="form-group col-md-12">
                             <label>Email Address (Read only)</label>
-                            <input value="<%= email %>" class="form-control square" name="email"
-                              type="email" readonly>
+                            <input value="<%= email %>" class="form-control square" name="email" type="email" readonly>
                           </div>
                           <div class="form-group col-md-12">
                             <label>Phone No. (Read only)</label>
-                            <input value="<%= phoneNo %>" class="form-control square" name="phoneNo"
-                              type="number" readonly>
+                            <input value="<%= phoneNo %>" class="form-control square" name="phoneNo" type="number"
+                              readonly>
                           </div>
                         </div>
                         <div class="col-md-12">
@@ -210,34 +212,69 @@
                     aria-labelledby="account-detail-tab">
                     <div class="card">
                       <div class="card-header">
-                        <h5>Account Details</h5>
+                        <h5>Edit Account Details</h5>
                       </div>
                       <div class="card-body">
-                        <p class="capitalize">View your account details from<span class="text-brand capitalize"> here
-                            itself</span></a></p>
                         <div class="row">
                           <form action="/edit-account" method="post" class="edit-account-form">
                             <div class="form-group col-md-12">
                               <label>Full Name <span class="required">*</span></label>
-                              <input value="<%= username %>" class="form-control square capitalize"
-                                name="name" type="text">
+                              <input value="<%= username %>" class="form-control square capitalize" name="name"
+                                type="text">
                             </div>
                             <div class="form-group col-md-12">
                               <label>Email Address <span class="required">*</span></label>
-                              <input value="<%= email %>" class="form-control square" name="email"
-                                type="email">
+                              <input value="<%= email %>" class="form-control square" name="email" type="email">
                             </div>
                             <div class="form-group col-md-12">
                               <label>Phone no. </label>
-                              <input id="acc-number-change" value="<%= phoneNo %>" class="form-control square" name="phoneNo"
+                              <input class="number-arrow-hide" value="<%= phoneNo %>" class="form-control square"
+                                name="phoneNo" type="number">
+                            </div>
+                            <input type="hidden" name="userId" value="<%= userId %>">
+                            <div class="col-md-12">
+                              <button type="submit" class="btn btn-fill-out submit">Confirm</button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="tab-pane fade" id="add-address" role="tabpanel" aria-labelledby="account-detail-tab">
+                    <div class="card">
+                      <div class="card-header">
+                        <h5>Add New Address</h5>
+                      </div>
+                      <div class="card-body">
+                        <div class="row">
+                          <form action="/add-address" method="post" class="add-address-form">
+                            <div class="form-group col-md-12">
+                              <label>Address <span class="required">*</span></label>
+                              <input class="form-control square capitalize" name="address" type="text">
+                            </div>
+                            <div class="form-group col-md-12">
+                              <label>Address Line 1</label>
+                              <input class="form-control square capitalize" name="addressLine1" type="text">
+                            </div>
+                            <div class="form-group col-md-12">
+                              <label>City / Town <span class="required">*</span></label>
+                              <input class="form-control square capitalize" name="city" type="text">
+                            </div>
+                            <div class="form-group col-md-12">
+                              <label>State <span class="required">*</span></label>
+                              <input class="form-control square capitalize" name="state" type="text">
+                            </div>
+                            <div class="form-group col-md-12">
+                              <label>Postal Code / Zip <span class="required">*</span></label>
+                              <input class="form-control square capitalize number-arrow-hide" name="postalCode"
                                 type="number">
                             </div>
                             <input type="hidden" name="userId" value="<%= userId %>">
+                            <div class="col-md-12">
+                              <button type="submit" class="btn btn-fill-out submit">Confirm</button>
+                            </div>
+                          </form>
                         </div>
-                        <div class="col-md-12">
-                          <button type="submit" class="btn btn-fill-out submit">Confirm</button>
-                        </div>
-                        </form>
                       </div>
                     </div>
                   </div>

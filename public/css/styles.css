@@ -66,16 +66,16 @@ a:hover {
 .selected-images-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px; /* Adjust the gap between images as needed */
+  gap: 10px; 
 }
 
 .selected-image {
-  border: 1px solid #ccc; /* Add a border to each selected image */
-  padding: 5px; /* Add padding around each selected image */
+  border: 1px solid #ccc; 
+  padding: 5px; 
 }
 
 .selected-image img {
-  max-width: 100px; /* Limit the width of the images to prevent them from being too large */
+  max-width: 100px;
 }
 
 p {
@@ -399,10 +399,6 @@ button:hover {
   font-size: 15px;
 }
 
-/* ========================
-INCLUDE STYLES AND COMPONENTS
-===================== */
-/*RESET*/
 html,
 body,
 div,

@@ -559,18 +559,51 @@ router.post('/edit-account', async(req, res) => {
       { _id: userId }, 
       { name, email, phoneNo },
       { new: true }
-    );
-    
+    );    
     if (!updatedUser) {
       return res.status(404).send('User not found.');
     }
+    const token = jwt.sign(
+      { email: updatedUser.email, name: updatedUser.name },
+      JWT_SECRET,
+      { expiresIn: "730d" }
+    );
+    res.cookie("jwt", token, {
+      httpOnly: true,
+      maxAge: 730 * 24 * 60 * 60 * 1000,
+    });
 
-    res.status(200).send(updatedUser);
+    res.redirect('/account');
   } catch (error) {
     console.error("Error updating the user:", error);
     res.status(500).send("Internal server error");
   }
 });
 
+router.post('/add-address', async (req, res) => {
+  try {
+      const { userId, address, addressLine1, city, state, postalCode } = req.body;
+      const user = await User.findById(userId);
+
+      if (!user) {
+          return res.status(404).send('User not found.');
+      }
+
+      user.addresses.push({
+          address,
+          addressLine1,
+          city,
+          state,
+          postalCode: parseInt(postalCode) 
+      });
+
+      await user.save();
+      res.redirect('/account');
+
+  } catch (error) {
+      console.error('Error adding address:', error);
+      res.status(500).send('Internal server error');
+  }
+});
 
 module.exports = router;

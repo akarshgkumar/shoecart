@@ -24,6 +24,44 @@ $.validator.addMethod(
 );
 
 $(function(){
+  $(".add-address-form").validate({
+    rules: {
+      address: {
+        required: true,
+        noSpaceStartEnd: true,
+        minlength: 3,
+        maxlength: 100,
+      },
+      addressLine1: {
+        noSpaceStartEnd: true,
+        minlength: 3,
+        maxlength: 100,
+      },
+      city: { 
+        required: true,
+        noSpaceStartEnd: true,
+        minlength: 2,
+        maxlength: 50,
+      },
+      state: { 
+        required: true,
+        noSpaceStartEnd: true,
+        minlength: 2,
+        maxlength: 50,
+      },
+      postalCode: { 
+        required: true,
+        digits: true, 
+        minlength: 5, 
+        maxlength: 10, 
+      },
+    },
+    messages: {
+      postalCode: {
+        digits: "Please enter a valid postal code (digits only)."
+      }
+    }
+  });
   $(".edit-account-form").validate({
     rules: {
       email: {
