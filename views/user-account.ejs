@@ -169,7 +169,8 @@
                                   <span class="address-bold">State:</span> <%= address.state %> <br>
                                   <span class="address-bold">Postal Code:</span> <%= address.postalCode %>
                                 </address>
-                                <a href="#" class="btn-small">Edit</a>
+                                <a href="/edit-address/<%= address._id %>" class="btn-small mr-10">Edit</a>
+                                <a href="#" class="btn-small text-danger">Remove</a>
                               </div>
                             </div>
                           </div>

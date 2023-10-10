@@ -31,7 +31,7 @@ async function redirectIfLoggedIn(req, res, next) {
     } else {
       next();
     }
-  } catch(error) {
+  } catch (error) {
     console.error("Error in setLoginStatus middleware:", error);
     next();
   }
@@ -69,6 +69,31 @@ async function setLoginStatus(req, res, next) {
   }
 }
 
+async function fetchUserFromToken(req, res, next) {
+  try {
+    const token = req.cookies.jwt;
+    if (!token) {
+      return next();
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userEmail = decoded.email;
+
+    const user = await User.findOne({ email: userEmail });
+
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    req.user = user;
+
+    next();
+  } catch (error) {
+    console.error("Error fetching user from token:", error);
+    next();
+  }
+}
+
 async function fetchCartForUser(req, res, next) {
   try {
     const token = req.cookies.jwt;
@@ -100,6 +125,7 @@ async function fetchCartForUser(req, res, next) {
 
 router.use(setLoginStatus);
 router.use(fetchCartForUser);
+router.use(fetchUserFromToken);
 
 router.get("/login", noCache, redirectIfLoggedIn, (req, res) => {
   res.render("login");
@@ -111,7 +137,7 @@ router.get("/signup", noCache, redirectIfLoggedIn, (req, res) => {
 });
 
 router.post("/verify-otp", async (req, res) => {
-  console.log('hi');
+  console.log("hi");
   const { email, otp, forgot } = req.body;
   const user = await User.findOne({ email });
   if (!user) {
@@ -176,7 +202,6 @@ router.get("/account", async (req, res) => {
     if (!token) {
       return res.redirect("/login");
     }
-
     const decoded = jwt.verify(token, JWT_SECRET);
     const userEmail = decoded.email;
     const user = await User.findOne({ email: userEmail });
@@ -198,7 +223,7 @@ router.get("/account", async (req, res) => {
       email: user.email,
       phoneNo: user.phoneNo,
       orders: orders,
-      addresses: user.addresses
+      addresses: user.addresses,
     };
 
     res.render("user-account", userData);
@@ -552,17 +577,17 @@ router.get("/cart", async (req, res) => {
   }
 });
 
-router.post('/edit-account', async(req, res) => {
+router.post("/edit-account", async (req, res) => {
   const { userId, name, email, phoneNo } = req.body;
 
   try {
     const updatedUser = await User.findOneAndUpdate(
-      { _id: userId }, 
+      { _id: userId },
       { name, email, phoneNo },
       { new: true }
-    );    
+    );
     if (!updatedUser) {
-      return res.status(404).send('User not found.');
+      return res.status(404).send("User not found.");
     }
     const token = jwt.sign(
       { email: updatedUser.email, name: updatedUser.name },
@@ -574,37 +599,64 @@ router.post('/edit-account', async(req, res) => {
       maxAge: 730 * 24 * 60 * 60 * 1000,
     });
 
-    res.redirect('/account');
+    res.redirect("/account");
   } catch (error) {
     console.error("Error updating the user:", error);
     res.status(500).send("Internal server error");
   }
 });
 
-router.post('/add-address', async (req, res) => {
+router.post("/add-address", async (req, res) => {
   try {
-      const { userId, address, addressLine1, city, state, postalCode } = req.body;
-      const user = await User.findById(userId);
+    const { userId, address, addressLine1, city, state, postalCode } = req.body;
+    const user = await User.findById(userId);
 
-      if (!user) {
-          return res.status(404).send('User not found.');
-      }
+    if (!user) {
+      return res.status(404).send("User not found.");
+    }
 
-      user.addresses.push({
-          address,
-          addressLine1,
-          city,
-          state,
-          postalCode: parseInt(postalCode) 
-      });
+    user.addresses.push({
+      address,
+      addressLine1,
+      city,
+      state,
+      postalCode: parseInt(postalCode),
+    });
 
-      await user.save();
-      res.redirect('/account');
-
+    await user.save();
+    res.redirect("/account");
   } catch (error) {
-      console.error('Error adding address:', error);
-      res.status(500).send('Internal server error');
+    console.error("Error adding address:", error);
+    res.status(500).send("Internal server error");
   }
+});
+
+router.get("/edit-address/:addressId", async (req, res) => {
+  if (!req.user) {
+    return res.status(403).send("Not authenticated");
+  }
+  const addressId = req.params.addressId;
+  const address = req.user.addresses.id(addressId);
+  if (!address) {
+    return res.status(404).send("Address not found.");
+  }
+  res.render("edit-address", { address: address });
+});
+
+router.post("/update-address/:addressId", async (req, res) => {
+  const addressId = req.params.addressId;
+  const updatedAddress = req.body;
+  const address = req.user.addresses.id(addressId);
+  Object.assign(address, updatedAddress);
+  await req.user.save();
+  res.redirect("/account");
+});
+
+router.post("/remove-address/:addressId", async (req, res) => {
+  const addressId = req.params.addressId;
+  req.user.addresses.id(addressId).remove();
+  await user.save();
+  res.redirect("/account");
 });
 
 module.exports = router;
