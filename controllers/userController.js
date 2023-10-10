@@ -148,6 +148,8 @@ router.get("/signup", noCache, redirectIfLoggedIn, (req, res) => {
 router.post("/verify-otp", async (req, res) => {
   console.log("hi");
   const { email, otp, forgot } = req.body;
+  console.log(forgot);
+  console.log(email)
   const user = await User.findOne({ email });
   if (!user) {
     console.log(`No user found with email: ${email}`);
@@ -187,7 +189,8 @@ router.post("/verify-otp", async (req, res) => {
 });
 
 router.get("/reset-password", (req, res) => {
-  const email = req.params.email;
+  const email = req.query.email;
+  console.log(email)
   res.render("reset-password", { email });
 });
 
@@ -196,7 +199,7 @@ router.post("/reset-password", async (req, res) => {
     const { email, password, confirmPassword } = req.body;
 
     if (password !== confirmPassword) {
-      return res.render("reset-password", { error: "Passwords do not match" });
+      return res.render("reset-password", { error: "Passwords do not match", email });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -251,14 +254,14 @@ router.get("/account", async (req, res) => {
   }
 });
 
-router.get("/enter-otp", noCache, redirectIfLoggedIn, (req, res) => {
+router.get("/enter-otp", (req, res) => {
   const error = req.query.error;
   const email = req.query.email;
   const forgot = req.query.forgot;
   res.render("enter-otp", { error, email, forgot });
 });
 
-router.get("/verify-email/:forgot", noCache, redirectIfLoggedIn, (req, res) => {
+router.get("/verify-email/:forgot", (req, res) => {
   const error = req.query.error;
   let forgot = false;
   if (req.params.forgot === "true") {
@@ -267,6 +270,16 @@ router.get("/verify-email/:forgot", noCache, redirectIfLoggedIn, (req, res) => {
   } else if (req.params.forgot === "false") {
     forgot = false;
     res.render("verify-email", { error, forgot });
+  } else {
+    res.redirect("/home");
+  }
+});
+
+router.get("/check-email/:forgot", (req, res) => {
+  const email = req.query.email;
+  console.log(email)
+  if (req.params.forgot === "true") {
+    res.render("check-email", { email });
   } else {
     res.redirect("/home");
   }
@@ -391,6 +404,7 @@ router.post("/resend-otp", async (req, res) => {
 router.post("/verify-email/:forgot", async (req, res) => {
   const forgot = req.params.forgot;
   const email = req.body.email;
+  console.log(email)
   const user = await User.findOne({ email });
 
   if (user) {
