@@ -542,7 +542,7 @@ router.post("/remove-from-cart", async (req, res) => {
     const cart = await Cart.findOne({ userId });
     if (!cart) return res.json({ success: false, message: "No cart found" });
 
-    cart.products = cart.products.filter(p => p.productId.toString() !== productId.toString());
+    cart.products = cart.products.filter(p => p.productId.toString() !== productId);
 
     await cart.save();
     const totalItems = cart.products.reduce(
