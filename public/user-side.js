@@ -768,18 +768,6 @@ $(function(){
     }
   });
 
-  $(document).ready(function () {
-    $("#zoom_01").elevateZoom({
-      zoomType: "inner", // Set the zoom type to "inner"
-      cursor: "crosshair", // Change the cursor type to crosshair when hovering
-      responsive: true, // Ensure the zoom is responsive across devices
-      scrollZoom: true, // Enable zooming with the mouse scroll
-      tint: true, // Enable tint
-      tintColour: "#F90", // Set the tint color
-      tintOpacity: 0.5, // Set the opacity of the tint
-    });
-  });
-
   /*--- language currency active ----*/
   $(".mobile-language-active").on("click", function (e) {
     e.preventDefault();

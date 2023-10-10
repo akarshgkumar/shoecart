@@ -106,9 +106,15 @@ async function fetchCartForUser(req, res, next) {
     const decoded = jwt.verify(token, JWT_SECRET);
     const userId = decoded.userId;
 
-    const cart = await Cart.findOne({ userId });
+    const cart = await Cart.findOne({ userId }).populate({
+      path: 'products.productId',
+      select: 'isDeleted'
+    });
+
     if (cart) {
-      const totalItems = cart.products.reduce(
+      const validProducts = cart.products.filter(product => product.productId && !product.productId.isDeleted);
+      
+      const totalItems = validProducts.reduce(
         (acc, product) => acc + product.quantity,
         0
       );
@@ -123,6 +129,7 @@ async function fetchCartForUser(req, res, next) {
     next();
   }
 }
+
 
 router.use(setLoginStatus);
 router.use(fetchCartForUser);
@@ -577,12 +584,17 @@ router.get("/cart", async (req, res) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     const userId = decoded.userId;
 
-    const cart = await Cart.findOne({ userId }).populate('products.productId');
+    const cart = await Cart.findOne({ userId }).populate({
+      path: 'products.productId',
+      match: { isDeleted: false }
+    });
 
-    const populatedProducts = cart?.products.map(product => ({
+    const validProducts = cart?.products.filter(product => product.productId) || [];
+
+    const populatedProducts = validProducts.map(product => ({
       ...product.productId._doc, 
       quantity: product.quantity
-    })) || [];
+    }));
 
 
     res.render("shop-cart", { products: populatedProducts, userId });
