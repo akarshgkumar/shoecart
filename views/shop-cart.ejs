@@ -3,7 +3,7 @@
     <div class="page-header breadcrumb-wrap">
       <div class="container">
         <div class="breadcrumb">
-          <a href="index.html" rel="nofollow">Home</a>
+          <a href="/home" rel="nofollow">Home</a>
           <span></span> Shop
           <span></span> Your Cart
         </div>
@@ -20,6 +20,7 @@
                     <th scope="col">Image</th>
                     <th scope="col">Name</th>
                     <th scope="col">Price</th>
+                    <th scope="col">Size</th>
                     <th scope="col">Quantity</th>
                     <th scope="col">Subtotal</th>
                     <th scope="col">Remove</th>
@@ -35,6 +36,15 @@
                           </a></h5>
                       </td>
                       <td class="price" data-title="Price"><span>₹ <%= product.price.toFixed(2) %></span></td>
+                      <td class="text-center" data-title="Size">
+                        <select name="size" class="form-select">
+                          <% product.sizes.forEach(size=> { %>
+                            <option value="<%= size %>">
+                              <%= size %>
+                            </option>
+                            <% }); %>
+                        </select>
+                      </td>
                       <td class="text-center" data-title="Stock">
                         <div class="detail-qty border radius m-auto">
                           <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
@@ -55,7 +65,7 @@
                     </tr>
                     <% }); %>
                       <tr>
-                        <td colspan="6" class="text-end">
+                        <td colspan="7" class="text-end">
                           <form action="/clear-cart" method="post">
                             <input type="hidden" name="userId" value="<%= userId %>">
                             <button type="submit" class="btn btn-link text-muted clear-btn-cart">
