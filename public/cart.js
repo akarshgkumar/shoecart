@@ -1,3 +1,15 @@
+function updateTotalAndSubtotal() {
+
+  let total = 0;
+  $(".shopping-summery tbody tr:not(:last-child)").each(function() {
+    let subtotal = parseFloat($(this).find('.product-subtotal span').text().replace('₹ ', ''));
+    total += subtotal;
+  });
+
+  $(".cart_total_amount span").text(`₹ ${total.toFixed(2)}`);
+  $(".cart_total_amount strong span").text(`₹ ${total.toFixed(2)}`);
+}
+
 $(function () {
   $(".addToCartButton").on("click", function () {
     addToCart(this);
@@ -27,6 +39,8 @@ $(function () {
         success: function (data) {
             if (!data.success) {
                 alert("Failed to update product quantity!");
+            }else {
+              updateTotalAndSubtotal();
             }
         },
         error: function(error) {
@@ -39,7 +53,7 @@ $(function () {
 
 function addToCart(buttonElement) {
   const productId = $(buttonElement).data("product-id");
-
+  console.log("hello");
   $.ajax({
     type: "POST",
     url: "/add-to-cart",
@@ -50,6 +64,7 @@ function addToCart(buttonElement) {
     success: function (data) {
       if (data.success) {
         $("#cart-count").text(data.cartItems);
+        updateTotalAndSubtotal();
       } else {
         alert("Failed to add product to cart!");
       }
@@ -69,6 +84,7 @@ function removeFromCart(buttonElement) {
       if (data.success) {
 
         if (data.success) {
+          updateTotalAndSubtotal();
           $(buttonElement).closest('tr').remove();
           $("#cart-count").text(data.cartItems);
         } else {
