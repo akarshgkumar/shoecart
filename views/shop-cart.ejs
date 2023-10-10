@@ -46,17 +46,17 @@
                         </select>
                       </td>
                       <td class="text-center" data-title="Stock">
-                        <div class="detail-qty border radius m-auto">
-                          <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
-                          <span class="qty-val">
-                            <%= product.quantity %>
-                          </span>
-                          <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
+                        <div class="detail-qty border radius m-auto" data-product-id="<%= product._id %>">
+                            <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
+                            <span class="qty-val" data-product-price="<%= product.price %>">
+                                <%= product.quantity %>
+                            </span>
+                            <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
                         </div>
-                      </td>
-                      <td class="text-right" data-title="Cart">
+                    </td>
+                    <td class="text-right product-subtotal" data-title="Cart">
                         <span>₹ <%= (product.price * product.quantity).toFixed(2) %></span>
-                      </td>
+                    </td>                    
                       <td class="action" data-title="Remove">
                         <button data-product-id="<%= product._id %>" class="text-muted removeFromCartButton">
                           <i class="fi-rs-trash"></i>

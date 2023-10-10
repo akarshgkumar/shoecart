@@ -107,13 +107,15 @@ async function fetchCartForUser(req, res, next) {
     const userId = decoded.userId;
 
     const cart = await Cart.findOne({ userId }).populate({
-      path: 'products.productId',
-      select: 'isDeleted'
+      path: "products.productId",
+      select: "isDeleted",
     });
 
     if (cart) {
-      const validProducts = cart.products.filter(product => product.productId && !product.productId.isDeleted);
-      
+      const validProducts = cart.products.filter(
+        (product) => product.productId && !product.productId.isDeleted
+      );
+
       const totalItems = validProducts.reduce(
         (acc, product) => acc + product.quantity,
         0
@@ -129,7 +131,6 @@ async function fetchCartForUser(req, res, next) {
     next();
   }
 }
-
 
 router.use(setLoginStatus);
 router.use(fetchCartForUser);
@@ -159,10 +160,14 @@ router.post("/verify-otp", async (req, res) => {
     user.otpExpires = undefined;
     await user.save();
 
-    const token = jwt.sign({ userId: user._id, email: user.email, name: user.name }, JWT_SECRET, {
-      expiresIn: "730d",
-    });
-    
+    const token = jwt.sign(
+      { userId: user._id, email: user.email, name: user.name },
+      JWT_SECRET,
+      {
+        expiresIn: "730d",
+      }
+    );
+
     res.cookie("jwt", token, {
       httpOnly: true,
       maxAge: 730 * 24 * 60 * 60 * 1000,
@@ -321,10 +326,14 @@ router.post("/login", async (req, res) => {
       user &&
       (await bcrypt.compare(req.body.password, user.password))
     ) {
-      const token = jwt.sign({ userId: user._id, email: user.email, name: user.name }, JWT_SECRET, {
-        expiresIn: "730d",
-      });
-      
+      const token = jwt.sign(
+        { userId: user._id, email: user.email, name: user.name },
+        JWT_SECRET,
+        {
+          expiresIn: "730d",
+        }
+      );
+
       res.cookie("jwt", token, {
         httpOnly: true,
         maxAge: 730 * 24 * 60 * 60 * 1000,
@@ -509,7 +518,7 @@ router.post("/add-to-cart", async (req, res) => {
     const decoded = jwt.verify(req.cookies.jwt, JWT_SECRET);
     const userId = decoded.userId;
 
-    console.log(userId)
+    console.log(userId);
 
     const { productId } = req.body;
 
@@ -518,7 +527,9 @@ router.post("/add-to-cart", async (req, res) => {
       cart = new Cart({ userId, products: [] });
     }
 
-    const productIndex = cart.products.findIndex(p => p.productId.toString() === productId);
+    const productIndex = cart.products.findIndex(
+      (p) => p.productId.toString() === productId
+    );
 
     if (productIndex > -1) {
       cart.products[productIndex].quantity += 1;
@@ -526,18 +537,20 @@ router.post("/add-to-cart", async (req, res) => {
       const productDetails = await Product.findById(productId);
       cart.products.push({
         productId,
-        quantity: 1
+        quantity: 1,
       });
     }
     await cart.save();
-    const totalItems = cart.products.reduce((acc, product) => acc + product.quantity, 0);
+    const totalItems = cart.products.reduce(
+      (acc, product) => acc + product.quantity,
+      0
+    );
     res.json({ success: true, cartItems: totalItems });
   } catch (error) {
     console.error("Error adding to cart:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
-
 
 router.post("/remove-from-cart", async (req, res) => {
   try {
@@ -549,7 +562,9 @@ router.post("/remove-from-cart", async (req, res) => {
     const cart = await Cart.findOne({ userId });
     if (!cart) return res.json({ success: false, message: "No cart found" });
 
-    cart.products = cart.products.filter(p => p.productId.toString() !== productId);
+    cart.products = cart.products.filter(
+      (p) => p.productId.toString() !== productId
+    );
 
     await cart.save();
     const totalItems = cart.products.reduce(
@@ -557,14 +572,13 @@ router.post("/remove-from-cart", async (req, res) => {
       0
     );
 
-    console.log(totalItems)
+    console.log(totalItems);
     res.json({ success: true, cartItems: totalItems });
   } catch (error) {
     console.error("Error removing from cart:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
-
 
 router.post("/clear-cart", async (req, res) => {
   const { userEmail } = req.body;
@@ -585,17 +599,17 @@ router.get("/cart", async (req, res) => {
     const userId = decoded.userId;
 
     const cart = await Cart.findOne({ userId }).populate({
-      path: 'products.productId',
-      match: { isDeleted: false }
+      path: "products.productId",
+      match: { isDeleted: false },
     });
 
-    const validProducts = cart?.products.filter(product => product.productId) || [];
+    const validProducts =
+      cart?.products.filter((product) => product.productId) || [];
 
-    const populatedProducts = validProducts.map(product => ({
-      ...product.productId._doc, 
-      quantity: product.quantity
+    const populatedProducts = validProducts.map((product) => ({
+      ...product.productId._doc,
+      quantity: product.quantity,
     }));
-
 
     res.render("shop-cart", { products: populatedProducts, userId });
   } catch (error) {
@@ -617,7 +631,11 @@ router.post("/edit-account", async (req, res) => {
       return res.status(404).send("User not found.");
     }
     const token = jwt.sign(
-      { userId: updatedUser._id,email: updatedUser.email, name: updatedUser.name },
+      {
+        userId: updatedUser._id,
+        email: updatedUser.email,
+        name: updatedUser.name,
+      },
       JWT_SECRET,
       { expiresIn: "730d" }
     );
@@ -677,6 +695,33 @@ router.post("/update-address/:addressId", async (req, res) => {
   Object.assign(address, updatedAddress);
   await req.user.save();
   res.redirect("/account");
+});
+
+router.post("/update-cart-quantity", async (req, res) => {
+  try {
+    const { productId, quantity } = req.body;
+    const decoded = jwt.verify(req.cookies.jwt, JWT_SECRET);
+    const userId = decoded.userId;
+
+    const cart = await Cart.findOne({ userId });
+    if (!cart) {
+      return res.json({ success: false, message: "No cart found" });
+    }
+
+    const productToUpdate = cart.products.find(
+      (p) => p.productId.toString() === productId
+    );
+    if (productToUpdate) {
+      productToUpdate.quantity = quantity;
+      await cart.save();
+      res.json({ success: true });
+    } else {
+      res.json({ success: false, message: "Product not found in cart" });
+    }
+  } catch (error) {
+    console.error("Error updating product quantity:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
 });
 
 router.post("/remove-address/:addressId", async (req, res) => {
