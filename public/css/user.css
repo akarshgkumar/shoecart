@@ -244,7 +244,7 @@ a:hover {
 
 .clear-btn-cart[type="submit"] {
   background-color: transparent;
-  
+
   border: none;
 }
 
@@ -254,9 +254,9 @@ a:hover {
 }
 
 .removeFromCartButton {
-  background-color: transparent !important; 
+  background-color: transparent !important;
   border: none !important;
-  outline: none !important; 
+  outline: none !important;
 }
 
 .capitalize {
@@ -394,7 +394,21 @@ input[type="number"]:focus,
 }
 
 label.error {
-  color: #C51E3A !important;
+  color: #c51e3a !important;
+}
+
+#anchor-button {
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  color: red !important;
+  padding: 0 !important;
+  font-size: 14px !important;
+}
+
+#anchor-button:hover {
+  background: transparent !important;
+  color: red !important;
 }
 
 .toggle-password {
@@ -429,7 +443,6 @@ label.error {
   -moz-appearance: textfield;
   appearance: textfield;
 }
-
 
 .bg-primary {
   background-color: #3f81eb !important;

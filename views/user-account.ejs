@@ -1,9 +1,9 @@
+<% if (typeof error !=='undefined' ) { %>
+  <div class="alert alert-danger" role="alert">
+    <%= error %>
+  </div>
+  <% } %>
 <%- include('user-header') %>
-  <% if (typeof error !=='undefined' ) { %>
-    <div class="alert alert-danger" role="alert">
-      <%= error %>
-    </div>
-    <% } %>
       <main class="main">
         <div class="page-header breadcrumb-wrap">
           <div class="container">
@@ -188,7 +188,9 @@
                                                   <%= address.postalCode %>
                                     </address>
                                     <a href="/edit-address/<%= address._id %>" class="btn-small mr-10">Edit</a>
-                                    <a href="#" class="btn-small text-danger">Remove</a>
+                                    <form action="/remove-address/<%= address._id %>" style="display: inline-block;" method="post">
+                                    <button id="anchor-button" type="submit" class="btn-small text-danger">Remove</button>
+                                  </form>
                                   </div>
                                 </div>
                               </div>
@@ -308,7 +310,7 @@
                           </div>
                           <div class="card-body">
                             <div class="row">
-                              <form action="/change-password" method="post" class="edit-account-form">
+                              <form action="/change-password" method="post" class="change-password-form">
                                 <div class="form-group col-md-12">
                                   <label>Current Password <span class="required">*</span></label>
                                   <input class="form-control square capitalize password-input" name="oldPassword" type="password">

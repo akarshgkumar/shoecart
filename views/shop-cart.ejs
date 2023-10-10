@@ -28,15 +28,13 @@
                 <tbody>
                   <% products.forEach(product=> { %>
                     <tr>
-                      <td class="image product-thumbnail"><img src="<%= product.image %>" alt="#"></td>
+                      <td class="image product-thumbnail"><img src="<%= product.mainImage %>" alt="#"></td>
                       <td class="product-des product-name">
                         <h5 class="product-name"><a href="#">
                             <%= product.name %>
                           </a></h5>
                       </td>
-                      <td class="price" data-title="Price"><span>₹
-                          <%= product.price.toFixed(2) %>
-                        </span></td>
+                      <td class="price" data-title="Price"><span>₹ <%= product.price.toFixed(2) %></span></td>
                       <td class="text-center" data-title="Stock">
                         <div class="detail-qty border radius m-auto">
                           <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
@@ -47,22 +45,19 @@
                         </div>
                       </td>
                       <td class="text-right" data-title="Cart">
-                        <span>₹
-                          <%= (product.price * product.quantity).toFixed(2) %>
-                        </span>
+                        <span>₹ <%= (product.price * product.quantity).toFixed(2) %></span>
                       </td>
                       <td class="action" data-title="Remove">
-                        <button data-product-id="<%= product.productId %>" class="text-muted removeFromCartButton">
+                        <button data-product-id="<%= product._id %>" class="text-muted removeFromCartButton">
                           <i class="fi-rs-trash"></i>
-                      </button>
-                      
+                        </button>
                       </td>
                     </tr>
                     <% }); %>
                       <tr>
                         <td colspan="6" class="text-end">
                           <form action="/clear-cart" method="post">
-                            <input type="hidden" name="userEmail" value="<%= userEmail %>">
+                            <input type="hidden" name="userId" value="<%= userId %>">
                             <button type="submit" class="btn btn-link text-muted clear-btn-cart">
                               <i class="fi-rs-cross-small"></i> Clear Cart
                             </button>
@@ -409,5 +404,4 @@
   </main>
   <%- include('user-footer') %>
     <script defer src="/static/cart.js"></script>
-
     <%- include('footer') %>

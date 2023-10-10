@@ -6,6 +6,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const sgMail = require("@sendgrid/mail");
 const User = require("../models/User");
 const Cart = require("../models/Cart");
+const Product = require("../models/Product");
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -103,9 +104,9 @@ async function fetchCartForUser(req, res, next) {
     }
 
     const decoded = jwt.verify(token, JWT_SECRET);
-    const userEmail = decoded.email;
+    const userId = decoded.userId;
 
-    const cart = await Cart.findOne({ userEmail });
+    const cart = await Cart.findOne({ userId });
     if (cart) {
       const totalItems = cart.products.reduce(
         (acc, product) => acc + product.quantity,
@@ -151,9 +152,10 @@ router.post("/verify-otp", async (req, res) => {
     user.otpExpires = undefined;
     await user.save();
 
-    const token = jwt.sign({ email: user.email, name: user.name }, JWT_SECRET, {
+    const token = jwt.sign({ userId: user._id, email: user.email, name: user.name }, JWT_SECRET, {
       expiresIn: "730d",
     });
+    
     res.cookie("jwt", token, {
       httpOnly: true,
       maxAge: 730 * 24 * 60 * 60 * 1000,
@@ -205,13 +207,15 @@ router.get("/account", async (req, res) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     const userEmail = decoded.email;
     const user = await User.findOne({ email: userEmail });
+
     if (!user) {
       return res.status(404).send("User not found");
     }
+
     const orders = [
       {
         id: "#1357",
-        date: "March 45, 2020",
+        date: "March 25, 2020",
         status: "Processing",
         total: "$125.00 for 2 items",
       },
@@ -224,6 +228,8 @@ router.get("/account", async (req, res) => {
       phoneNo: user.phoneNo,
       orders: orders,
       addresses: user.addresses,
+      message: req.query.message,
+      error: req.query.error,
     };
 
     res.render("user-account", userData);
@@ -308,11 +314,10 @@ router.post("/login", async (req, res) => {
       user &&
       (await bcrypt.compare(req.body.password, user.password))
     ) {
-      const token = jwt.sign(
-        { email: user.email, name: user.name },
-        JWT_SECRET,
-        { expiresIn: "730d" }
-      );
+      const token = jwt.sign({ userId: user._id, email: user.email, name: user.name }, JWT_SECRET, {
+        expiresIn: "730d",
+      });
+      
       res.cookie("jwt", token, {
         httpOnly: true,
         maxAge: 730 * 24 * 60 * 60 * 1000,
@@ -487,7 +492,6 @@ router.post("/signup", async (req, res) => {
 });
 
 router.post("/add-to-cart", async (req, res) => {
-  console.log("on post add to cart");
   try {
     if (!req.cookies.jwt) {
       return res
@@ -496,59 +500,64 @@ router.post("/add-to-cart", async (req, res) => {
     }
 
     const decoded = jwt.verify(req.cookies.jwt, JWT_SECRET);
-    const userEmail = decoded.email;
+    const userId = decoded.userId;
 
-    const { productId, name, price, image } = req.body;
+    console.log(userId)
 
-    let cart = await Cart.findOne({ userEmail });
+    const { productId } = req.body;
+
+    let cart = await Cart.findOne({ userId });
     if (!cart) {
-      cart = new Cart({ userEmail, products: [] });
+      cart = new Cart({ userId, products: [] });
     }
 
-    const productIndex = cart.products.findIndex(
-      (p) => p.productId === productId
-    );
+    const productIndex = cart.products.findIndex(p => p.productId.toString() === productId);
 
     if (productIndex > -1) {
       cart.products[productIndex].quantity += 1;
     } else {
-      cart.products.push({ productId, quantity: 1, name, price, image });
+      const productDetails = await Product.findById(productId);
+      cart.products.push({
+        productId,
+        quantity: 1
+      });
     }
-
     await cart.save();
-    const totalItems = cart.products.reduce(
-      (acc, product) => acc + product.quantity,
-      0
-    );
+    const totalItems = cart.products.reduce((acc, product) => acc + product.quantity, 0);
     res.json({ success: true, cartItems: totalItems });
   } catch (error) {
     console.error("Error adding to cart:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
+
 
 router.post("/remove-from-cart", async (req, res) => {
   try {
     const productId = req.body.productId;
-    const decoded = jwt.verify(req.cookies.jwt, JWT_SECRET);
-    const userEmail = decoded.email;
 
-    const cart = await Cart.findOne({ userEmail });
+    const decoded = jwt.verify(req.cookies.jwt, JWT_SECRET);
+    const userId = decoded.userId;
+
+    const cart = await Cart.findOne({ userId });
     if (!cart) return res.json({ success: false, message: "No cart found" });
 
-    cart.products = cart.products.filter((p) => p.productId !== productId);
+    cart.products = cart.products.filter(p => p.productId.toString() !== productId.toString());
 
     await cart.save();
     const totalItems = cart.products.reduce(
       (acc, product) => acc + product.quantity,
       0
     );
+
+    console.log(totalItems)
     res.json({ success: true, cartItems: totalItems });
   } catch (error) {
-    console.error("Error adding to cart:", error);
+    console.error("Error removing from cart:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
+
 
 router.post("/clear-cart", async (req, res) => {
   const { userEmail } = req.body;
@@ -566,11 +575,17 @@ router.get("/cart", async (req, res) => {
     }
 
     const decoded = jwt.verify(token, JWT_SECRET);
-    const userEmail = decoded.email;
+    const userId = decoded.userId;
 
-    const cart = await Cart.findOne({ userEmail });
+    const cart = await Cart.findOne({ userId }).populate('products.productId');
 
-    res.render("shop-cart", { products: cart?.products || [], userEmail });
+    const populatedProducts = cart?.products.map(product => ({
+      ...product.productId._doc, 
+      quantity: product.quantity
+    })) || [];
+
+
+    res.render("shop-cart", { products: populatedProducts, userId });
   } catch (error) {
     console.error("Error fetching cart:", error);
     res.status(500).send("Internal server error");
@@ -590,7 +605,7 @@ router.post("/edit-account", async (req, res) => {
       return res.status(404).send("User not found.");
     }
     const token = jwt.sign(
-      { email: updatedUser.email, name: updatedUser.name },
+      { userId: updatedUser._id,email: updatedUser.email, name: updatedUser.name },
       JWT_SECRET,
       { expiresIn: "730d" }
     );
@@ -653,38 +668,49 @@ router.post("/update-address/:addressId", async (req, res) => {
 });
 
 router.post("/remove-address/:addressId", async (req, res) => {
-  const addressId = req.params.addressId;
-  req.user.addresses.id(addressId).remove();
-  await user.save();
-  res.redirect("/account");
+  try {
+    const addressId = req.params.addressId;
+    await User.updateOne(
+      { _id: req.user._id },
+      {
+        $pull: { addresses: { _id: addressId } },
+      }
+    );
+
+    res.redirect("/account");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 router.post("/change-password", async (req, res) => {
   try {
-      const { oldPassword, newPassword, confirmNewPassword, userId } = req.body;
-      const user = await User.findById(userId);
-      if (!user) {
-          return res.status(404).render("user-account", { error: "User not found." }); 
-      }
+    const { oldPassword, newPassword, confirmNewPassword, userId } = req.body;
+    const user = await User.findById(userId);
 
-      const isValidPassword = await bcrypt.compare(oldPassword, user.password);
-      if (!isValidPassword) {
-          return res.status(400).render("user-account", { error: "Current password is incorrect." }); 
-      }
+    if (!user) {
+      return res.redirect("/account?error=User not found.");
+    }
 
-      if (newPassword !== confirmNewPassword) {
-          return res.status(400).render("user-account", { error: "New passwords do not match." });
-      }
+    const isValidPassword = await bcrypt.compare(oldPassword, user.password);
 
-      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-      user.password = hashedNewPassword;
-      await user.save();
+    if (!isValidPassword) {
+      return res.redirect("/account?error=Current password is incorrect.");
+    }
 
-      res.status(200).render("user-account", { message: "Password changed successfully." });
+    if (newPassword !== confirmNewPassword) {
+      return res.redirect("/account?error=New passwords do not match.");
+    }
 
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedNewPassword;
+    await user.save();
+
+    return res.redirect("/account?message=Password changed successfully.");
   } catch (error) {
-      console.error("Error changing password:", error);
-      res.status(500).render("user-account", { error: "Internal Server Error" });
+    console.error("Error changing password:", error);
+    return res.redirect("/account?error=Internal Server Error");
   }
 });
 

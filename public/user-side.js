@@ -1,3 +1,7 @@
+if (window.history.replaceState && location.search.includes("error")) {
+  window.history.replaceState({}, document.title, location.pathname);
+}
+
 $.validator.addMethod(
   "customEmail",
   function (value, element) {
@@ -91,6 +95,25 @@ $(function(){
       phoneNo: {
         digits: true,
         minlength: 10
+      },
+      submitHandler: function(form) {
+        form.submit();
+      }
+    },
+  });
+  $(".change-password-form").validate({
+    rules: {
+      oldPassword: {
+        required: true,
+        noSpaceMinLength: 4,
+      },
+      newPassword: {
+        required: true,
+        noSpaceMinLength: 4,
+      },
+      confirmNewPassword: {
+        required: true,
+        noSpaceMinLength: 4,
       },
       submitHandler: function(form) {
         form.submit();
