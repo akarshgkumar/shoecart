@@ -418,6 +418,11 @@ label.error {
   text-decoration: underline;
 }
 
+#addToCartButton {
+  z-index: 9999; 
+  position: relative;
+}
+
 .address-bold {
   font-weight: bold;
   margin-right: 5px;

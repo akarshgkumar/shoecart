@@ -21,7 +21,7 @@
                     <!-- MAIN SLIDES -->
                     <figure class="border-radius-10 mb-2">
                       <img src="<%= product.mainImage %>" style="width: 70%;" data-zoom-image="<%= product.mainImage %>"
-                         alt="product image">
+                        alt="product image">
                     </figure>
                     <!-- THUMBNAILS -->
                     <div class="slider-nav-thumbnails pl-15 pr-15">
@@ -97,7 +97,7 @@
                         <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
                       </div>
                       <div class="product-extra-link2">
-                        <button type="submit" class="button button-add-to-cart">Add to cart</button>
+                        <button type="button" data-product-id="<%= product.id %>" id="addToCartButton" onclick="addToCart(this)" class="button button-add-to-cart addToCartButton">Add to cart</button>
                         <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i
                             class="fi-rs-heart"></i></a>
                       </div>
@@ -111,4 +111,5 @@
     </section>
   </main>
   <%- include('user-footer') %>
+    <script defer src="/static/cart.js"></script>
     <%- include('footer') %>
