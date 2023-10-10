@@ -1,281 +1,337 @@
 <%- include('user-header') %>
-  <main class="main">
-    <div class="page-header breadcrumb-wrap">
-      <div class="container">
-        <div class="breadcrumb">
-          <a href="index.html" rel="nofollow">Home</a>
-          <span></span> Pages
-          <span></span> Account
-        </div>
-      </div>
+  <% if (typeof error !=='undefined' ) { %>
+    <div class="alert alert-danger" role="alert">
+      <%= error %>
     </div>
-    <section class="pt-150 pb-150">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-10 m-auto">
+    <% } %>
+      <main class="main">
+        <div class="page-header breadcrumb-wrap">
+          <div class="container">
+            <div class="breadcrumb">
+              <a href="/home" rel="nofollow">Home</a>
+              <span></span> Account
+            </div>
+          </div>
+        </div>
+        <section class="pt-150 pb-150">
+          <div class="container">
             <div class="row">
-              <div class="col-md-4">
-                <div class="dashboard-menu">
-                  <ul class="nav flex-column" role="tablist">
-                    <li class="nav-item">
-                      <a class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" href="#dashboard" role="tab"
-                        aria-controls="dashboard" aria-selected="false"><i
-                          class="fi-rs-settings-sliders mr-10"></i>Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" id="orders-tab" data-bs-toggle="tab" href="#orders" role="tab"
-                        aria-controls="orders" aria-selected="false"><i class="fi-rs-shopping-bag mr-10"></i>Orders</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" id="track-orders-tab" data-bs-toggle="tab" href="#track-orders" role="tab"
-                        aria-controls="track-orders" aria-selected="false"><i
-                          class="fi-rs-shopping-cart-check mr-10"></i>Track Your Order</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#address" role="tab"
-                        aria-controls="address" aria-selected="true"><i class="fi-rs-marker mr-10"></i>My Address</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#add-address" role="tab"
-                        aria-controls="address" aria-selected="true"><i class="fi-rs-marker mr-10"></i>Add Address</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab" href="#account-detail" role="tab"
-                        aria-controls="account-detail" aria-selected="true"><i class="fi-rs-user mr-10"></i>Account
-                        Details</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab" href="#edit-account-detail"
-                        role="tab" aria-controls="account-detail" aria-selected="true"><i
-                          class="fi-rs-user mr-10"></i>Edit Account
-                        Details
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab" href="#account-detail" role="tab"
-                        aria-controls="account-detail" aria-selected="true"><i class="fi-rs-user mr-10"></i>Change
-                        Password
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab" href="/verify-email/true"
-                        role="tab" aria-controls="account-detail" aria-selected="true"><i
-                          class="fi-rs-user mr-10"></i>Forgot
-                        Password
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              <div class="col-md-8">
-                <div class="tab-content dashboard-content">
-                  <div class="tab-pane fade active show" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
-                    <div class="card">
-                      <div class="card-header">
-                        <h5 class="mb-0">Hello <%= username %>! </h5>
-                      </div>
-                      <div class="card-body">
-                        <p>From your account dashboard. you can easily check &amp; view your <a href="#">recent
-                            orders</a>, manage your <a href="#">shipping and billing addresses</a> and <a href="#">edit
-                            your password and account details.</a></p>
-                      </div>
+              <div class="col-lg-10 m-auto">
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="dashboard-menu">
+                      <ul class="nav flex-column" role="tablist">
+                        <li class="nav-item">
+                          <a class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" href="#dashboard"
+                            role="tab" aria-controls="dashboard" aria-selected="false"><i
+                              class="fi-rs-settings-sliders mr-10"></i>Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" id="orders-tab" data-bs-toggle="tab" href="#orders" role="tab"
+                            aria-controls="orders" aria-selected="false"><i
+                              class="fi-rs-shopping-bag mr-10"></i>Orders</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" id="track-orders-tab" data-bs-toggle="tab" href="#track-orders" role="tab"
+                            aria-controls="track-orders" aria-selected="false"><i
+                              class="fi-rs-shopping-cart-check mr-10"></i>Track Your Order</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#address" role="tab"
+                            aria-controls="address" aria-selected="true"><i class="fi-rs-marker mr-10"></i>My
+                            Address</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#add-address" role="tab"
+                            aria-controls="address" aria-selected="true"><i class="fi-rs-marker mr-10"></i>Add
+                            Address</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab" href="#account-detail"
+                            role="tab" aria-controls="account-detail" aria-selected="true"><i
+                              class="fi-rs-user mr-10"></i>Account
+                            Details</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab" href="#edit-account-detail"
+                            role="tab" aria-controls="account-detail" aria-selected="true"><i
+                              class="fi-rs-user mr-10"></i>Edit Account
+                            Details
+                          </a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab" href="#change-password"
+                            role="tab" aria-controls="account-detail" aria-selected="true"><i
+                              class="fi-rs-user mr-10"></i>Change
+                            Password
+                          </a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab" href="/verify-email/true"
+                            role="tab" aria-controls="account-detail" aria-selected="true"><i
+                              class="fi-rs-user mr-10"></i>Forgot
+                            Password
+                          </a>
+                        </li>
+                      </ul>
                     </div>
                   </div>
-                  <div class="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
-                    <div class="card">
-                      <div class="card-header">
-                        <h5 class="mb-0">Your Orders</h5>
-                      </div>
-                      <div class="card-body">
-                        <div class="table-responsive">
-                          <table class="table">
-                            <thead>
-                              <tr>
-                                <th>Order</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Total</th>
-                                <th>Actions</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <% orders.forEach(order=> { %>
-                                <tr>
-                                  <td>
-                                    <%= order.id %>
-                                  </td>
-                                  <td>
-                                    <%= order.date %>
-                                  </td>
-                                  <td>
-                                    <%= order.status %>
-                                  </td>
-                                  <td>
-                                    <%= order.total %>
-                                  </td>
-                                  <td><a href="#" class="btn-small d-block">View</a></td>
-                                </tr>
-                                <% }); %>
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="tab-pane fade" id="track-orders" role="tabpanel" aria-labelledby="track-orders-tab">
-                    <div class="card">
-                      <div class="card-header">
-                        <h5 class="mb-0">Orders tracking</h5>
-                      </div>
-                      <div class="card-body contact-from-area">
-                        <p>To track your order please enter your OrderID in the box below and press "Track" button. This
-                          was given to you on your receipt and in the confirmation email you should have received.</p>
-                        <div class="row">
-                          <div class="col-lg-8">
-                            <form class="contact-form-style mt-30 mb-50" action="#" method="post">
-                              <div class="input-style mb-20">
-                                <label>Order ID</label>
-                                <input name="order-id" placeholder="Found in your order confirmation email" type="text"
-                                  class="square">
-                              </div>
-                              <div class="input-style mb-20">
-                                <label>Billing email</label>
-                                <input name="billing-email" placeholder="Email you used during checkout" type="email"
-                                  class="square">
-                              </div>
-                              <button class="submit submit-auto-width" type="submit">Track</button>
-                            </form>
+                  <div class="col-md-8">
+                    <div class="tab-content dashboard-content">
+                      <div class="tab-pane fade active show" id="dashboard" role="tabpanel"
+                        aria-labelledby="dashboard-tab">
+                        <div class="card">
+                          <div class="card-header">
+                            <h5 class="mb-0">Hello <%= username %>! </h5>
+                          </div>
+                          <div class="card-body">
+                            <p>From your account dashboard. you can easily check &amp; view your <a href="#">recent
+                                orders</a>, manage your <a href="#">shipping and billing addresses</a> and <a
+                                href="#">edit
+                                your password and account details.</a></p>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                  <div class="tab-pane fade" id="address" role="tabpanel" aria-labelledby="address-tab">
-                    <% if(addresses && addresses.length > 0) { %>
-                      <% addresses.forEach(address => { %>
-                        <div class="row mb-20">
-                          <div class="col-lg-6">
-                            <div class="card">
-                              <div class="card-header">
-                                <h5 class="mb-0">Address</h5>
-                              </div>
-                              <div class="card-body">
-                                <address class="user-account-address-display">
-                                  <span class="address-bold">Address:</span> <%= address.address %><br>
-                                  <% if(address.addressLine1) { %>
-                                    <span class="address-bold">Address Line 1:</span> <%= address.addressLine1 %> <br>
-                                    <% } %>
-                                  <span class="address-bold">City:</span> <%= address.city %> <br>
-                                  <span class="address-bold">State:</span> <%= address.state %> <br>
-                                  <span class="address-bold">Postal Code:</span> <%= address.postalCode %>
-                                </address>
-                                <a href="/edit-address/<%= address._id %>" class="btn-small mr-10">Edit</a>
-                                <a href="#" class="btn-small text-danger">Remove</a>
+                      <div class="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
+                        <div class="card">
+                          <div class="card-header">
+                            <h5 class="mb-0">Your Orders</h5>
+                          </div>
+                          <div class="card-body">
+                            <div class="table-responsive">
+                              <table class="table">
+                                <thead>
+                                  <tr>
+                                    <th>Order</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Total</th>
+                                    <th>Actions</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <% orders.forEach(order=> { %>
+                                    <tr>
+                                      <td>
+                                        <%= order.id %>
+                                      </td>
+                                      <td>
+                                        <%= order.date %>
+                                      </td>
+                                      <td>
+                                        <%= order.status %>
+                                      </td>
+                                      <td>
+                                        <%= order.total %>
+                                      </td>
+                                      <td><a href="#" class="btn-small d-block">View</a></td>
+                                    </tr>
+                                    <% }); %>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="tab-pane fade" id="track-orders" role="tabpanel" aria-labelledby="track-orders-tab">
+                        <div class="card">
+                          <div class="card-header">
+                            <h5 class="mb-0">Orders tracking</h5>
+                          </div>
+                          <div class="card-body contact-from-area">
+                            <p>To track your order please enter your OrderID in the box below and press "Track" button.
+                              This
+                              was given to you on your receipt and in the confirmation email you should have received.
+                            </p>
+                            <div class="row">
+                              <div class="col-lg-8">
+                                <form class="contact-form-style mt-30 mb-50" action="#" method="post">
+                                  <div class="input-style mb-20">
+                                    <label>Order ID</label>
+                                    <input name="order-id" placeholder="Found in your order confirmation email"
+                                      type="text" class="square">
+                                  </div>
+                                  <div class="input-style mb-20">
+                                    <label>Billing email</label>
+                                    <input name="billing-email" placeholder="Email you used during checkout"
+                                      type="email" class="square">
+                                  </div>
+                                  <button class="submit submit-auto-width" type="submit">Track</button>
+                                </form>
                               </div>
                             </div>
                           </div>
                         </div>
-                      <% }) %>
-                    <% } else { %>
-                      <p>You have not added any addresses yet.</p>
-                    <% } %>
-                    
-                  </div>
-                  <div class="tab-pane fade" id="account-detail" role="tabpanel" aria-labelledby="account-detail-tab">
-                    <div class="card">
-                      <div class="card-header">
-                        <h5>View Account Details</h5>
                       </div>
-                      <div class="card-body">
-                        <div class="row">
-                          <div class="form-group col-md-12">
-                            <label>Full Name (Read only)</label>
-                            <input value="<%= username %>" class="form-control square capitalize" name="name"
-                              type="text" readonly>
-                          </div>
-                          <div class="form-group col-md-12">
-                            <label>Email Address (Read only)</label>
-                            <input value="<%= email %>" class="form-control square" name="email" type="email" readonly>
-                          </div>
-                          <div class="form-group col-md-12">
-                            <label>Phone No. (Read only)</label>
-                            <input value="<%= phoneNo %>" class="form-control square" name="phoneNo" type="number"
-                              readonly>
-                          </div>
-                        </div>
-                        <div class="col-md-12">
-                          <a href=""><button class="btn btn-fill-out submit" value="Edit Details">Edit
-                              Details</button></a>
-                        </div>
+                      <div class="tab-pane fade" id="address" role="tabpanel" aria-labelledby="address-tab">
+                        <% if(addresses && addresses.length> 0) { %>
+                          <% addresses.forEach(address=> { %>
+                            <div class="row mb-20">
+                              <div class="col-lg-6">
+                                <div class="card">
+                                  <div class="card-header">
+                                    <h5 class="mb-0">Address</h5>
+                                  </div>
+                                  <div class="card-body">
+                                    <address class="user-account-address-display">
+                                      <span class="address-bold">Address:</span>
+                                      <%= address.address %><br>
+                                        <% if(address.addressLine1) { %>
+                                          <span class="address-bold">Address Line 1:</span>
+                                          <%= address.addressLine1 %> <br>
+                                            <% } %>
+                                              <span class="address-bold">City:</span>
+                                              <%= address.city %> <br>
+                                                <span class="address-bold">State:</span>
+                                                <%= address.state %> <br>
+                                                  <span class="address-bold">Postal Code:</span>
+                                                  <%= address.postalCode %>
+                                    </address>
+                                    <a href="/edit-address/<%= address._id %>" class="btn-small mr-10">Edit</a>
+                                    <a href="#" class="btn-small text-danger">Remove</a>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <% }) %>
+                              <% } else { %>
+                                <p>You have not added any addresses yet.</p>
+                                <% } %>
+
                       </div>
-                    </div>
-                  </div>
-                  <div class="tab-pane fade" id="edit-account-detail" role="tabpanel"
-                    aria-labelledby="account-detail-tab">
-                    <div class="card">
-                      <div class="card-header">
-                        <h5>Edit Account Details</h5>
-                      </div>
-                      <div class="card-body">
-                        <div class="row">
-                          <form action="/edit-account" method="post" class="edit-account-form">
-                            <div class="form-group col-md-12">
-                              <label>Full Name <span class="required">*</span></label>
-                              <input value="<%= username %>" class="form-control square capitalize" name="name"
-                                type="text">
+                      <div class="tab-pane fade" id="account-detail" role="tabpanel"
+                        aria-labelledby="account-detail-tab">
+                        <div class="card">
+                          <div class="card-header">
+                            <h5>View Account Details</h5>
+                          </div>
+                          <div class="card-body">
+                            <div class="row">
+                              <div class="form-group col-md-12">
+                                <label>Full Name (Read only)</label>
+                                <input value="<%= username %>" class="form-control square capitalize" name="name"
+                                  type="text" readonly>
+                              </div>
+                              <div class="form-group col-md-12">
+                                <label>Email Address (Read only)</label>
+                                <input value="<%= email %>" class="form-control square" name="email" type="email"
+                                  readonly>
+                              </div>
+                              <div class="form-group col-md-12">
+                                <label>Phone No. (Read only)</label>
+                                <input value="<%= phoneNo %>" class="form-control square" name="phoneNo" type="number"
+                                  readonly>
+                              </div>
                             </div>
-                            <div class="form-group col-md-12">
-                              <label>Email Address <span class="required">*</span></label>
-                              <input value="<%= email %>" class="form-control square" name="email" type="email">
-                            </div>
-                            <div class="form-group col-md-12">
-                              <label>Phone no. </label>
-                              <input class="number-arrow-hide" value="<%= phoneNo %>" class="form-control square"
-                                name="phoneNo" type="number">
-                            </div>
-                            <input type="hidden" name="userId" value="<%= userId %>">
                             <div class="col-md-12">
-                              <button type="submit" class="btn btn-fill-out submit">Confirm</button>
+                              <a href=""><button class="btn btn-fill-out submit" value="Edit Details">Edit
+                                  Details</button></a>
                             </div>
-                          </form>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                  <div class="tab-pane fade" id="add-address" role="tabpanel" aria-labelledby="account-detail-tab">
-                    <div class="card">
-                      <div class="card-header">
-                        <h5>Add New Address</h5>
+                      <div class="tab-pane fade" id="edit-account-detail" role="tabpanel"
+                        aria-labelledby="account-detail-tab">
+                        <div class="card">
+                          <div class="card-header">
+                            <h5>Edit Account Details</h5>
+                          </div>
+                          <div class="card-body">
+                            <div class="row">
+                              <form action="/edit-account" method="post" class="edit-account-form">
+                                <div class="form-group col-md-12">
+                                  <label>Full Name <span class="required">*</span></label>
+                                  <input value="<%= username %>" class="form-control square capitalize" name="name"
+                                    type="text">
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label>Email Address <span class="required">*</span></label>
+                                  <input value="<%= email %>" class="form-control square" name="email" type="email">
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label>Phone no. </label>
+                                  <input class="number-arrow-hide" value="<%= phoneNo %>" class="form-control square"
+                                    name="phoneNo" type="number">
+                                </div>
+                                <input type="hidden" name="userId" value="<%= userId %>">
+                                <div class="col-md-12">
+                                  <button type="submit" class="btn btn-fill-out submit">Confirm</button>
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div class="card-body">
-                        <div class="row">
-                          <form action="/add-address" method="post" class="add-address-form">
-                            <div class="form-group col-md-12">
-                              <label>Address <span class="required">*</span></label>
-                              <input class="form-control square capitalize" name="address" type="text">
+                      <div class="tab-pane fade" id="add-address" role="tabpanel" aria-labelledby="account-detail-tab">
+                        <div class="card">
+                          <div class="card-header">
+                            <h5>Add New Address</h5>
+                          </div>
+                          <div class="card-body">
+                            <div class="row">
+                              <form action="/add-address" method="post" class="add-address-form">
+                                <div class="form-group col-md-12">
+                                  <label>Address <span class="required">*</span></label>
+                                  <input class="form-control square capitalize" name="address" type="text">
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label>Address Line 1</label>
+                                  <input class="form-control square capitalize" name="addressLine1" type="text">
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label>City / Town <span class="required">*</span></label>
+                                  <input class="form-control square capitalize" name="city" type="text">
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label>State <span class="required">*</span></label>
+                                  <input class="form-control square capitalize" name="state" type="text">
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label>Postal Code / Zip <span class="required">*</span></label>
+                                  <input class="form-control square capitalize number-arrow-hide" name="postalCode"
+                                    type="number">
+                                </div>
+                                <input type="hidden" name="userId" value="<%= userId %>">
+                                <div class="col-md-12">
+                                  <button type="submit" class="btn btn-fill-out submit">Confirm</button>
+                                </div>
+                              </form>
                             </div>
-                            <div class="form-group col-md-12">
-                              <label>Address Line 1</label>
-                              <input class="form-control square capitalize" name="addressLine1" type="text">
+                          </div>
+                        </div>
+                      </div>
+                      <div class="tab-pane fade" id="change-password" role="tabpanel"
+                        aria-labelledby="change-password-tab">
+                        <div class="card">
+                          <div class="card-header">
+                            <h5>Change Password</h5>
+                          </div>
+                          <div class="card-body">
+                            <div class="row">
+                              <form action="/change-password" method="post" class="edit-account-form">
+                                <div class="form-group col-md-12">
+                                  <label>Current Password <span class="required">*</span></label>
+                                  <input class="form-control square capitalize password-input" name="oldPassword" type="password">
+                                  <span class="toggle-password f-right mr-20" onclick="togglePassword(this)">SHOW</span>
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label>New Password <span class="required">*</span></label>
+                                  <input class="form-control square password-input" name="newPassword"  type="password">
+                                  <span class="toggle-password f-right mr-20" onclick="togglePassword(this)">SHOW</span>
+                                </div>
+                                <div class="form-group col-md-12">
+                                  <label>Confirm New Password <span class="required">*</span></label>
+                                  <input class="number-arrow-hide password-input" class="form-control square" name="confirmNewPassword"
+                                    type="password">
+                                  <span class="toggle-password f-right mr-20" onclick="togglePassword(this)">SHOW</span>
+                                </div>
+                                <input type="hidden" name="userId" value="<%= userId %>">
+                                <div class="col-md-12">
+                                  <button type="submit" class="btn btn-fill-out submit">Confirm</button>
+                                </div>
+                              </form>
                             </div>
-                            <div class="form-group col-md-12">
-                              <label>City / Town <span class="required">*</span></label>
-                              <input class="form-control square capitalize" name="city" type="text">
-                            </div>
-                            <div class="form-group col-md-12">
-                              <label>State <span class="required">*</span></label>
-                              <input class="form-control square capitalize" name="state" type="text">
-                            </div>
-                            <div class="form-group col-md-12">
-                              <label>Postal Code / Zip <span class="required">*</span></label>
-                              <input class="form-control square capitalize number-arrow-hide" name="postalCode"
-                                type="number">
-                            </div>
-                            <input type="hidden" name="userId" value="<%= userId %>">
-                            <div class="col-md-12">
-                              <button type="submit" class="btn btn-fill-out submit">Confirm</button>
-                            </div>
-                          </form>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -283,9 +339,7 @@
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-    </section>
-  </main>
-  <%- include('user-footer') %>
-    <%- include('footer') %>
+        </section>
+      </main>
+      <%- include('user-footer') %>
+        <%- include('footer') %>

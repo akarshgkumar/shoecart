@@ -659,4 +659,33 @@ router.post("/remove-address/:addressId", async (req, res) => {
   res.redirect("/account");
 });
 
+router.post("/change-password", async (req, res) => {
+  try {
+      const { oldPassword, newPassword, confirmNewPassword, userId } = req.body;
+      const user = await User.findById(userId);
+      if (!user) {
+          return res.status(404).render("user-account", { error: "User not found." }); 
+      }
+
+      const isValidPassword = await bcrypt.compare(oldPassword, user.password);
+      if (!isValidPassword) {
+          return res.status(400).render("user-account", { error: "Current password is incorrect." }); 
+      }
+
+      if (newPassword !== confirmNewPassword) {
+          return res.status(400).render("user-account", { error: "New passwords do not match." });
+      }
+
+      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+      user.password = hashedNewPassword;
+      await user.save();
+
+      res.status(200).render("user-account", { message: "Password changed successfully." });
+
+  } catch (error) {
+      console.error("Error changing password:", error);
+      res.status(500).render("user-account", { error: "Internal Server Error" });
+  }
+});
+
 module.exports = router;

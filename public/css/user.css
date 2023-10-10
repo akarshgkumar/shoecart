@@ -397,6 +397,13 @@ label.error {
   color: #C51E3A !important;
 }
 
+.toggle-password {
+  cursor: pointer;
+  font-size: 12px;
+  color: #4b6bbb;
+  text-decoration: underline;
+}
+
 .address-bold {
   font-weight: bold;
   margin-right: 5px;

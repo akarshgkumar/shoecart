@@ -23,6 +23,18 @@ $.validator.addMethod(
   "Leading and trailing spaces are not allowed."
 );
 
+function togglePassword(clickedElement) {
+  let passwordField = clickedElement.previousElementSibling;
+  if (passwordField.type === "password") {
+    passwordField.type = "text";
+    clickedElement.textContent = "HIDE";
+  } else {
+    passwordField.type = "password";
+    clickedElement.textContent = "SHOW";
+  }
+}
+
+
 $(function(){
   $(".add-address-form").validate({
     rules: {
