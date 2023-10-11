@@ -20,7 +20,7 @@
               <div class="col-lg-6 mb-sm-15">
                 <div class="toggle_info">
                   <span><i class="fi-rs-user mr-10"></i><span class="text-muted">Select from existing address?</span> <a
-                      href="#addressModal" data-bs-toggle="modal" class="collapsed">Click here</a></span>
+                      href="/select-address">Click here</a></span>
                 </div>
                 <div class="panel-collapse collapse login_form" id="loginform">
                   <div class="panel-body">
@@ -37,7 +37,7 @@
                         <div class="chek-form">
                           <div class="custome-checkbox">
                             <input class="form-check-input" type="checkbox" name="checkbox" id="remember" value="">
-                            <label class="form-check-label" for="remember"><span>Remember me</span></label>
+                            <label class="form-check-label" for="remember"><span>Remember me</span> :</label>
                           </div>
                         </div>
                         <a href="#">Forgot password?</a>
@@ -82,42 +82,52 @@
                 </div>
                 <form method="post">
                   <div class="form-group">
-                    <input type="text" required="" name="name" placeholder="Full name *">
+                    <label for="name">Full Name :</label>
+                    <input type="text" value="<%= defaultAddress?.name %>" required name="name" id="name"
+                      placeholder="Full name *">
                   </div>
                   <div class="form-group">
-                    <input required="" type="text" name="cname" placeholder="Company Name">
+                    <label for="email">Email Address :</label>
+                    <input type="text" value="<%= defaultAddress?.email %>" required name="email" id="email"
+                      placeholder="Email address *">
                   </div>
                   <div class="form-group">
-                    <input type="text" name="shipping_address" required="" placeholder="Address *">
+                    <label for="phone">Phone :</label>
+                    <input type="text" value="<%= defaultAddress?.phoneNo %>" required name="phone" id="phone"
+                      placeholder="Phone *">
                   </div>
                   <div class="form-group">
-                    <input type="text" name="shipping_address2" required="" placeholder="Address Line 2">
+                    <label for="cname">Company Name :</label>
+                    <input type="text" value="<%= defaultAddress?.companyName %>" name="cname" id="cname"
+                      placeholder="Company Name">
                   </div>
                   <div class="form-group">
-                    <input required="" type="text" name="city" placeholder="City / Town *">
+                    <label for="shipping_address">Address :</label>
+                    <input type="text" value="<%= defaultAddress?.address %>" required name="shipping_address"
+                      id="shipping_address" placeholder="Address *">
                   </div>
                   <div class="form-group">
-                    <input required="" type="text" name="state" placeholder="State *">
+                    <label for="shipping_address2">Address Line 2 :</label>
+                    <input type="text" value="<%= defaultAddress?.addressLine1 %>" required name="shipping_address2"
+                      id="shipping_address2" placeholder="Address Line 2">
                   </div>
                   <div class="form-group">
-                    <input required="" type="text" name="zipcode" placeholder="Postcode / ZIP *">
+                    <label for="city">City / Town :</label>
+                    <input type="text" value="<%= defaultAddress?.city %>" required name="city" id="city"
+                      placeholder="City / Town *">
                   </div>
                   <div class="form-group">
-                    <input required="" type="text" name="phone" placeholder="Phone *">
+                    <label for="state">State :</label>
+                    <input type="text" value="<%= defaultAddress?.state %>" required name="state" id="state"
+                      placeholder="State *">
                   </div>
                   <div class="form-group">
-                    <input required="" type="text" name="email" placeholder="Email address *">
-                  </div>
-                  <div id="collapsePassword" class="form-group create-account collapse in">
-                    <input required="" type="password" placeholder="Password" name="password">
-                  </div>
-                  <div class="mb-20">
-                    <h5>Additional information</h5>
-                  </div>
-                  <div class="form-group mb-30">
-                    <textarea rows="5" placeholder="Order notes"></textarea>
+                    <label for="zipcode">Postcode / ZIP :</label>
+                    <input type="text" value="<%= defaultAddress?.postalCode %>" required name="zipcode" id="zipcode"
+                      placeholder="Postcode / ZIP *">
                   </div>
                 </form>
+
               </div>
               <div class="col-md-6">
                 <div class="order_review">
@@ -133,43 +143,32 @@
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
-                          <td class="image product-thumbnail"><img src="assets/imgs/shop/product-1-1.jpg" alt="#"></td>
-                          <td>
-                            <h5><a href="shop-product-full.html">Yidarton Women Summer Blue</a></h5> <span
-                              class="product-qty">x 2</span>
-                          </td>
-                          <td>₹180.00</td>
-                        </tr>
-                        <tr>
-                          <td class="image product-thumbnail"><img src="assets/imgs/shop/product-2-1.jpg" alt="#"></td>
-                          <td>
-                            <h5><a href="shop-product-full.html">LDB MOON Women Summe</a></h5> <span
-                              class="product-qty">x 1</span>
-                          </td>
-                          <td>₹65.00</td>
-                        </tr>
-                        <tr>
-                          <td class="image product-thumbnail"><img src="assets/imgs/shop/product-3-1.jpg" alt="#"></td>
-                          <td><i class="ti-check-box font-small text-muted mr-10"></i>
-                            <h5><a href="shop-product-full.html">Women's Short Sleeve Loose</a></h5> <span
-                              class="product-qty">x 1</span>
-                          </td>
-                          <td>₹35.00</td>
-                        </tr>
-                        <tr>
-                          <th>SubTotal</th>
-                          <td class="product-subtotal" colspan="2">₹280.00</td>
-                        </tr>
-                        <tr>
-                          <th>Shipping</th>
-                          <td colspan="2"><em>Free Shipping</em></td>
-                        </tr>
-                        <tr>
-                          <th>Total</th>
-                          <td colspan="2" class="product-subtotal"><span
-                              class="font-xl text-brand fw-900">₹280.00</span></td>
-                        </tr>
+                        <% products.forEach(product=> { %>
+                          <tr>
+                            <td class="image product-thumbnail"><img src="<%= product.mainImage %>" alt="#"></td>
+                            <td>
+                              <h5><a href="#">
+                                  <%= product.name %>
+                                </a></h5>
+                              <span class="product-qty">x <%= product.quantity %></span>
+                            </td>
+                            <td>₹<%= product.price * product.quantity %>
+                            </td>
+                          </tr>
+                          <% }) %>
+                            <tr>
+                              <th>SubTotal</th>
+                              <td class="product-subtotal" colspan="2">₹280.00</td>
+                            </tr>
+                            <tr>
+                              <th>Shipping</th>
+                              <td colspan="2"><em>Free Shipping</em></td>
+                            </tr>
+                            <tr>
+                              <th>Total</th>
+                              <td colspan="2" class="product-subtotal"><span
+                                  class="font-xl text-brand fw-900">₹280.00</span></td>
+                            </tr>
                       </tbody>
                     </table>
                   </div>
@@ -183,7 +182,7 @@
                         <input class="form-check-input" required="" type="radio" name="payment_option"
                           id="exampleRadios3" checked="">
                         <label class="form-check-label" for="exampleRadios3" data-bs-toggle="collapse"
-                          data-target="#razorpay" aria-controls="razorpay">Razor Pay</label>
+                          data-target="#razorpay" aria-controls="razorpay">Razor Pay :</label>
                         <div class="form-group collapse in" id="razorpay">
                           <p class="text-muted mt-5">There are many variations of passages of Lorem Ipsum available, but
                             the majority have suffered alteration. </p>
@@ -193,7 +192,7 @@
                         <input class="form-check-input" required="" type="radio" name="payment_option"
                           id="exampleRadios4" checked="">
                         <label class="form-check-label" for="exampleRadios4" data-bs-toggle="collapse"
-                          data-target="#walletPayment" aria-controls="walletPayment">Wallet Payment</label>
+                          data-target="#walletPayment" aria-controls="walletPayment">Wallet Payment :</label>
                         <div class="form-group collapse in" id="walletPayment">
                           <p class="text-muted mt-5">Please send your cheque to Store Name, Store Street, Store Town,
                             Store State / County, Store Postcode. </p>
@@ -203,7 +202,7 @@
                         <input class="form-check-input" required="" type="radio" name="payment_option"
                           id="exampleRadios5" checked="">
                         <label class="form-check-label" for="exampleRadios5" data-bs-toggle="collapse"
-                          data-target="#cod" aria-controls="cod">Cash On Delivery</label>
+                          data-target="#cod" aria-controls="cod">Cash On Delivery :</label>
                         <div class="form-group collapse in" id="cod">
                         </div>
                       </div>
@@ -216,5 +215,5 @@
           </div>
         </section>
       </main>
-      
+
       <%- include('footer') %>

@@ -149,7 +149,7 @@ router.post("/verify-otp", async (req, res) => {
   console.log("hi");
   const { email, otp, forgot } = req.body;
   console.log(forgot);
-  console.log(email)
+  console.log(email);
   const user = await User.findOne({ email });
   if (!user) {
     console.log(`No user found with email: ${email}`);
@@ -190,7 +190,7 @@ router.post("/verify-otp", async (req, res) => {
 
 router.get("/reset-password", (req, res) => {
   const email = req.query.email;
-  console.log(email)
+  console.log(email);
   res.render("reset-password", { email });
 });
 
@@ -199,7 +199,10 @@ router.post("/reset-password", async (req, res) => {
     const { email, password, confirmPassword } = req.body;
 
     if (password !== confirmPassword) {
-      return res.render("reset-password", { error: "Passwords do not match", email });
+      return res.render("reset-password", {
+        error: "Passwords do not match",
+        email,
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -277,7 +280,7 @@ router.get("/verify-email/:forgot", (req, res) => {
 
 router.get("/check-email/:forgot", (req, res) => {
   const email = req.query.email;
-  console.log(email)
+  console.log(email);
   if (req.params.forgot === "true") {
     res.render("check-email", { email });
   } else {
@@ -404,7 +407,7 @@ router.post("/resend-otp", async (req, res) => {
 router.post("/verify-email/:forgot", async (req, res) => {
   const forgot = req.params.forgot;
   const email = req.body.email;
-  console.log(email)
+  console.log(email);
   const user = await User.findOne({ email });
 
   if (user) {
@@ -667,33 +670,51 @@ router.post("/edit-account", async (req, res) => {
 
 router.post("/add-address", async (req, res) => {
   try {
-      const { userId, name, email, phoneNo, companyName, address, addressLine1, city, state, postalCode } = req.body;
+    const {
+      userId,
+      name,
+      email,
+      phoneNo,
+      companyName,
+      address,
+      addressLine1,
+      city,
+      state,
+      postalCode,
+    } = req.body;
 
-      const user = await User.findById(userId);
-      if (!user) {
-          return res.status(404).send("User not found.");
-      }
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send("User not found.");
+    }
 
-      user.addresses.push({
-          name,
-          email,
-          phoneNo,
-          companyName,
-          address,
-          addressLine1,
-          city,
-          state,
-          postalCode: parseInt(postalCode)
+    const isDefault = req.body.setAsDefault === "on";
+    if (isDefault) {
+      user.addresses.forEach((address) => {
+        address.default = false;
       });
+    }
 
-      await user.save();
-      res.redirect("/account");
+    user.addresses.push({
+      name,
+      email,
+      phoneNo,
+      companyName,
+      address,
+      addressLine1,
+      city,
+      state,
+      postalCode: parseInt(postalCode),
+      default: isDefault,
+    });
+
+    await user.save();
+    res.redirect("/account");
   } catch (error) {
-      console.error("Error adding address:", error);
-      res.status(500).send("Internal server error");
+    console.error("Error adding address:", error);
+    res.status(500).send("Internal server error");
   }
 });
-
 
 router.get("/edit-address/:addressId", async (req, res) => {
   if (!req.user) {
@@ -790,13 +811,83 @@ router.post("/change-password", async (req, res) => {
   }
 });
 
-router.get('/checkout', (req, res) => {
-  const token = req.cookies.jwt;
+router.get("/checkout", async (req, res) => {
+  try {
+    const token = req.cookies.jwt;
 
-  if (!token) {
-    return res.redirect("/login");
+    if (!token) {
+      return res.redirect("/login");
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.userId;
+
+    const cart = await Cart.findOne({ userId }).populate({
+      path: "products.productId",
+      match: { isDeleted: false },
+    });
+
+    const validProducts =
+      cart?.products.filter((product) => product.productId) || [];
+
+    const populatedProducts = validProducts.map((product) => ({
+      ...product.productId._doc,
+      quantity: product.quantity,
+    }));
+
+    const user = await User.findById(userId);
+    const defaultAddress = user.addresses.find((address) => address.default);
+
+    res.render("user-checkout", {
+      products: populatedProducts,
+      defaultAddress: defaultAddress,
+    });
+  } catch (error) {
+    console.error("Error fetching checkout data:", error);
+    res.status(500).send("Internal server error");
   }
-  res.render('user-checkout')
+});
+
+router.post("/set-default-address", async (req, res) => {
+  try {
+    const { userId, addressId } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send("User not found.");
+    }
+
+    user.addresses.forEach((address) => {
+      address.default = address._id.toString() === addressId;
+    });
+
+    await user.save();
+    res.redirect("/account");
+  } catch (error) {
+    console.error("Error setting default address:", error);
+    res.status(500).send("Internal server error");
+  }
+});
+
+router.get('/select-address', async (req, res) => {
+  try {
+    const token = req.cookies.jwt;
+    if (!token) {
+      return res.redirect("/login");
+    }
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.userId;
+    const user = await User.findOne({ _id: userId });
+
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    res.render("select-address", { addresses: user.addresses,userId });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal server error");
+  }
 })
 
 module.exports = router;

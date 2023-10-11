@@ -1,0 +1,87 @@
+<% if (typeof error !=='undefined' ) { %>
+  <div class="alert alert-danger" role="alert">
+    <%= error %>
+  </div>
+  <% } %>
+    <%- include('user-header') %>
+      <main class="main">
+        <section class="pt-150 pb-150">
+          <div class="container">
+            <div class="row">
+              <div class="col-lg-10 m-auto">
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="dashboard-menu">
+                      <ul class="nav flex-column" role="tablist">
+                        <li class="nav-item">
+                          <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#address" role="tab"
+                            aria-controls="address" aria-selected="true"><i class="fi-rs-marker mr-10"></i>Select
+                            Address</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="col-md-8">
+                    <div class="tab-content">
+                      <div class="tab-pane fade" id="address" role="tabpanel" aria-labelledby="address-tab">
+                        <% if(addresses && addresses.length> 0) { %>
+                          <% addresses.forEach(address=> { %>
+                            <div class="row mb-20">
+                              <div class="col-lg-6">
+                                <div class="card">
+                                  <div class="card-header">
+                                    <h5 class="mb-0">Select your address</h5>
+                                  </div>
+                                  <div class="card-body">
+                                    <address class="user-account-address-display">
+                                      <span class="address-bold">Full Name:</span>
+                                      <%= address.name %><br>
+                                        <span class="address-bold">Email:</span>
+                                        <%= address.email %><br>
+                                          <span class="address-bold">Phone Number:</span>
+                                          <%= address.phoneNo %><br>
+                                            <span class="address-bold">Company Name:</span>
+                                            <%= address.companyName %><br>
+                                              <span class="address-bold">Address:</span>
+                                              <%= address.address %><br>
+                                                <% if(address.addressLine1) { %>
+                                                  <span class="address-bold">Address Line 1:</span>
+                                                  <%= address.addressLine1 %><br>
+                                                    <% } %>
+                                                      <span class="address-bold">City:</span>
+                                                      <%= address.city %><br>
+                                                        <span class="address-bold">State:</span>
+                                                        <%= address.state %><br>
+                                                          <span class="address-bold">Postal Code:</span>
+                                                          <%= address.postalCode %>
+                                    </address>
+                                    <div>
+                                      <input type="hidden" name="userId" value="<%= userId %>">
+                                      <label for="address-select-checkout-<%= address._id %>"
+                                        class="custom-radio-label">
+                                        Select :
+                                        <input class="form-check-input p-0 custom-radio-input"
+                                          id="address-select-checkout-<%= address._id %>" type="radio"
+                                          name="address-select-checkout" <% if(address.default) { %> checked <% } %>
+                                          data-address-id="<%= address._id %>"
+                                            style="width: 1.3em; height: 1.3em; margin-left: 5px;">
+                                      </label>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <% }) %>
+                              <% } else { %>
+                                <p>You have not added any addresses yet.</p>
+                                <% } %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+      <%- include('footer') %>

@@ -9,7 +9,11 @@ const AddressSchema = new mongoose.Schema({
   name: String,
   phoneNo: Number,
   email: String,
-  companyName: String
+  companyName: String,
+  default: {
+    default: false,
+    type: Boolean
+  }
 });
 
 const userSchema = new mongoose.Schema(

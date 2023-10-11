@@ -194,6 +194,15 @@
                                                           <span class="address-bold">Postal Code:</span>
                                                           <%= address.postalCode %>
                                     </address>
+                                    <div>
+                                      <label for="address-select-<%= address._id %>" class="custom-radio-label">
+                                        Select :
+                                        <input class="form-check-input p-0 custom-radio-input"
+                                          id="address-select-<%= address._id %>" type="radio" name="address-select" <%
+                                          if(address.default) { %> checked <% } %> data-address-id="<%= address._id %>"
+                                            style="width: 1.3em; height: 1.3em; margin-left: 5px;">
+                                      </label>
+                                    </div>
                                     <a href="/edit-address/<%= address._id %>" class="btn-small mr-10">Edit</a>
                                     <form action="/remove-address/<%= address._id %>" style="display: inline-block;"
                                       method="post">
@@ -317,6 +326,11 @@
                                   <input class="form-control square capitalize number-arrow-hide" name="postalCode"
                                     type="number">
                                 </div>
+                                <div class="form-group col-md-12" style="display: flex; align-items: center;">
+                                  <label for="set-as-default">Set as default:</label>
+                                  <input type="checkbox" name="setAsDefault" id="set-as-default"
+                                    style="width: 14px; height: 14px; margin-left: 5px;">
+                                </div>
                                 <input type="hidden" name="userId" value="<%= userId %>">
                                 <div class="col-md-12">
                                   <button type="submit" class="btn btn-fill-out submit">Confirm</button>
@@ -366,6 +380,7 @@
                 </div>
               </div>
             </div>
+          </div>
         </section>
       </main>
       <%- include('user-footer') %>

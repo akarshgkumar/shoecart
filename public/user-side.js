@@ -38,8 +38,49 @@ function togglePassword(clickedElement) {
   }
 }
 
+$(function () {
+  $('input[name="address-select-checkout"]').on("change", function () {
+    console.log("on address select ajax");
+    const selectedAddressId = $(this).data("address-id");
+    const userId = $('input[name="userId"]').val();
 
-$(function(){
+    $.ajax({
+      url: "/set-default-address",
+      method: "POST",
+      data: {
+        userId: userId,
+        addressId: selectedAddressId,
+      },
+      success: function (response) {
+        console.log("Default address updated successfully!");
+        window.location.href = "/checkout";
+      },
+      error: function (error) {
+        console.log("Error updating default address.");
+      },
+    });
+  });
+
+  $('input[name="address-select"]').on("change", function () {
+    console.log("on address select ajax");
+    const selectedAddressId = $(this).data("address-id");
+    const userId = $('input[name="userId"]').val();
+
+    $.ajax({
+      url: "/set-default-address",
+      method: "POST",
+      data: {
+        userId: userId,
+        addressId: selectedAddressId,
+      },
+      success: function (response) {
+        console.log("Default address updated successfully!");
+      },
+      error: function (error) {
+        console.log("Error updating default address.");
+      },
+    });
+  });
   $(".add-address-form").validate({
     rules: {
       name: {
@@ -96,13 +137,13 @@ $(function(){
     },
     messages: {
       postalCode: {
-        digits: "Please enter a valid postal code (digits only)."
+        digits: "Please enter a valid postal code (digits only).",
       },
       phoneNo: {
-        digits: "Please enter a valid phone number (digits only)."
-      }
-    }
-});
+        digits: "Please enter a valid phone number (digits only).",
+      },
+    },
+  });
 
   $(".edit-account-form").validate({
     rules: {
@@ -121,11 +162,11 @@ $(function(){
       phoneNo: {
         digits: true,
         minlength: 10,
-        maxLength: 15
+        maxLength: 15,
       },
-      submitHandler: function(form) {
+      submitHandler: function (form) {
         form.submit();
-      }
+      },
     },
   });
   $(".change-password-form").validate({
@@ -142,9 +183,9 @@ $(function(){
         required: true,
         noSpaceMinLength: 4,
       },
-      submitHandler: function(form) {
+      submitHandler: function (form) {
         form.submit();
-      }
+      },
     },
   });
 });

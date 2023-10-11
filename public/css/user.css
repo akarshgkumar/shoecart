@@ -10552,3 +10552,16 @@ figure.border-radius-10 img {
 input.form-control {
   text-transform: none;
 }
+
+.custom-radio-label {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 12px;
+  font-weight: 600;
+}
+
+.custom-radio-input {
+  width: 1.5em;
+  height: 1.5em;
+}
+
