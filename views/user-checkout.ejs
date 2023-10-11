@@ -143,32 +143,38 @@
                         </tr>
                       </thead>
                       <tbody>
-                        <% products.forEach(product=> { %>
-                          <tr>
-                            <td class="image product-thumbnail"><img src="<%= product.mainImage %>" alt="#"></td>
-                            <td>
-                              <h5><a href="#">
-                                  <%= product.name %>
-                                </a></h5>
-                              <span class="product-qty">x <%= product.quantity %></span>
-                            </td>
-                            <td>₹<%= product.price * product.quantity %>
-                            </td>
-                          </tr>
-                          <% }) %>
+                        <% let subtotal=0; products.forEach(product=> {
+                          subtotal += product.price * product.quantity;
+                          })
+                          %>
+                          <% products.forEach(product=> { %>
                             <tr>
-                              <th>SubTotal</th>
-                              <td class="product-subtotal" colspan="2">₹280.00</td>
+                              <td class="image product-thumbnail"><img src="<%= product.mainImage %>" alt="#"></td>
+                              <td>
+                                <h5><a href="#">
+                                    <%= product.name %>
+                                  </a></h5>
+                                <span class="product-qty">x <%= product.quantity %></span>
+                              </td>
+                              <td>₹<%= product.price * product.quantity %>
+                              </td>
                             </tr>
-                            <tr>
-                              <th>Shipping</th>
-                              <td colspan="2"><em>Free Shipping</em></td>
-                            </tr>
-                            <tr>
-                              <th>Total</th>
-                              <td colspan="2" class="product-subtotal"><span
-                                  class="font-xl text-brand fw-900">₹280.00</span></td>
-                            </tr>
+                            <% }) %>
+                              <tr>
+                                <th>SubTotal</th>
+                                <td class="product-subtotal" colspan="2">₹<%= subtotal.toFixed(2) %>
+                                </td>
+                              </tr>
+                              <tr>
+                                <th>Shipping</th>
+                                <td colspan="2"><em>Free Shipping</em></td>
+                              </tr>
+                              <tr>
+                                <th>Total</th>
+                                <td colspan="2" class="product-subtotal"><span class="font-xl text-brand fw-900">₹<%=
+                                      subtotal.toFixed(2) %></span></td>
+                              </tr>
+
                       </tbody>
                     </table>
                   </div>
