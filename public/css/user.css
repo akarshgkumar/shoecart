@@ -10548,3 +10548,7 @@ figure.border-radius-10 img {
     padding: 30px;
   }
 }
+
+input.form-control {
+  text-transform: none;
+}

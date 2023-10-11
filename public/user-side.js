@@ -42,6 +42,28 @@ function togglePassword(clickedElement) {
 $(function(){
   $(".add-address-form").validate({
     rules: {
+      name: {
+        required: true,
+        noSpaceStartEnd: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      email: {
+        required: true,
+        customEmail: true,
+        noSpaceStartEnd: true,
+        maxlength: 50,
+      },
+      phoneNo: {
+        digits: true,
+        minlength: 10,
+        maxlength: 15,
+      },
+      companyName: {
+        noSpaceStartEnd: true,
+        minlength: 2,
+        maxlength: 100,
+      },
       address: {
         required: true,
         noSpaceStartEnd: true,
@@ -53,31 +75,35 @@ $(function(){
         minlength: 3,
         maxlength: 100,
       },
-      city: { 
+      city: {
         required: true,
         noSpaceStartEnd: true,
         minlength: 2,
         maxlength: 50,
       },
-      state: { 
+      state: {
         required: true,
         noSpaceStartEnd: true,
         minlength: 2,
         maxlength: 50,
       },
-      postalCode: { 
+      postalCode: {
         required: true,
-        digits: true, 
-        minlength: 5, 
-        maxlength: 10, 
+        digits: true,
+        minlength: 5,
+        maxlength: 10,
       },
     },
     messages: {
       postalCode: {
         digits: "Please enter a valid postal code (digits only)."
+      },
+      phoneNo: {
+        digits: "Please enter a valid phone number (digits only)."
       }
     }
-  });
+});
+
   $(".edit-account-form").validate({
     rules: {
       email: {
@@ -94,7 +120,8 @@ $(function(){
       },
       phoneNo: {
         digits: true,
-        minlength: 10
+        minlength: 10,
+        maxLength: 15
       },
       submitHandler: function(form) {
         form.submit();

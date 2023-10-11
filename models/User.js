@@ -5,7 +5,11 @@ const AddressSchema = new mongoose.Schema({
   addressLine1: String,
   city: String,
   state: String,
-  postalCode: Number
+  postalCode: Number,
+  name: String,
+  phoneNo: Number,
+  email: String,
+  companyName: String
 });
 
 const userSchema = new mongoose.Schema(

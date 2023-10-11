@@ -667,28 +667,33 @@ router.post("/edit-account", async (req, res) => {
 
 router.post("/add-address", async (req, res) => {
   try {
-    const { userId, address, addressLine1, city, state, postalCode } = req.body;
-    const user = await User.findById(userId);
+      const { userId, name, email, phoneNo, companyName, address, addressLine1, city, state, postalCode } = req.body;
 
-    if (!user) {
-      return res.status(404).send("User not found.");
-    }
+      const user = await User.findById(userId);
+      if (!user) {
+          return res.status(404).send("User not found.");
+      }
 
-    user.addresses.push({
-      address,
-      addressLine1,
-      city,
-      state,
-      postalCode: parseInt(postalCode),
-    });
+      user.addresses.push({
+          name,
+          email,
+          phoneNo,
+          companyName,
+          address,
+          addressLine1,
+          city,
+          state,
+          postalCode: parseInt(postalCode)
+      });
 
-    await user.save();
-    res.redirect("/account");
+      await user.save();
+      res.redirect("/account");
   } catch (error) {
-    console.error("Error adding address:", error);
-    res.status(500).send("Internal server error");
+      console.error("Error adding address:", error);
+      res.status(500).send("Internal server error");
   }
 });
+
 
 router.get("/edit-address/:addressId", async (req, res) => {
   if (!req.user) {
@@ -784,5 +789,14 @@ router.post("/change-password", async (req, res) => {
     return res.redirect("/account?error=Internal Server Error");
   }
 });
+
+router.get('/checkout', (req, res) => {
+  const token = req.cookies.jwt;
+
+  if (!token) {
+    return res.redirect("/login");
+  }
+  res.render('user-checkout')
+})
 
 module.exports = router;
