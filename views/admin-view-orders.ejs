@@ -60,11 +60,11 @@
                           <% if (order.isDelivered) { %>
                             <span class="badge rounded-pill alert-success">Delivered</span>
                             <% } else if (order.isShipped) { %>
-                              <span class="badge rounded-pill alert-info">Shipped</span>
+                              <span class="badge rounded-pill alert-warning">Shipped</span>
                               <% } else if (order.isCancelled) { %>
                                 <span class="badge rounded-pill alert-danger">Cancelled</span>
                                 <% } else { %>
-                                  <span class="badge rounded-pill alert-warning">Pending</span>
+                                  <span class="badge rounded-pill alert-dark">Pending</span>
                                   <% } %>
                         </td>
                         <td>
