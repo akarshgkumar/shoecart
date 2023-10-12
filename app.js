@@ -16,7 +16,7 @@ mongoose
   .catch((err) => console.error("MongoDB connection error:", err));
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieParser());
 
@@ -34,5 +34,6 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send('something broke!');
 });
+
 
 app.listen(config.server.port, () => console.log("running at port 3000"));

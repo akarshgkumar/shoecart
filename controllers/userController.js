@@ -7,6 +7,7 @@ const sgMail = require("@sendgrid/mail");
 const User = require("../models/User");
 const Cart = require("../models/Cart");
 const Product = require("../models/Product");
+const Order = require("../models/Order");
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -607,38 +608,37 @@ router.post("/clear-cart", async (req, res) => {
 
 router.get("/cart", async (req, res) => {
   try {
-      const token = req.cookies.jwt;
+    const token = req.cookies.jwt;
 
-      if (!token) {
-          return res.redirect("/login");
-      }
+    if (!token) {
+      return res.redirect("/login");
+    }
 
-      const decoded = jwt.verify(token, JWT_SECRET);
-      const userId = decoded.userId;
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.userId;
 
-      const cart = await Cart.findOne({ userId }).populate({
-          path: "products.productId",
-          match: { isDeleted: false },
-      });
+    const cart = await Cart.findOne({ userId }).populate({
+      path: "products.productId",
+      match: { isDeleted: false },
+    });
 
-      const validProducts =
-          cart?.products.filter((product) => product.productId) || [];
+    const validProducts =
+      cart?.products.filter((product) => product.productId) || [];
 
-      const populatedProducts = validProducts.map((product) => ({
-          ...product.productId._doc,
-          quantity: product.quantity,
-          selectedSize: product.size  
-      }));
+    const populatedProducts = validProducts.map((product) => ({
+      ...product.productId._doc,
+      quantity: product.quantity,
+      selectedSize: product.size,
+    }));
 
-      console.log(populatedProducts.selectedSize)
+    console.log(populatedProducts.selectedSize);
 
-      res.render("shop-cart", { products: populatedProducts, userId });
+    res.render("shop-cart", { products: populatedProducts, userId });
   } catch (error) {
-      console.error("Error fetching cart:", error);
-      res.status(500).send("Internal server error");
+    console.error("Error fetching cart:", error);
+    res.status(500).send("Internal server error");
   }
 });
-
 
 router.post("/update-product-size", async (req, res) => {
   try {
@@ -787,7 +787,7 @@ router.post("/update-cart-quantity", async (req, res) => {
         (acc, product) => acc + product.quantity,
         0
       );
-      res.json({ success: true,cartItems: totalItems });
+      res.json({ success: true, cartItems: totalItems });
     } else {
       res.json({ success: false, message: "Product not found in cart" });
     }
@@ -847,6 +847,7 @@ router.post("/change-password", async (req, res) => {
 router.get("/checkout", async (req, res) => {
   try {
     const token = req.cookies.jwt;
+    const error = req.query.error;
 
     if (!token) {
       return res.redirect("/login");
@@ -860,13 +861,29 @@ router.get("/checkout", async (req, res) => {
       match: { isDeleted: false },
     });
 
-    const validProducts =
+    let totalPrice = 0;  
+
+    const validProducts = 
       cart?.products.filter((product) => product.productId) || [];
 
-    const populatedProducts = validProducts.map((product) => ({
-      ...product.productId._doc,
-      quantity: product.quantity,
-    }));
+    const populatedProducts = validProducts.map((product) => {
+      const productTotalPrice = product.productId.price * product.quantity;
+
+      totalPrice += productTotalPrice;  
+
+      return {
+        ...product.productId._doc,
+        quantity: product.quantity,
+        size: product.size,
+        price: productTotalPrice,  
+      };
+    });
+
+    for (const product of validProducts) {
+      product.price = product.productId.price * product.quantity;
+    }
+
+    await cart.save();
 
     const user = await User.findById(userId);
     const defaultAddress = user.addresses.find((address) => address.default);
@@ -874,12 +891,16 @@ router.get("/checkout", async (req, res) => {
     res.render("user-checkout", {
       products: populatedProducts,
       defaultAddress: defaultAddress,
+      userId,
+      totalPrice,  
+      error,
     });
   } catch (error) {
     console.error("Error fetching checkout data:", error);
     res.status(500).send("Internal server error");
   }
 });
+
 
 router.post("/set-default-address", async (req, res) => {
   try {
@@ -920,6 +941,100 @@ router.get("/select-address", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal server error");
+  }
+});
+
+router.post("/place-order", async (req, res) => {
+  const {
+    user,
+    name,
+    email,
+    phone,
+    cname,
+    shipping_address,
+    shipping_address2,
+    city,
+    state,
+    zipcode,
+    payment_option,
+    totalAmount,
+  } = req.body;
+
+  if (
+    !name ||
+    !email ||
+    !phone ||
+    !shipping_address ||
+    !city ||
+    !state ||
+    !zipcode ||
+    !payment_option
+  ) {
+    return res.redirect(
+      "/checkout?error=Please%20fill%20in%20all%20required%20fields."
+    );
+  }
+
+  try {
+    const cart = await Cart.findOne({ userId: user });
+
+    if (!cart) {
+      return res.redirect(
+        "/checkout?error=No%20cart%20found%20for%20the%20user."
+      );
+    }
+
+    for (let cartProduct of cart.products) {
+      const product = await Product.findById(cartProduct.productId);
+      if (cartProduct.quantity > product.stock) {
+        return res.redirect(
+          "/checkout?error=Not%20enough%20stock%20for%20product%20" + product.name
+        );
+      }
+    }
+
+    const mappedProducts = cart.products.map((product) => {
+      return {
+        product: product._id, 
+        quantity: product.quantity,
+        price: product.price,
+        size: product.size, 
+      };
+    });
+
+    const order = new Order({
+      user,
+      products: mappedProducts,
+      address: {
+        name,
+        email,
+        phoneNo: phone,
+        companyName: cname,
+        address: shipping_address,
+        addressLine1: shipping_address2,
+        city,
+        state,
+        postalCode: zipcode,
+      },
+      paymentMethod: payment_option,
+      totalAmount: parseFloat(totalAmount),
+    });
+
+    await order.save();
+
+    for (let cartProduct of cart.products) {
+      const product = await Product.findById(cartProduct.productId);
+      product.stock -= cartProduct.quantity;
+      await product.save();
+    }
+
+    await Cart.deleteOne({ userId: user });
+    return res.redirect("/home");
+  } catch (err) {
+    console.error("Error placing order:", err);
+    return res.redirect(
+      "/checkout?error=An%20error%20occurred%20while%20placing%20your%20order."
+    );
   }
 });
 

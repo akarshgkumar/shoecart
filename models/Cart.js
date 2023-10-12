@@ -13,7 +13,8 @@ const cartSchema = new mongoose.Schema({
         ref: "Product",
       },
       quantity: Number,
-      size: Number
+      size: Number,
+      price: Number
     },
   ],
 });

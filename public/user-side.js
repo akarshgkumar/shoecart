@@ -39,6 +39,85 @@ function togglePassword(clickedElement) {
 }
 
 $(function () {
+  $(".checkout-form").validate({
+    rules: {
+      name: {
+        required: true,
+        noSpaceStartEnd: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      email: {
+        required: true,
+        customEmail: true,
+        noSpaceStartEnd: true,
+        maxlength: 50,
+      },
+      phone: {
+        required: true,
+        digits: true,
+        minlength: 10,
+        maxlength: 15,
+      },
+      cname: {
+        noSpaceStartEnd: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      shipping_address: {
+        required: true,
+        noSpaceStartEnd: true,
+        minlength: 3,
+        maxlength: 100,
+      },
+      shipping_address2: {
+        noSpaceStartEnd: true,
+        minlength: 3,
+        maxlength: 100,
+      },
+      city: {
+        required: true,
+        noSpaceStartEnd: true,
+        minlength: 2,
+        maxlength: 50,
+      },
+      state: {
+        required: true,
+        noSpaceStartEnd: true,
+        minlength: 2,
+        maxlength: 50,
+      },
+      zipcode: {
+        required: true,
+        digits: true,
+        minlength: 5,
+        maxlength: 10,
+      },
+      payment_option: {
+        required: true
+      }
+    },
+    messages: {
+      zipcode: {
+        digits: "Please enter a valid postal code (digits only).",
+      },
+      phone: {
+        digits: "Please enter a valid phone number (digits only).",
+      },
+      payment_option: "Please select a payment method."
+
+    },
+    errorPlacement: function(error, element) {
+      if (element.attr("name") == "payment_option") {
+        error.insertAfter(".payment_option:last");
+      } else {
+        error.insertAfter(element);
+      }
+    },
+    submitHandler: function (form) {
+      form.submit();
+    },
+  });
   $('input[name="address-select-checkout"]').on("change", function () {
     console.log("on address select ajax");
     const selectedAddressId = $(this).data("address-id");
