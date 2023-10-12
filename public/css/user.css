@@ -10582,3 +10582,9 @@ input.form-control {
 .modal {
   z-index: 9999 !important; 
 }
+
+.order-cancel-button {
+  border: none;
+  background-color: transparent;
+  text-decoration: underline;
+}

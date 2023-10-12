@@ -468,4 +468,8 @@ router.get("/block-user/:userId", async (req, res) => {
   }
 });
 
+router.get("/view-orders", (req, res) => {
+  res.render('admin-view-orders');
+})
+
 module.exports = router;

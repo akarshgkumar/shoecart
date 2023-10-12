@@ -22,20 +22,20 @@ html {
 }
 
 .logout-btn {
+  font-size: 14px;
   background-color: #383e50;
   color: #fff;
   transition: background-color 0.15s, color 0.15s;
 }
 
-.logout-btn:hover{
+.logout-btn:hover {
   background-color: #fff;
   color: #383e50;
 }
 
 label.error {
-  color: #C51E3A !important;
+  color: #c51e3a !important;
 }
-
 
 a {
   font-weight: 400;
@@ -56,9 +56,9 @@ a:hover {
 
 .custom-select {
   appearance: none;
-  background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%20viewBox%3D%220%200%20292.362%20292.362%22%3E%3Cg%3E%3Cpath%20fill%3D%22%23000000%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-13%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2013l128%20127.9c3.6%203.6%207.8%205.4%2012.6%205.4s9-1.8%2012.6-5.4L287%2095.1c3.6-3.6%205.4-7.8%205.4-12.8%200-5-1.8-9.2-5.4-12.9z%22%3E%3C%2Fpath%3E%3C%2Fg%3E%3C%2Fsvg%3E');
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%20viewBox%3D%220%200%20292.362%20292.362%22%3E%3Cg%3E%3Cpath%20fill%3D%22%23000000%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-13%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2013l128%20127.9c3.6%203.6%207.8%205.4%2012.6%205.4s9-1.8%2012.6-5.4L287%2095.1c3.6-3.6%205.4-7.8%205.4-12.8%200-5-1.8-9.2-5.4-12.9z%22%3E%3C%2Fpath%3E%3C%2Fg%3E%3C%2Fsvg%3E");
   background-repeat: no-repeat;
-  background-position: right .75rem center;
+  background-position: right 0.75rem center;
   background-size: 8px 10px;
   padding-right: 1.75rem;
 }
@@ -66,12 +66,12 @@ a:hover {
 .selected-images-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px; 
+  gap: 10px;
 }
 
 .selected-image {
-  border: 1px solid #ccc; 
-  padding: 5px; 
+  border: 1px solid #ccc;
+  padding: 5px;
 }
 
 .selected-image img {
@@ -153,12 +153,12 @@ button:hover {
 }
 
 #admin-delete-product-icon {
-  background: #C61E31;
+  background: #c61e31;
 }
 
 .js-disabled-alert {
   background-color: #ffcccc;
-  color: #C61E31;
+  color: #c61e31;
   padding: 10px;
   border: 1px solid red;
   margin: 10px;

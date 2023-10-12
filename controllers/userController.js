@@ -235,18 +235,18 @@ router.get("/account", async (req, res) => {
       "products.product"
     );
 
-    let orderStatus = "Processing";
-    if (order.isShipped) {
-      orderStatus = "Shipped";
-    } else if (order.isDelivered) {
-      orderStatus = "Delivered";
-    } else if (order.isCancelled) {
-      orderStatus = "Cancelled";
-    } else {
-      orderStatus = "Processing";
-    }
-
+    
     const orders = order.map((order) => {
+      let orderStatus = "Processing";
+      if (order.isShipped) {
+        orderStatus = "Shipped";
+      } else if (order.isDelivered) {
+        orderStatus = "Delivered";
+      } else if (order.isCancelled) {
+        orderStatus = "Cancelled";
+      } else {
+        orderStatus = "Processing";
+      }
       const totalItems = order.products.reduce(
         (acc, curr) => acc + curr.quantity,
         0
@@ -263,7 +263,8 @@ router.get("/account", async (req, res) => {
         date: order.createdAt.toDateString(),
         status: orderStatus,
         total: `₹${totalAmount.toFixed(2)}`,
-        items: `${totalItems} item${totalItems > 1 ? 's' : ''}`
+        items: `${totalItems} item${totalItems > 1 ? 's' : ''}`,
+        fullId: order._id
       };
     });
 
@@ -791,6 +792,35 @@ router.post("/update-address/:addressId", async (req, res) => {
   res.redirect("/account");
 });
 
+router.post("/cancel-order", async (req, res) => {
+  try {
+      const { orderId } = req.body;
+      
+      const order = await Order.findById(orderId);
+
+      if (!order || order.isCancelled) {
+          return res.json({ success: false, message: 'Order not found or already cancelled.' });
+      }
+
+      order.isCancelled = true;
+      await order.save();
+
+      for (let orderedProduct of order.products) {
+        console.log(orderedProduct.product)
+          const product = await Product.findById(orderedProduct.product);
+          console.log(product);
+          product.stock += orderedProduct.quantity;
+          await product.save();
+      }
+
+      res.json({ success: true, message: 'Order cancelled successfully.' });
+  } catch (err) {
+      console.error("Error cancelling order:", err);
+      res.json({ success: false, message: 'An error occurred.' });
+  }
+});
+
+
 router.post("/update-cart-quantity", async (req, res) => {
   try {
     const { productId, quantity } = req.body;
@@ -1020,7 +1050,7 @@ router.post("/place-order", async (req, res) => {
 
     const mappedProducts = cart.products.map((product) => {
       return {
-        product: product._id,
+        product: product.productId,
         quantity: product.quantity,
         price: product.price,
         size: product.size,

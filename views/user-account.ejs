@@ -125,7 +125,8 @@
                                       <td>
                                         <%= order.items %>
                                       </td>
-                                      <td><a href="/cancel" class="btn-small cancel-text order-view-track">Cancel</a></td>
+                                      <td><button data-order-id="<%= order.fullId %>"
+                                          class="btn-small cancel-text order-cancel-button">Cancel</button></td>
                                     </tr>
                                     <% }); %>
                                 </tbody>
@@ -357,5 +358,5 @@
         </section>
       </main>
       <%- include('user-footer') %>
-      
+
         <%- include('footer') %>
