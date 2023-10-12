@@ -448,6 +448,15 @@ router.get("/unblock-user/:userId", async (req, res) => {
   }
 });
 
+router.delete('/delete-order/:id', async (req, res) => {
+  const { id } = req.params;
+
+  await Order.findByIdAndDelete(id);
+
+  res.json({ message: 'Order deleted successfully' });
+});
+
+
 router.get("/block-user/:userId", async (req, res) => {
   const { userId } = req.params;
   try {
