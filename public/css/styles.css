@@ -21,6 +21,30 @@ html {
   font-family: "Lato", sans-serif;
 }
 
+.alert-warning {
+  color: #98530c;
+  background-color: #ffe8d0;
+  border-color: #fedcb9;
+}
+
+.alert-danger {
+  color: #ffffff;
+  background-color: #c51e3a;
+  border-color: #fedcb9;
+}
+
+.alert-info {
+  color: #ffffff;
+  background-color: #5D8AA8;
+  border-color: #fedcb9;
+}
+
+.alert-success {
+  color: #ffffff;
+  background-color: #013220;
+  border-color: #fedcb9;
+}
+
 .logout-btn {
   font-size: 14px;
   background-color: #383e50;
@@ -2109,6 +2133,11 @@ textarea.form-control {
 .rounded-pill {
   padding-right: 0.6em;
   padding-left: 0.6em;
+}
+
+.badge {
+  font-size: 10px;
+  padding: 5px 10px;
 }
 
 .badge.bg-dark {

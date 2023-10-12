@@ -4,6 +4,7 @@ const Product = require("../models/Product");
 const Category = require("../models/Category");
 const Brand = require("../models/Brand");
 const User = require("../models/User");
+const Order = require("../models/Order")
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
@@ -468,8 +469,14 @@ router.get("/block-user/:userId", async (req, res) => {
   }
 });
 
-router.get("/view-orders", (req, res) => {
-  res.render('admin-view-orders');
-})
+router.get('/view-orders', async (req, res) => {
+  try {
+    const orders = await Order.find({}).populate('user').populate('products.product');
+    res.render('admin-view-orders', { orders });
+  } catch (err) {
+    console.error('Error fetching orders:', err);
+    res.status(500).send('Internal server error');
+  }
+});
 
 module.exports = router;
