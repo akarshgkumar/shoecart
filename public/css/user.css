@@ -7302,6 +7302,8 @@ span.fi-rs-apps {
   top: 4px;
 }
 
+
+
 .main-menu > nav > ul > li ul.sub-menu li:hover > a {
   color: #000;
 }
@@ -10565,3 +10567,18 @@ input.form-control {
   height: 1.5em;
 }
 
+.order-view-track {
+  text-decoration: underline;
+}
+
+.cancel-text {
+  color: #c51e3a;
+}
+
+.cancel-text:hover {
+  color: #681d29;
+}
+
+.modal {
+  z-index: 9999 !important; 
+}
