@@ -33,6 +33,8 @@
                     %>
 
                     <% products.forEach(product=> { %>
+                      <h5>Selected Size: <%= product.selectedSize %></h5>
+
                       <tr>
                         <td class="image product-thumbnail"><img src="<%= product.mainImage %>" alt="#"></td>
                         <td class="product-des product-name">
@@ -42,12 +44,17 @@
                         </td>
                         <td class="price" data-title="Price"><span>₹ <%= product.price.toFixed(2) %></span></td>
                         <td class="text-center" data-title="Size">
-                          <select name="size" class="form-select">
-                            <% product.sizes.forEach(size=> { %>
+                          <select name="size" class="form-select product-size" data-product-id="<%= product._id %>">
+                            <option value="<%= product.selectedSize %>">
+                              <%= product.selectedSize %>
+                            </option>
+                            <% product.sizes.forEach(size=> {
+                              if(size !== product.selectedSize) {
+                              %>
                               <option value="<%= size %>">
                                 <%= size %>
                               </option>
-                              <% }); %>
+                              <% } }); %>
                           </select>
                         </td>
                         <td class="text-center" data-title="Stock">

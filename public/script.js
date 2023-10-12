@@ -32,6 +32,73 @@ $.validator.addMethod(
 );
 
 $(function () {
+  $(".checkout-form").validate({
+    rules: {
+      name: {
+        required: true,
+        noSpaceStartEnd: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      email: {
+        required: true,
+        customEmail: true,
+        noSpaceStartEnd: true,
+        maxlength: 50,
+      },
+      phone: {
+        required: true,
+        digits: true,
+        minlength: 10,
+        maxlength: 15,
+      },
+      cname: {
+        noSpaceStartEnd: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      shipping_address: {
+        required: true,
+        noSpaceStartEnd: true,
+        minlength: 3,
+        maxlength: 100,
+      },
+      shipping_address2: {
+        noSpaceStartEnd: true,
+        minlength: 3,
+        maxlength: 100,
+      },
+      city: {
+        required: true,
+        noSpaceStartEnd: true,
+        minlength: 2,
+        maxlength: 50,
+      },
+      state: {
+        required: true,
+        noSpaceStartEnd: true,
+        minlength: 2,
+        maxlength: 50,
+      },
+      zipcode: {
+        required: true,
+        digits: true,
+        minlength: 5,
+        maxlength: 10,
+      },
+    },
+    messages: {
+      zipcode: {
+        digits: "Please enter a valid postal code (digits only).",
+      },
+      phone: {
+        digits: "Please enter a valid phone number (digits only).",
+      },
+    },
+    submitHandler: function (form) {
+      form.submit();
+    },
+  });
   $(".stock-form").validate({
     rules: {
       stock_no: {
@@ -222,7 +289,6 @@ $(function () {
     },
   });
 
-  
   $(".login-form").validate({
     rules: {
       email: {

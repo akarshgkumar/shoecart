@@ -526,6 +526,8 @@ router.post("/signup", async (req, res) => {
 
 router.post("/add-to-cart", async (req, res) => {
   try {
+    const { productId, size, quantity } = req.body;
+
     if (!req.cookies.jwt) {
       return res
         .status(401)
@@ -534,10 +536,6 @@ router.post("/add-to-cart", async (req, res) => {
 
     const decoded = jwt.verify(req.cookies.jwt, JWT_SECRET);
     const userId = decoded.userId;
-
-    console.log(userId);
-
-    const { productId } = req.body;
 
     let cart = await Cart.findOne({ userId });
     if (!cart) {
@@ -549,12 +547,15 @@ router.post("/add-to-cart", async (req, res) => {
     );
 
     if (productIndex > -1) {
-      cart.products[productIndex].quantity += 1;
+      cart.products[productIndex].quantity =
+        parseInt(cart.products[productIndex].quantity) + parseInt(quantity);
+      cart.products[productIndex].size = size;
     } else {
       const productDetails = await Product.findById(productId);
       cart.products.push({
         productId,
-        quantity: 1,
+        size,
+        quantity,
       });
     }
     await cart.save();
@@ -606,32 +607,60 @@ router.post("/clear-cart", async (req, res) => {
 
 router.get("/cart", async (req, res) => {
   try {
-    const token = req.cookies.jwt;
+      const token = req.cookies.jwt;
 
-    if (!token) {
-      return res.redirect("/login");
-    }
+      if (!token) {
+          return res.redirect("/login");
+      }
 
-    const decoded = jwt.verify(token, JWT_SECRET);
+      const decoded = jwt.verify(token, JWT_SECRET);
+      const userId = decoded.userId;
+
+      const cart = await Cart.findOne({ userId }).populate({
+          path: "products.productId",
+          match: { isDeleted: false },
+      });
+
+      const validProducts =
+          cart?.products.filter((product) => product.productId) || [];
+
+      const populatedProducts = validProducts.map((product) => ({
+          ...product.productId._doc,
+          quantity: product.quantity,
+          selectedSize: product.size  
+      }));
+
+      console.log(populatedProducts.selectedSize)
+
+      res.render("shop-cart", { products: populatedProducts, userId });
+  } catch (error) {
+      console.error("Error fetching cart:", error);
+      res.status(500).send("Internal server error");
+  }
+});
+
+
+router.post("/update-product-size", async (req, res) => {
+  try {
+    const { productId, newSize } = req.body;
+    const decoded = jwt.verify(req.cookies.jwt, JWT_SECRET);
     const userId = decoded.userId;
 
-    const cart = await Cart.findOne({ userId }).populate({
-      path: "products.productId",
-      match: { isDeleted: false },
-    });
+    const cart = await Cart.findOne({ userId });
+    const productIndex = cart.products.findIndex(
+      (p) => p.productId.toString() === productId
+    );
 
-    const validProducts =
-      cart?.products.filter((product) => product.productId) || [];
+    if (productIndex > -1) {
+      cart.products[productIndex].size =
+        newSize || cart.products[productIndex].product.sizes[0];
+      await cart.save();
+    }
 
-    const populatedProducts = validProducts.map((product) => ({
-      ...product.productId._doc,
-      quantity: product.quantity,
-    }));
-
-    res.render("shop-cart", { products: populatedProducts, userId });
+    res.json({ success: true });
   } catch (error) {
-    console.error("Error fetching cart:", error);
-    res.status(500).send("Internal server error");
+    console.error("Error updating product size:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
 
@@ -754,7 +783,11 @@ router.post("/update-cart-quantity", async (req, res) => {
     if (productToUpdate) {
       productToUpdate.quantity = quantity;
       await cart.save();
-      res.json({ success: true });
+      const totalItems = cart.products.reduce(
+        (acc, product) => acc + product.quantity,
+        0
+      );
+      res.json({ success: true,cartItems: totalItems });
     } else {
       res.json({ success: false, message: "Product not found in cart" });
     }
@@ -869,7 +902,7 @@ router.post("/set-default-address", async (req, res) => {
   }
 });
 
-router.get('/select-address', async (req, res) => {
+router.get("/select-address", async (req, res) => {
   try {
     const token = req.cookies.jwt;
     if (!token) {
@@ -883,11 +916,11 @@ router.get('/select-address', async (req, res) => {
       return res.status(404).send("User not found");
     }
 
-    res.render("select-address", { addresses: user.addresses,userId });
+    res.render("select-address", { addresses: user.addresses, userId });
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal server error");
   }
-})
+});
 
 module.exports = router;

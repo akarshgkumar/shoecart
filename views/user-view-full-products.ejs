@@ -70,7 +70,7 @@
                                                     href="shop-wishlist.html">
                                                     <i class="fi-rs-heart"></i>
                                                 </a>
-                                                <a aria-label="Add To Cart" class="action-btn hover-up addToCartButton"
+                                                <a aria-label="Add To Cart" onclick="addToCart(this, '<%= product.sizes[0] %>')" class="action-btn hover-up addToCartButton"
                                                     href="javascript:void(0);" data-product-id="<%= product._id %>">
                                                     <i class="fi-rs-shopping-bag-add"></i>
                                                 </a>
@@ -94,7 +94,7 @@
                                                 <span>₹<%= product.price %> </span>
                                             </div>
                                             <div class="product-action-1 show">
-                                                <a aria-label="Add To Cart" class="action-btn hover-up addToCartButton"
+                                                <a aria-label="Add To Cart" onclick="addToCart(this, '<%= product.sizes[0] %>')" class="action-btn hover-up addToCartButton"
                                                     href="javascript:void(0);" data-product-id="<%= product._id %>">
                                                     <i class="fi-rs-shopping-bag-add"></i>
                                                 </a>
