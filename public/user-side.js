@@ -330,6 +330,9 @@ $(function () {
         digits: "Please enter a valid phone number (digits only).",
       },
     },
+    submitHandler: function (form) {
+      form.submit();
+    },
   });
 
   $(".edit-account-form").validate({

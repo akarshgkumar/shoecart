@@ -970,11 +970,12 @@ router.post("/set-default-address", async (req, res) => {
     });
 
     await user.save();
-    res.redirect("/account");
+    req.flash("success", "Default address changed")
+    res.redirect("/account")
   } catch (error) {
     console.error("Error setting default address:", error);
-    res.status(500).send("Internal server error");
-  }
+    req.flash("error", "Something unexpected happened");
+    res.redirect("/account");  }
 });
 
 router.get("/select-address", async (req, res) => {
