@@ -235,7 +235,6 @@ router.get("/account", async (req, res) => {
       "products.product"
     );
 
-    
     const orders = order.map((order) => {
       let orderStatus = "Processing";
       if (order.isShipped) {
@@ -263,8 +262,8 @@ router.get("/account", async (req, res) => {
         date: order.createdAt.toDateString(),
         status: orderStatus,
         total: `₹${totalAmount.toFixed(2)}`,
-        items: `${totalItems} item${totalItems > 1 ? 's' : ''}`,
-        fullId: order._id
+        items: `${totalItems} item${totalItems > 1 ? "s" : ""}`,
+        fullId: order._id,
       };
     });
 
@@ -794,32 +793,34 @@ router.post("/update-address/:addressId", async (req, res) => {
 
 router.post("/cancel-order", async (req, res) => {
   try {
-      const { orderId } = req.body;
-      
-      const order = await Order.findById(orderId);
+    const { orderId } = req.body;
 
-      if (!order || order.isCancelled) {
-          return res.json({ success: false, message: 'Order not found or already cancelled.' });
-      }
+    const order = await Order.findById(orderId);
 
-      order.isCancelled = true;
-      await order.save();
+    if (!order || order.isCancelled) {
+      return res.json({
+        success: false,
+        message: "Order not found or already cancelled.",
+      });
+    }
 
-      for (let orderedProduct of order.products) {
-        console.log(orderedProduct.product)
-          const product = await Product.findById(orderedProduct.product);
-          console.log(product);
-          product.stock += orderedProduct.quantity;
-          await product.save();
-      }
+    order.isCancelled = true;
+    await order.save();
 
-      res.json({ success: true, message: 'Order cancelled successfully.' });
+    for (let orderedProduct of order.products) {
+      console.log(orderedProduct.product);
+      const product = await Product.findById(orderedProduct.product);
+      console.log(product);
+      product.stock += orderedProduct.quantity;
+      await product.save();
+    }
+
+    res.json({ success: true, message: "Order cancelled successfully." });
   } catch (err) {
-      console.error("Error cancelling order:", err);
-      res.json({ success: false, message: 'An error occurred.' });
+    console.error("Error cancelling order:", err);
+    res.json({ success: false, message: "An error occurred." });
   }
 });
-
 
 router.post("/update-cart-quantity", async (req, res) => {
   try {
@@ -1038,41 +1039,42 @@ router.post("/place-order", async (req, res) => {
       );
     }
 
-    for (let cartProduct of cart.products) {
-      const product = await Product.findById(cartProduct.productId);
-      if (cartProduct.quantity > product.stock) {
-        return res.redirect(
-          "/checkout?error=Not%20enough%20stock%20for%20product%20" +
-            product.name
+    const mappedProducts = await Promise.all(
+      cart.products.map(async (cartProduct) => {
+        const product = await Product.findById(cartProduct.productId).populate(
+          "brand"
         );
-      }
-    }
-
-    const mappedProducts = cart.products.map((product) => {
-      return {
-        product: product.productId,
-        quantity: product.quantity,
-        price: product.price,
-        size: product.size,
-      };
-    });
+        if (cartProduct.quantity > product.stock) {
+          throw new Error("Not enough stock for product " + product.name);
+        }
+        return {
+          product: product._id,
+          quantity: cartProduct.quantity,
+          price: cartProduct.price,
+          size: cartProduct.size,
+          mainImg: product.mainImage,
+          name: product.name,
+          brand: product.brand.name,
+        };
+      })
+    );
 
     const order = new Order({
-      user,
+      user: user,
       products: mappedProducts,
       address: {
-        name,
-        email,
-        phoneNo: phone,
-        companyName: cname,
-        address: shipping_address,
-        addressLine1: shipping_address2,
-        city,
-        state,
-        postalCode: zipcode,
+        name: req.body.name,
+        email: req.body.email,
+        phoneNo: req.body.phone,
+        companyName: req.body.cname,
+        address: req.body.shipping_address,
+        addressLine1: req.body.shipping_address2,
+        city: req.body.city,
+        state: req.body.state,
+        postalCode: req.body.zipcode,
       },
-      paymentMethod: payment_option,
-      totalAmount: parseFloat(totalAmount),
+      paymentMethod: req.body.payment_option,
+      totalAmount: parseFloat(req.body.totalAmount),
     });
 
     await order.save();
@@ -1091,6 +1093,13 @@ router.post("/place-order", async (req, res) => {
       "/checkout?error=An%20error%20occurred%20while%20placing%20your%20order."
     );
   }
+});
+
+router.get("/view-single-order/:orderId", async (req, res) => {
+  const order = await Order.findById(req.params.orderId).populate(
+    "products.product"
+  );
+  res.render("user-view-single-order", { order });
 });
 
 module.exports = router;
