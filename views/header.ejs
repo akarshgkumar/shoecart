@@ -44,9 +44,8 @@
       Please enable JavaScript for the best experience on this site.
     </div>
   </noscript>
-  <% if (success_messages && success_messages.length > 0) { %>
+  <% if (success_messages && success_messages.length> 0) { %>
     <script>
-      showSuccess('<%= success_messages[0] %>');
+      const successMessage = '<%= success_messages[0] %>';
     </script>
-  <% } %>
-  
+    <% } %>

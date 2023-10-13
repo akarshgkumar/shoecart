@@ -28,13 +28,6 @@ app.use((req, res, next) => {
   next();
 });
 
-function appendFlashMessages(req, res, next) {
-  res.locals.success_messages = req.flash('success');
-  next();
-}
-
-app.use(appendFlashMessages);
-
 mongoose
   .connect(config.database.uri, config.database.options)
   .then(() => console.log("MongoDB Connected"))

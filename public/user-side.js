@@ -111,11 +111,8 @@ function showSuccess(message) {
 }
 
 $(function () {
-  const urlParams = new URLSearchParams(window.location.search);
-  const orderCancelled = urlParams.get("orderCancelled");
-
-  if (orderCancelled === "true") {
-    showSuccess("Order cancelled successfully.");
+  if (typeof successMessage !== "undefined") {
+    showSuccess(successMessage);
   }
   $(".order-cancel-button").click(function (e) {
     e.preventDefault();
