@@ -15,6 +15,15 @@
       margin-right: 15px;
     }
 
+    p {
+      padding: 0;
+      margin: 0;
+    }
+
+    .col-md-4 {
+      line-height: 2;
+    }
+
     .order-header {
       display: flex;
       justify-content: space-between;
@@ -34,63 +43,88 @@
         </h4>
         <p>Order date: <%= new Date(order.createdAt).toLocaleDateString() %>
         </p>
-
-        <table class="table table-bordered mt-5">
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th>Details</th>
-              <th>Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% order.products.forEach(product=> { %>
-              <tr>
-                <td>
-                  <%= product.name %>
-                </td>
-                <td>
-                  <%= product.description %>
-                </td>
-                <td>
-                  ₹<%= product.price %>
-                </td>
-              </tr>
-              <% }) %>
-          </tbody>
-        </table>
-
-
-        <div class="row mt-5">
-          <div class="col-md-4">
-            <h5>Details</h5>
-            <p>Payment : <%= order.paymentMethod %>
-            </p>
-            <p>Shipped : <%= order.isShipped ? 'Yes' : 'No' %>
-            </p>
-            <p>Delivered : <%= order.isDelivered ? 'Yes' : 'No' %>
-            </p>
-            <p>Status : <%= order.status %>
-            </p>
-          </div>
-          <div class="col-md-4">
-            <h5>Shipping Address:</h5>
-            <p>John Doe<br>1234 Elm St.<br>Springfield, IL 62704</p>
-          </div>
-          <div class="col-md-4 text-end">
-            <h5>Order Summary:</h5>
-            <p>Subtotal: ₹5547.00</p>
-            <p>Shipping: ₹50.00</p>
-            <hr>
-            <p>Total: ₹5929.82</p>
-          </div>
-        </div>
-
-        <div class="d-flex justify-content-end mt-5">
-          <a href="#" class="btn btn-secondary me-2">Go Back</a>
-          <a href="#" class="btn btn-primary">Cancel Order</a>
-        </div>
       </div>
+      <div>
+        <div class="mb-2 d-flex justify-content-end">
+          <a href="#" class="btn btn-primary" style="margin-right: 10px;">Invoice</a>
+          <a href="#" class="btn btn-success">Track order</a>
+        </div>
+        <p>Estimated delivery:
+          <%= order.deliveryDate.toLocaleString('en-US', { year: 'numeric' , month: 'long' , day: 'numeric' }) %>
+        </p>
+      </div>
+    </div>
+
+    <table class="table table-bordered mt-5">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Details</th>
+          <th>Price</th>
+          <th>Quantity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% order.products.forEach(product=> { %>
+          <tr>
+            <td>
+              <img src="<%= product.mainImg %>" alt="Shoe Image" class="product-image">
+              <%= product.name.length> 50 ? product.name.substring(0, 50) + "..." : product.name %>
+
+            </td>
+            <td>
+              Size : <%= product.size %> | Brand : <%= product.brand %>
+            </td>
+            <td>
+              ₹<%= product.price %>
+            </td>
+            <td>
+              <%= product.quantity %>
+            </td>
+          </tr>
+          <% }) %>
+      </tbody>
+    </table>
+
+
+    <div class="row mt-5">
+      <div class="col-md-4">
+        <h5>Details</h5>
+        <p>Payment : <%= order.paymentMethod %>
+        </p>
+        <p>Shipped : <%= order.isShipped ? 'Yes' : 'No' %>
+        </p>
+        <p>Delivered : <%= order.isDelivered ? 'Yes' : 'No' %>
+        </p>
+        <p>Status : <%= order.status %>
+        </p>
+      </div>
+      <div class="col-md-4">
+        <h5>Shipping Address:</h5>
+        <p>
+          <%= order.address.name %><br>
+            <%= order.address.address %>, <%= order.address.addressLine1 ? order.address.addressLine1 + ',' : '' %>
+                <br>
+                <%= order.address.city %>, <%= order.address.state %><br>
+                    <%= order.address.postalCode %>
+        </p>
+      </div>
+      <div class="col-md-4 text-end">
+        <h5>Order Summary:</h5>
+        <p>Subtotal: ₹<%= order.subTotal %>
+        </p>
+        <p>Shipping: Free</p>
+        <hr>
+        <p>Total: ₹<%= order.totalAmount %>
+        </p>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end mt-5">
+      <a href="#" class="btn btn-secondary me-2">Go Back</a>
+      <a href="#" class="btn btn-primary">Cancel Order</a>
+    </div>
+  </div>
 </body>
 
 </html>

@@ -81,6 +81,10 @@ const orderSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    subTotal: {
+      type: Number,
+      required: true
+    },
     isDelivered: {
       type: Boolean,
       default: false,
@@ -88,6 +92,10 @@ const orderSchema = new mongoose.Schema(
     isShipped: {
       type: Boolean,
       default: false,
+    },
+    status: {
+      type: String,
+      default: 'Processing'
     },
     deliveryDate: Date,
     shippedDate: Date,

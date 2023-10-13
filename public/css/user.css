@@ -10579,10 +10579,6 @@ input.form-control {
   color: #681d29;
 }
 
-.modal {
-  z-index: 9999 !important; 
-}
-
 .view-text-order {
   text-decoration: underline;
 }

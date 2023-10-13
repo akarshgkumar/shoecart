@@ -236,15 +236,14 @@ router.get("/account", async (req, res) => {
     );
 
     const orders = order.map((order) => {
-      let orderStatus = "Processing";
       if (order.isShipped) {
-        orderStatus = "Shipped";
+        order.status = "Shipped";
       } else if (order.isDelivered) {
-        orderStatus = "Delivered";
+        order.status = "Delivered";
       } else if (order.isCancelled) {
         orderStatus = "Cancelled";
       } else {
-        orderStatus = "Processing";
+        order.status = "Processing";
       }
       const totalItems = order.products.reduce(
         (acc, curr) => acc + curr.quantity,
@@ -260,7 +259,7 @@ router.get("/account", async (req, res) => {
           order._id.toString().substring(order._id.toString().length - 4) +
           "...",
         date: order.createdAt.toDateString(),
-        status: orderStatus,
+        status: order.status,
         total: `₹${totalAmount.toFixed(2)}`,
         items: `${totalItems} item${totalItems > 1 ? "s" : ""}`,
         fullId: order._id,
@@ -1058,6 +1057,8 @@ router.post("/place-order", async (req, res) => {
         };
       })
     );
+    const deliveryDate = new Date();
+    deliveryDate.setDate(deliveryDate.getDate() + 3);
 
     const order = new Order({
       user: user,
@@ -1074,7 +1075,9 @@ router.post("/place-order", async (req, res) => {
         postalCode: req.body.zipcode,
       },
       paymentMethod: req.body.payment_option,
+      subTotal: parseFloat(req.body.subTotal),
       totalAmount: parseFloat(req.body.totalAmount),
+      deliveryDate: deliveryDate,
     });
 
     await order.save();
@@ -1096,10 +1099,15 @@ router.post("/place-order", async (req, res) => {
 });
 
 router.get("/view-single-order/:orderId", async (req, res) => {
-  const order = await Order.findById(req.params.orderId).populate(
-    "products.product"
-  );
-  res.render("user-view-single-order", { order });
+  try {
+    const order = await Order.findById(req.params.orderId).populate(
+      "products.product"
+    );
+    res.render("user-view-single-order", { order });
+  } catch (error) {
+    console.error("Error fetching order:", error);
+    res.status(500).send("Server error");
+  }
 });
 
 module.exports = router;

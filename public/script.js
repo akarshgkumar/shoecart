@@ -1,3 +1,12 @@
+if (window.history.replaceState) {
+  const searchParams = ["editOrder"];
+
+  if (searchParams.some((param) => location.search.includes(param))) {
+    window.history.replaceState({}, document.title, location.pathname);
+  }
+}
+
+
 $.validator.addMethod(
   "customEmail",
   function (value, element) {
@@ -118,6 +127,83 @@ function deleteOrder(orderId) {
 }
 
 $(function () {
+  const urlParam = new URLSearchParams(window.location.search);
+  const editOrder = urlParam.get("editOrder");
+
+  if (editOrder === "true") {
+    showSuccess("Order edited successfully.");
+  }
+  $('.admin-edit-order-form').validate({
+    rules: {
+      order_name: {
+        required: true,
+        noSpaceStartEnd: true,
+        noSpaceMinLength: 2 
+      },
+      order_email: {
+        required: true,
+        customEmail: true,
+        noSpaceStartEnd: true
+      },
+      delivery_date: {
+        required: true,
+        date: true
+      },
+      status: {
+        required: true
+      }
+    },
+    messages: {
+      order_name: {
+        required: "Please enter the user name.",
+        noSpaceMinLength: "User name must have at least 2 characters."
+      },
+      order_email: {
+        required: "Please enter the user email.",
+        customEmail: "Please enter a valid email address."
+      },
+      delivery_date: {
+        required: "Please select a delivery date."
+      },
+      status: {
+        required: "Please select a status."
+      }
+    },
+    submitHandler: function(form) {
+      form.submit();
+    },
+    invalidHandler: function(event, validator) {
+      var errors = validator.numberOfInvalids();
+      if (errors) {
+        showAlert(`There are errors. Please fix them before submitting.`);
+      }
+    }
+  });
+  $('.order-form').on('submit', function(event) {
+    event.preventDefault();
+
+    const formData = new FormData(this);
+    const id = formData.get('_id');
+    
+    $.ajax({
+        url: `/admin/edit-order/${id}`,
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(result) {
+            if (result.success) {
+                showSuccess('Order updated successfully!');
+                
+            } else {
+                showError('Failed to update order. Please try again.');
+            }
+        },
+        error: function() {
+            showError('An error occurred. Please try again.');
+        }
+    });
+});
   $(".stock-form").validate({
     rules: {
       stock_no: {

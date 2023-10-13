@@ -488,4 +488,58 @@ router.get('/view-orders', async (req, res) => {
   }
 });
 
+function formatDate(date) {
+  const d = new Date(date);
+  let month = '' + (d.getMonth() + 1);
+  let day = '' + d.getDate();
+  const year = d.getFullYear();
+
+  if (month.length < 2) 
+      month = '0' + month;
+  if (day.length < 2) 
+      day = '0' + day;
+
+  return [year, month, day].join('-');
+}
+router.get("/edit-order/:orderId", async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).send("Order not found");
+    }
+
+    res.render("admin-edit-order", { order: order,formatDate: formatDate });
+    
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server Error");
+  }
+});
+
+router.post('/edit-order/:id', async (req, res) => {
+  try {
+      const { id } = req.params;
+      const { order_name, shipped_date, delivery_date, status, order_email } = req.body;
+
+      const updatedOrder = await Order.findByIdAndUpdate(id, {
+        'address.name': order_name,
+        'address.email': order_email,
+          shippedDate: shipped_date,
+          deliveryDate: delivery_date,
+          status: status,
+      }, { new: true });
+
+      if (updatedOrder) {
+          res.json({ success: true, message: 'Order updated successfully!' });
+      } else {
+          res.json({ success: false, message: 'Failed to update order.' });
+      }
+  } catch (error) {
+      console.error('Error updating order:', error);
+      res.json({ success: false, message: 'An error occurred while updating the order.' });
+  }
+});
+
 module.exports = router;
