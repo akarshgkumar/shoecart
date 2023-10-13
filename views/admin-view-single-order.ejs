@@ -46,13 +46,11 @@
       </div>
       <div>
         <div class="mb-2 d-flex justify-content-end">
-          <a href="#" class="btn"
-            style="margin-right: 10px; background-color: #383e50; color: #fff; font-size: 15px;">Invoice</a>
+          <a href="/admin/edit-order/<%= order._id %>" class="btn"
+            style="background: #383e50; color: #ffff; font-size: 15px;">Edit Order</a>
         </div>
         <p>Estimated delivery:
-          <span style="color: #00563B; margin-left: 5px;">
-            <%= order.deliveryDate.toLocaleString('en-US', { year: 'numeric' , month: 'long' , day: 'numeric' }) %>
-          </span>
+          <span style="color: #00563B; margin-left: 5px;"><%= order.deliveryDate.toLocaleString('en-US', { year: 'numeric' , month: 'long' , day: 'numeric' }) %></span>
         </p>
       </div>
     </div>
@@ -125,17 +123,9 @@
     </div>
 
     <div class="d-flex justify-content-end mt-5">
-      <a href="/account" class="btn"
-        style="margin-right: 10px; background-color: #383e50; color: #fff; font-size: 15px;">Go Back</a>
-      <% if(!order.isCancelled) { %>
-        <form action="/cancel-order" method="post">
-          <input type="hidden" name="orderId" value="<%= order._id %>">
-          <button class="btn" style="background: #7F1734; color: #ffff; font-size: 15px;">Cancel Order</button>
-        </form>
-        <% } else { %>
-          <button class="btn"
-            style="background: #7F1734; color: #ffff; cursor: auto; font-size: 15px;">Cancelled</button>
-          <% } %>
+      <a href="/admin/view-orders" class="btn"
+        style="margin-right: 10px; background-color: #383e50; color: #fff; font-size: 15px;">Go
+        Back</a>
     </div>
   </div>
 </body>

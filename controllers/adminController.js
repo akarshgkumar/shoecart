@@ -90,6 +90,19 @@ router.get("/view-products", async (req, res) => {
   res.render("admin-view-products", { products });
 });
 
+router.get("/view-single-order/:orderId", async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.orderId).populate(
+      "products.product"
+    );
+    res.render("admin-view-single-order", { order });
+  } catch (error) {
+    console.error("Error fetching order:", error);
+    req.flash("error", "Sorry, Server Error");
+    res.redirect("/admin/view-orders");
+  }
+});
+
 router.get("/edit-product/:productId", async (req, res) => {
   const productId = req.params.productId;
   const product = await Product.findOne({ _id: productId });

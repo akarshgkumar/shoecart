@@ -51,7 +51,7 @@ function showAlert(message) {
   alertDiv.style.top = "60px";
   alertDiv.style.opacity = "0";
   alertDiv.style.transition = "opacity 0.5s ease-in-out";
-  alertDiv.style.backgroundColor = "#660000"; // Red
+  alertDiv.style.backgroundColor = "#7F1734"; // Red
   alertDiv.style.color = "white";
   alertDiv.style.padding = "15px";
   alertDiv.style.marginBottom = "15px";
