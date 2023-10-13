@@ -121,8 +121,12 @@ $(function () {
   }
   const defaultAddressDataElement =
     document.getElementById("defaultAddressData");
-  const defaultAddress = JSON.parse(defaultAddressDataElement.textContent);
-  console.log(defaultAddress);
+    console.log(defaultAddressDataElement)
+    let defaultAddress;
+    if(defaultAddressDataElement){
+      defaultAddress = JSON.parse(defaultAddressDataElement.textContent);
+      console.log(defaultAddress);
+    }
 
   $("#useDefaultAddress").change(function () {
     if (this.checked) {
