@@ -188,7 +188,7 @@ $(function () {
         required: true,
         noSpaceMinLength: 3,
         noSpaceStartEnd: true,
-        maxlength: 50,
+        maxlength: 100,
       },
       product_color: {
         required: true,
@@ -247,7 +247,7 @@ $(function () {
         required: true,
         noSpaceMinLength: 3,
         noSpaceStartEnd: true,
-        maxlength: 50,
+        maxlength: 100,
       },
       product_color: {
         required: true,

@@ -71,6 +71,12 @@
                             </span>
                           </div>
                           <% } %>
+                          <% if (product.stock) { %>
+                            <div class="brand mt-1 mb-2">Stock: <span class="text-brand capitalize">
+                                <%= product.stock %>
+                              </span>
+                            </div>
+                            <% } %>
                   </div>
                 </div>
               </div>

@@ -1048,7 +1048,7 @@ router.post("/place-order", async (req, res) => {
         return {
           product: product._id,
           quantity: cartProduct.quantity,
-          price: cartProduct.price,
+          price: product.price,
           size: cartProduct.size,
           mainImg: product.mainImage,
           name: product.name,
