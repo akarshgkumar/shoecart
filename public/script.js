@@ -124,6 +124,10 @@ $(function () {
     showSuccess(successMessage);
     successMessage= undefined;
   }
+  if (typeof errorMessage !== "undefined") {
+    showAlert(errorMessage);
+    errorMessage= undefined;
+  }
   $(".admin-edit-order-form").validate({
     rules: {
       order_name: {

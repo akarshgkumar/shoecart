@@ -98,6 +98,8 @@
         </p>
         <p>Status : <%= order.status %>
         </p>
+        <p>ShippedDate : <%= order.shippedDate ? order.shipppedDate : 'Not Shipped' %>
+        </p>
       </div>
       <div class="col-md-4">
         <h5>Shipping Address:</h5>
@@ -121,8 +123,11 @@
     </div>
 
     <div class="d-flex justify-content-end mt-5">
-      <a href="#" class="btn btn-secondary me-2">Go Back</a>
-      <a href="#" class="btn btn-primary">Cancel Order</a>
+      <a href="/account" class="btn btn-secondary me-2">Go Back</a>
+      <form action="/cancel-order" method="post">
+        <input type="hidden" name="orderId" value="<%= order._id %>">
+        <button class="btn btn-primary">Cancel Order</button>
+      </form>
     </div>
   </div>
 </body>

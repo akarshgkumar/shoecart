@@ -47,7 +47,7 @@ function showAlert(message) {
   alertDiv.className = "alert";
   alertDiv.style.position = "fixed";
   alertDiv.style.right = "20px";
-  alertDiv.style.zIndex = "2000";
+  alertDiv.style.zIndex = "9999";
   alertDiv.style.top = "60px";
   alertDiv.style.opacity = "0";
   alertDiv.style.transition = "opacity 0.5s ease-in-out";
@@ -81,7 +81,7 @@ function showSuccess(message) {
   alertDiv.className = "alert";
   alertDiv.style.position = "fixed";
   alertDiv.style.right = "20px";
-  alertDiv.style.zIndex = "2000";
+  alertDiv.style.zIndex = "9999";
   alertDiv.style.top = "60px";
   alertDiv.style.opacity = "0";
   alertDiv.style.transition = "opacity 0.5s ease-in-out";
@@ -115,24 +115,28 @@ $(function () {
     showSuccess(successMessage);
     successMessage= undefined;
   }
-  $(".order-cancel-button").click(function (e) {
-    e.preventDefault();
+  if (typeof errorMessage !== "undefined") {
+    showAlert(errorMessage);
+    errorMessage= undefined;
+  }
+  // $(".order-cancel-button").click(function (e) {
+  //   e.preventDefault();
 
-    const orderId = $(this).data("order-id");
+  //   const orderId = $(this).data("order-id");
 
-    $.ajax({
-      url: "/cancel-order",
-      method: "POST",
-      data: { orderId: orderId },
-      success: function (response) {
-        console.log("on ajax cancel");
-        location.href = location.pathname + "?orderCancelled=true";
-      },
-      error: function (error) {
-        showAlert("Error cancelling order.");
-      },
-    });
-  });
+  //   $.ajax({
+  //     url: "/cancel-order",
+  //     method: "POST",
+  //     data: { orderId: orderId },
+  //     success: function (response) {
+  //       console.log("on ajax cancel");
+  //       location.href = location.pathname + "?orderCancelled=true";
+  //     },
+  //     error: function (error) {
+  //       showAlert("Error cancelling order.");
+  //     },
+  //   });
+  // });
   $(".checkout-form").validate({
     rules: {
       name: {

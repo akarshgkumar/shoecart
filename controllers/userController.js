@@ -241,7 +241,7 @@ router.get("/account", async (req, res) => {
       } else if (order.isDelivered) {
         order.status = "Delivered";
       } else if (order.isCancelled) {
-        orderStatus = "Cancelled";
+        order.status = "Cancelled";
       } else {
         order.status = "Processing";
       }
@@ -570,7 +570,9 @@ router.post("/add-to-cart", async (req, res) => {
     }
 
     const productIndex = cart.products.findIndex(
-      (p) => p.productId.toString() === productId && p.size.toString() === size.toString()
+      (p) =>
+        p.productId.toString() === productId &&
+        p.size.toString() === size.toString()
     );
 
     if (productIndex > -1) {
@@ -594,7 +596,6 @@ router.post("/add-to-cart", async (req, res) => {
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
-
 
 router.post("/remove-from-cart", async (req, res) => {
   try {
@@ -627,7 +628,7 @@ router.post("/clear-cart", async (req, res) => {
   const { userEmail } = req.body;
 
   await Cart.findOneAndRemove({ userEmail });
-  req.flash("success", "Cart cleared")
+  req.flash("success", "Cart cleared");
   res.redirect("/cart");
 });
 
@@ -791,15 +792,13 @@ router.post("/update-address/:addressId", async (req, res) => {
 
 router.post("/cancel-order", async (req, res) => {
   try {
-    const { orderId } = req.body;
+    const {orderId} = req.body;
 
     const order = await Order.findById(orderId);
 
     if (!order || order.isCancelled) {
-      return res.json({
-        success: false,
-        message: "Order not found or already cancelled.",
-      });
+      req.flash("error", "Order not found or already cancelled");
+      return res.redirect(`/account#orders`);
     }
 
     order.isCancelled = true;
@@ -812,11 +811,12 @@ router.post("/cancel-order", async (req, res) => {
       product.stock += orderedProduct.quantity;
       await product.save();
     }
-
-    res.json({ success: true, message: "Order cancelled successfully." });
+    req.flash("success", "Order cancelled successfully");
+    res.redirect("/account#orders");
   } catch (err) {
     console.error("Error cancelling order:", err);
-    res.json({ success: false, message: "An error occurred." });
+    req.flash("error", "Some error occured");
+    res.redirect(`/account#orders`)
   }
 });
 
