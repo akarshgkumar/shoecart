@@ -549,19 +549,66 @@ router.post("/edit-order/:id", async (req, res) => {
       { new: true }
     );
 
+    if (status === "Shipped") {
+      updatedOrder.isShipped = true;
+      updatedOrder.isDelivered = false;
+      updatedOrder.isCancelled = false;
+    } else if (status === "Delivered") {
+      updatedOrder.isShipped = true;
+      updatedOrder.isDelivered = true;
+      updatedOrder.isCancelled = false;
+    } else if (status === "Cancelled") {
+      updatedOrder.isShipped = false;
+      updatedOrder.isDelivered = false;
+      updatedOrder.isCancelled = true;
+    } else if (status === "Processing") {
+      updatedOrder.isShipped = false;
+      updatedOrder.isDelivered = false;
+      updatedOrder.isCancelled = false;
+    }
+
+    await updatedOrder.save();  
+
     if (updatedOrder) {
       req.flash("success", "Order updated successfully");
       res.redirect("/admin/view-orders");
     } else {
-      res.json({ success: false, message: "Failed to update order." });
+      req.flash("error", "Failed to update Order");
+      res.redirect("/admin/view-orders");
     }
   } catch (error) {
     console.error("Error updating order:", error);
-    res.json({
-      success: false,
-      message: "An error occurred while updating the order.",
-    });
+    req.flash("error", "An error occurred while updating the order.");
+    res.redirect("/admin/view-orders");
   }
 });
+
+
+router.get("/search-orders", async (req, res) => {
+  try {
+    const searchQuery = req.query.searchQuery;
+
+    if (mongoose.Types.ObjectId.isValid(searchQuery)) {
+      const orders = await Order.find({ "_id": searchQuery }).exec();
+
+      if (orders.length > 0) {
+        return res.render("admin-view-orders", { orders });
+      } else {
+        req.flash("error", "No orders found");
+        return res.redirect("/admin/view-orders");
+      }
+    } else {
+      req.flash("error", "Invalid ID format");
+      return res.redirect("/admin/view-orders");
+    }
+
+  } catch (error) {
+    console.error("Search error:", error);
+    req.flash("error", "Unexpected Error");
+    res.redirect("/admin/view-orders");
+  }
+});
+
+
 
 module.exports = router;

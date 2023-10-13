@@ -9,7 +9,9 @@
               <p>Manage whole orders here.</p>
             </div>
             <div>
-              <input type="text" placeholder="Search order ID" class="form-control bg-white">
+              <form action="/admin/search-orders" method="GET">
+                <input type="text" placeholder="Search order ID" class="form-control bg-white" name="searchQuery">
+              </form>
             </div>
           </div>
           <div class="card mb-4">
@@ -64,7 +66,7 @@
                               <% } else if (order.isCancelled) { %>
                                 <span class="badge rounded-pill alert-danger">Cancelled</span>
                                 <% } else { %>
-                                  <span class="badge rounded-pill alert-dark">Processing</span>
+                                  <span class="badge rounded-pill alert-info">Processing</span>
                                   <% } %>
                         </td>
                         <td>
@@ -77,7 +79,7 @@
                               <i class="material-icons md-more_horiz"></i>
                             </a>
                             <div class="dropdown-menu">
-                              <a class="dropdown-item" href="#">View detail</a>
+                              <a class="dropdown-item" href="/admin/view-single-order/<%= order._id %>">View detail</a>
                               <a class="dropdown-item" href="/admin/edit-order/<%= order._id %>">Edit info</a>
                               <a class="dropdown-item text-danger" href="javascript:void(0)"
                                 onclick="deleteOrder('<%= order._id %>')">Delete</a>

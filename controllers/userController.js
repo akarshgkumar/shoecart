@@ -802,6 +802,7 @@ router.post("/cancel-order", async (req, res) => {
     }
 
     order.isCancelled = true;
+    order.status = "Cancelled";
     await order.save();
 
     for (let orderedProduct of order.products) {
