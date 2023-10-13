@@ -4,7 +4,7 @@ const Product = require("../models/Product");
 const Category = require("../models/Category");
 const Brand = require("../models/Brand");
 const User = require("../models/User");
-const Order = require("../models/Order")
+const Order = require("../models/Order");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
@@ -91,8 +91,8 @@ router.get("/view-products", async (req, res) => {
 router.get("/edit-product/:productId", async (req, res) => {
   const productId = req.params.productId;
   const product = await Product.findOne({ _id: productId });
-  const category = await Category.find({isDeleted: false});
-  const brands = await Brand.find({isDeleted: false});
+  const category = await Category.find({ isDeleted: false });
+  const brands = await Brand.find({ isDeleted: false });
   if (product) {
     res.render("admin-edit-product", { product, category, brands });
   } else {
@@ -173,8 +173,8 @@ router.get("/search-product", async (req, res) => {
 });
 
 router.get("/add-product", async (req, res) => {
-  const category = await Category.find({isDeleted: false});
-  const brands = await Brand.find({isDeleted: false});
+  const category = await Category.find({ isDeleted: false });
+  const brands = await Brand.find({ isDeleted: false });
   res.render("admin-add-product", { category, brands });
 });
 
@@ -268,12 +268,12 @@ router.post("/edit-brand/:brandId", async (req, res) => {
 });
 
 router.get("/view-brands", async (req, res) => {
-  const brands = await Brand.find({isDeleted: false});
+  const brands = await Brand.find({ isDeleted: false });
   res.render("admin-view-brands", { brands });
 });
 
 router.get("/view-category", async (req, res) => {
-  const category = await Category.find({isDeleted: false});
+  const category = await Category.find({ isDeleted: false });
   res.render("admin-view-category", { category });
 });
 
@@ -361,29 +361,28 @@ router.get("/delete-category/:categoryId", async (req, res) => {
   }
 });
 
-router.get('/add-stock/:productId', async (req, res) => {
+router.get("/add-stock/:productId", async (req, res) => {
   const productId = req.params.productId;
-  const product = await Product.findOne({_id: productId}, 'stock');
-  console.log(product)
-  res.render('admin-add-stock', {productId, stock: product.stock});
-})
-
-router.post('/add-stock/:productId', async (req, res) => {
-  try {
-      const { stock_no } = req.body;
-      const productId = req.params.productId;
-
-      await Product.findByIdAndUpdate(productId, {
-          $inc: { stock: stock_no } 
-      });
-
-      res.redirect('/admin/view-products'); 
-  } catch (err) {
-      console.error('Error while updating stock:', err);
-      res.status(500).send('Server error');
-  }
+  const product = await Product.findOne({ _id: productId }, "stock");
+  console.log(product);
+  res.render("admin-add-stock", { productId, stock: product.stock });
 });
 
+router.post("/add-stock/:productId", async (req, res) => {
+  try {
+    const { stock_no } = req.body;
+    const productId = req.params.productId;
+
+    await Product.findByIdAndUpdate(productId, {
+      $inc: { stock: stock_no },
+    });
+
+    res.redirect("/admin/view-products");
+  } catch (err) {
+    console.error("Error while updating stock:", err);
+    res.status(500).send("Server error");
+  }
+});
 
 router.get("/delete-brand/:brandsId", async (req, res) => {
   try {
@@ -448,14 +447,13 @@ router.get("/unblock-user/:userId", async (req, res) => {
   }
 });
 
-router.delete('/delete-order/:id', async (req, res) => {
+router.delete("/delete-order/:id", async (req, res) => {
   const { id } = req.params;
 
   await Order.findByIdAndDelete(id);
 
-  res.json({ message: 'Order deleted successfully' });
+  res.json({ message: "Order deleted successfully" });
 });
-
 
 router.get("/block-user/:userId", async (req, res) => {
   const { userId } = req.params;
@@ -478,28 +476,28 @@ router.get("/block-user/:userId", async (req, res) => {
   }
 });
 
-router.get('/view-orders', async (req, res) => {
+router.get("/view-orders", async (req, res) => {
   try {
-    const orders = await Order.find({}).populate('user').populate('products.product');
-    res.render('admin-view-orders', { orders });
+    const orders = await Order.find({})
+      .populate("user")
+      .populate("products.product");
+      res.render("admin-view-orders", {orders})
   } catch (err) {
-    console.error('Error fetching orders:', err);
-    res.status(500).send('Internal server error');
+    console.error("Error fetching orders:", err);
+    res.status(500).send("Internal server error");
   }
 });
 
 function formatDate(date) {
   const d = new Date(date);
-  let month = '' + (d.getMonth() + 1);
-  let day = '' + d.getDate();
+  let month = "" + (d.getMonth() + 1);
+  let day = "" + d.getDate();
   const year = d.getFullYear();
 
-  if (month.length < 2) 
-      month = '0' + month;
-  if (day.length < 2) 
-      day = '0' + day;
+  if (month.length < 2) month = "0" + month;
+  if (day.length < 2) day = "0" + day;
 
-  return [year, month, day].join('-');
+  return [year, month, day].join("-");
 }
 router.get("/edit-order/:orderId", async (req, res) => {
   try {
@@ -510,35 +508,44 @@ router.get("/edit-order/:orderId", async (req, res) => {
       return res.status(404).send("Order not found");
     }
 
-    res.render("admin-edit-order", { order: order,formatDate: formatDate });
-    
+    res.render("admin-edit-order", { order: order, formatDate: formatDate });
   } catch (error) {
     console.error(error);
     res.status(500).send("Server Error");
   }
 });
 
-router.post('/edit-order/:id', async (req, res) => {
+router.post("/edit-order/:id", async (req, res) => {
   try {
-      const { id } = req.params;
-      const { order_name, shipped_date, delivery_date, status, order_email } = req.body;
+    const { id } = req.params;
+    const { order_name, shipped_date, delivery_date, status, order_email } =
+      req.body;
+    console.log("Received ID:", id);
 
-      const updatedOrder = await Order.findByIdAndUpdate(id, {
-        'address.name': order_name,
-        'address.email': order_email,
-          shippedDate: shipped_date,
-          deliveryDate: delivery_date,
-          status: status,
-      }, { new: true });
+    const updatedOrder = await Order.findByIdAndUpdate(
+      id,
+      {
+        "address.name": order_name,
+        "address.email": order_email,
+        shippedDate: shipped_date,
+        deliveryDate: delivery_date,
+        status: status,
+      },
+      { new: true }
+    );
 
-      if (updatedOrder) {
-          res.json({ success: true, message: 'Order updated successfully!' });
-      } else {
-          res.json({ success: false, message: 'Failed to update order.' });
-      }
+    if (updatedOrder) {
+      req.flash("success", "Order updated successfully");
+      res.redirect("/admin/view-orders");
+    } else {
+      res.json({ success: false, message: "Failed to update order." });
+    }
   } catch (error) {
-      console.error('Error updating order:', error);
-      res.json({ success: false, message: 'An error occurred while updating the order.' });
+    console.error("Error updating order:", error);
+    res.json({
+      success: false,
+      message: "An error occurred while updating the order.",
+    });
   }
 });
 

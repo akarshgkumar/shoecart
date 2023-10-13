@@ -3,12 +3,37 @@ const express = require("express");
 const path = require("path");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
-const config = require('./config/default');
+const config = require("./config/default");
+const flash = require("connect-flash");
+const session = require("express-session");
 const userController = require("./controllers/userController");
 const adminController = require("./controllers/adminController");
 const productController = require("./controllers/productController");
 
 const app = express();
+
+app.use(
+  session({
+    secret: process.env.SECRET_KEY,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+
+app.use(flash());
+
+app.use((req, res, next) => {
+  res.locals.success_messages = req.flash("success");
+  res.locals.error_messages = req.flash("error");
+  next();
+});
+
+function appendFlashMessages(req, res, next) {
+  res.locals.success_messages = req.flash('success');
+  next();
+}
+
+app.use(appendFlashMessages);
 
 mongoose
   .connect(config.database.uri, config.database.options)
@@ -32,8 +57,7 @@ app.use("/product", productController);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send('something broke!');
+  res.status(500).send("something broke!");
 });
-
 
 app.listen(config.server.port, () => console.log("running at port 3000"));
