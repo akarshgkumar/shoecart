@@ -23,6 +23,7 @@ app.use(
 app.use(flash());
 
 app.use((req, res, next) => {
+  res.set("Cache-Control", "no-store");
   res.locals.success_messages = req.flash("success");
   res.locals.error_messages = req.flash("error");
   next();

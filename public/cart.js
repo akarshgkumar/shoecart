@@ -71,6 +71,7 @@ function addToCart(btn, defaultSize) {
       if(data.success) {
         $("#cart-count").text(data.cartItems);
         updateTotalAndSubtotal();
+        showSuccess('Product added to cart')
       }
     },
   });
@@ -90,8 +91,9 @@ function removeFromCart(buttonElement) {
           updateTotalAndSubtotal();
           $(buttonElement).closest("tr").remove();
           $("#cart-count").text(data.cartItems);
+          showSuccess('Product removed from cart')
         } else {
-          alert("Failed to remove product from cart!");
+          showAlert("Failed to remove product from cart!");
         }
       }
     },

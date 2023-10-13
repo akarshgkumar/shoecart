@@ -617,7 +617,6 @@ router.post("/remove-from-cart", async (req, res) => {
       0
     );
 
-    console.log(totalItems);
     res.json({ success: true, cartItems: totalItems });
   } catch (error) {
     console.error("Error removing from cart:", error);
@@ -629,6 +628,7 @@ router.post("/clear-cart", async (req, res) => {
   const { userEmail } = req.body;
 
   await Cart.findOneAndRemove({ userEmail });
+  req.flash("success", "Cart cleared")
   res.redirect("/cart");
 });
 
