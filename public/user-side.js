@@ -113,12 +113,41 @@ function showSuccess(message) {
 $(function () {
   if (typeof successMessage !== "undefined") {
     showSuccess(successMessage);
-    successMessage= undefined;
+    successMessage = undefined;
   }
   if (typeof errorMessage !== "undefined") {
     showAlert(errorMessage);
-    errorMessage= undefined;
+    errorMessage = undefined;
   }
+  const defaultAddressDataElement =
+    document.getElementById("defaultAddressData");
+  const defaultAddress = JSON.parse(defaultAddressDataElement.textContent);
+  console.log(defaultAddress);
+
+  $("#useDefaultAddress").change(function () {
+    if (this.checked) {
+      $("#name").val(defaultAddress.name || "");
+      $("#email").val(defaultAddress.email || "");
+      $("#phone").val(defaultAddress.phoneNo || "");
+      $("#cname").val(defaultAddress.companyName || "");
+      $("#shipping_address").val(defaultAddress.address || "");
+      $("#shipping_address2").val(defaultAddress.addressLine1 || "");
+      $("#city").val(defaultAddress.city || "");
+      $("#state").val(defaultAddress.state || "");
+      $("#zipcode").val(defaultAddress.postalCode || "");
+    } else {
+      $("#name").val("");
+      $("#email").val("");
+      $("#phone").val("");
+      $("#cname").val("");
+      $("#shipping_address").val("");
+      $("#shipping_address2").val("");
+      $("#city").val("");
+      $("#state").val("");
+      $("#zipcode").val("");
+    }
+  });
+
   $(".checkout-form").validate({
     rules: {
       name: {
