@@ -570,15 +570,13 @@ router.post("/add-to-cart", async (req, res) => {
     }
 
     const productIndex = cart.products.findIndex(
-      (p) => p.productId.toString() === productId
+      (p) => p.productId.toString() === productId && p.size.toString() === size.toString()
     );
 
     if (productIndex > -1) {
       cart.products[productIndex].quantity =
         parseInt(cart.products[productIndex].quantity) + parseInt(quantity);
-      cart.products[productIndex].size = size;
     } else {
-      const productDetails = await Product.findById(productId);
       cart.products.push({
         productId,
         size,
@@ -596,6 +594,7 @@ router.post("/add-to-cart", async (req, res) => {
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
+
 
 router.post("/remove-from-cart", async (req, res) => {
   try {

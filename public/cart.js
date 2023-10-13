@@ -1,3 +1,9 @@
+let selectedSize = null;
+
+function changeSelectedSize(size) {
+  selectedSize = size;
+}
+
 function updateTotalAndSubtotal() {
   let total = 0;
   $(".shopping-summery tbody tr:not(:last-child)").each(function () {
@@ -54,9 +60,8 @@ $(function () {
 
 function addToCart(btn, defaultSize) {
   const productId = $(btn).data("product-id");
-  const selectedSize =
-  $(".attr-size ul.list-filter li.active a").text() || defaultSize;
-    console.log(selectedSize)
+  const sizeToUse = selectedSize || defaultSize;
+  console.log(sizeToUse);
   const quantity = parseInt($(".detail-qty .qty-val").text()) || 1;
 
   $.ajax({
@@ -64,18 +69,19 @@ function addToCart(btn, defaultSize) {
     type: "POST",
     data: {
       productId: productId,
-      size: selectedSize,
+      size: sizeToUse,
       quantity: quantity,
     },
     success: function (data) {
       if(data.success) {
         $("#cart-count").text(data.cartItems);
         updateTotalAndSubtotal();
-        showSuccess('Product added to cart')
+        showSuccess('Product added to cart');
       }
     },
   });
 }
+
 
 function removeFromCart(buttonElement) {
   const productId = $(buttonElement).data("product-id");
