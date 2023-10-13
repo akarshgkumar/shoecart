@@ -1,12 +1,3 @@
-if (window.history.replaceState) {
-  const searchParams = ["editOrder"];
-
-  if (searchParams.some((param) => location.search.includes(param))) {
-    window.history.replaceState({}, document.title, location.pathname);
-  }
-}
-
-
 $.validator.addMethod(
   "customEmail",
   function (value, element) {
