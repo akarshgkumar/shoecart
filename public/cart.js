@@ -18,6 +18,27 @@ function updateTotalAndSubtotal() {
 }
 
 $(function () {
+  $("#proceedToCheckoutBtn").click(function (event) {
+    event.preventDefault();
+
+    const userId = $("#hiddenUserId").val();
+    $.ajax({
+      url: "/validate-cart",
+      method: "POST",
+      data: { userId: userId },
+      dataType: "json",
+      success: function (response) {
+        if (response.status === "success") {
+          window.location.href = "/checkout";
+        } else {
+          showAlert(response.message);
+        }
+      },
+      error: function (err) {
+        console.error("An error occurred:", err);
+      },
+    });
+  });
   $(".removeFromCartButton").on("click", function () {
     removeFromCart(this);
   });
@@ -73,15 +94,14 @@ function addToCart(btn, defaultSize) {
       quantity: quantity,
     },
     success: function (data) {
-      if(data.success) {
+      if (data.success) {
         $("#cart-count").text(data.cartItems);
         updateTotalAndSubtotal();
-        showSuccess('Product added to cart');
+        showSuccess("Product added to cart");
       }
     },
   });
 }
-
 
 function removeFromCart(buttonElement) {
   const productId = $(buttonElement).data("product-id");
@@ -97,7 +117,7 @@ function removeFromCart(buttonElement) {
           updateTotalAndSubtotal();
           $(buttonElement).closest("tr").remove();
           $("#cart-count").text(data.cartItems);
-          showSuccess('Product removed from cart')
+          showSuccess("Product removed from cart");
         } else {
           showAlert("Failed to remove product from cart!");
         }

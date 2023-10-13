@@ -18,7 +18,9 @@
             <header class="card-header">
               <div class="row gx-3">
                 <div class="col-lg-4 col-md-6 me-auto">
-                  <input type="text" placeholder="Search..." class="form-control">
+                  <form action="/admin/search-order-email" method="GET">
+                    <input type="text" placeholder="Search Email..." class="form-control" name="emailQuery">
+                  </form>
                 </div>
                 <div class="col-lg-2 col-6 col-md-3">
                   <select class="form-select">
@@ -74,7 +76,8 @@
                         </td>
                         <td class="text-end">
                           <div class="dropdown">
-                            <a href="/admin/view-single-order/<%= order._id %>" class="btn btn-md rounded font-sm">Detail</a>
+                            <a href="/admin/view-single-order/<%= order._id %>"
+                              class="btn btn-md rounded font-sm">Detail</a>
                             <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm">
                               <i class="material-icons md-more_horiz"></i>
                             </a>

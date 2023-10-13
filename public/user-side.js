@@ -119,24 +119,6 @@ $(function () {
     showAlert(errorMessage);
     errorMessage= undefined;
   }
-  // $(".order-cancel-button").click(function (e) {
-  //   e.preventDefault();
-
-  //   const orderId = $(this).data("order-id");
-
-  //   $.ajax({
-  //     url: "/cancel-order",
-  //     method: "POST",
-  //     data: { orderId: orderId },
-  //     success: function (response) {
-  //       console.log("on ajax cancel");
-  //       location.href = location.pathname + "?orderCancelled=true";
-  //     },
-  //     error: function (error) {
-  //       showAlert("Error cancelling order.");
-  //     },
-  //   });
-  // });
   $(".checkout-form").validate({
     rules: {
       name: {

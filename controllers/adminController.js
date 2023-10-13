@@ -609,6 +609,22 @@ router.get("/search-orders", async (req, res) => {
   }
 });
 
+router.get('/search-order-email', async (req, res) => {
+  try {
+    const emailQuery = req.query.emailQuery;
+    const orders = await Order.find({ 'address.email': new RegExp(emailQuery, 'i') });
 
+    if (orders.length > 0) {
+      return res.render('admin-view-orders', { orders });
+    } else {
+      req.flash('error', 'No orders found with that email');
+      return res.redirect('/admin/view-orders');
+    }
+  } catch (error) {
+    console.error("Search error:", error);
+    req.flash('error', 'Unexpected Error');
+    return res.redirect('/admin/view-orders');
+  }
+});
 
 module.exports = router;

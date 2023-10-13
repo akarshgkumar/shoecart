@@ -792,7 +792,7 @@ router.post("/update-address/:addressId", async (req, res) => {
 
 router.post("/cancel-order", async (req, res) => {
   try {
-    const {orderId} = req.body;
+    const { orderId } = req.body;
 
     const order = await Order.findById(orderId);
 
@@ -817,7 +817,7 @@ router.post("/cancel-order", async (req, res) => {
   } catch (err) {
     console.error("Error cancelling order:", err);
     req.flash("error", "Some error occured");
-    res.redirect(`/account#orders`)
+    res.redirect(`/account#orders`);
   }
 });
 
@@ -1107,6 +1107,41 @@ router.get("/view-single-order/:orderId", async (req, res) => {
   } catch (error) {
     console.error("Error fetching order:", error);
     res.status(500).send("Server error");
+  }
+});
+
+router.post("/validate-cart", async (req, res) => {
+  try {
+    const userId = req.body.userId; // Or get it from the session
+    const cart = await Cart.findOne({ userId }).populate("products.productId");
+
+    if (!cart) {
+      return res.json({ status: "failure", message: "Cart is empty" });
+    }
+
+    let isValid = true;
+
+    for (let i = 0; i < cart.products.length; i++) {
+      const productInCart = cart.products[i];
+      const actualProduct = await Product.findById(productInCart.productId);
+
+      if (actualProduct.stock < productInCart.quantity) {
+        isValid = false;
+        break;
+      }
+    }
+
+    if (isValid) {
+      res.json({ status: "success" });
+    } else {
+      res.json({
+        status: "failure",
+        message: "Product quantity exceeds stock",
+      });
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    res.json({ status: "failure", message: "An error occurred" });
   }
 });
 
