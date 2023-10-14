@@ -7530,8 +7530,17 @@ span.fi-rs-apps {
 }
 
 .slider-nav-thumbnails div {
-  display: inline-block;
+  display: flex;
   width: 1000px;
+  justify-content: space-between;
+}
+
+@media (max-width: 1000px) {
+  .slider-nav-thumbnails div {
+    display: inline-block;
+    width: 600px;
+  }
+  
 }
 
 .main-menu.hover-boder > nav > ul > li:hover > a::after {
@@ -10582,3 +10591,4 @@ input.form-control {
 .view-text-order {
   text-decoration: underline;
 }
+

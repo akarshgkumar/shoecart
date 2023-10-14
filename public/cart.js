@@ -42,7 +42,7 @@ $(function () {
   $(".removeFromCartButton").on("click", function () {
     removeFromCart(this);
   });
-  $(".qty-up, .qty-down").on("click", function () {
+  $(".cart-qty-up, .cart-qty-down").on("click", function () {
     let $qtyContainer = $(this).closest(".detail-qty");
     let $qtyVal = $qtyContainer.find(".qty-val");
     let currentQty = parseInt($qtyVal.text());
@@ -66,7 +66,7 @@ $(function () {
       data: JSON.stringify({ productId, quantity: currentQty }),
       success: function (data) {
         if (!data.success) {
-          alert("Failed to update product quantity!");
+          showAlert("Failed to update product quantity!");
         } else {
           $("#cart-count").text(data.cartItems);
           updateTotalAndSubtotal();

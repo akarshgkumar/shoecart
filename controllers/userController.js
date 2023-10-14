@@ -970,12 +970,13 @@ router.post("/set-default-address", async (req, res) => {
     });
 
     await user.save();
-    req.flash("success", "Default address changed")
-    res.redirect("/account")
+    req.flash("success", "Default address changed");
+    res.redirect("/account");
   } catch (error) {
     console.error("Error setting default address:", error);
     req.flash("error", "Something unexpected happened");
-    res.redirect("/account");  }
+    res.redirect("/account");
+  }
 });
 
 router.get("/select-address", async (req, res) => {
@@ -1025,9 +1026,7 @@ router.post("/place-order", async (req, res) => {
     !zipcode ||
     !payment_option
   ) {
-    return res.redirect(
-      "/checkout?error=Please%20fill%20in%20all%20required%20fields."
-    );
+    return res.redirect("/checkout");
   }
 
   try {
@@ -1045,7 +1044,8 @@ router.post("/place-order", async (req, res) => {
           "brand"
         );
         if (cartProduct.quantity > product.stock) {
-          throw new Error("Not enough stock for product " + product.name);
+          req.flash("error", "Sorry some products are out of stock");
+          return res.redirect("/checkout");
         }
         return {
           product: product._id,
@@ -1093,9 +1093,8 @@ router.post("/place-order", async (req, res) => {
     return res.redirect("/home");
   } catch (err) {
     console.error("Error placing order:", err);
-    return res.redirect(
-      "/checkout?error=An%20error%20occurred%20while%20placing%20your%20order."
-    );
+    req.flash("error", "An error occured while placing order");
+    return res.redirect("/checkout");
   }
 });
 
@@ -1113,7 +1112,7 @@ router.get("/view-single-order/:orderId", async (req, res) => {
 
 router.post("/validate-cart", async (req, res) => {
   try {
-    const userId = req.body.userId; // Or get it from the session
+    const userId = req.body.userId;
     const cart = await Cart.findOne({ userId }).populate("products.productId");
 
     if (!cart) {

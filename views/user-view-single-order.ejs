@@ -127,15 +127,19 @@
     <div class="d-flex justify-content-end mt-5">
       <a href="/account" class="btn"
         style="margin-right: 10px; background-color: #383e50; color: #fff; font-size: 15px;">Go Back</a>
-      <% if(!order.isCancelled) { %>
-        <form action="/cancel-order" method="post">
-          <input type="hidden" name="orderId" value="<%= order._id %>">
-          <button class="btn" style="background: #7F1734; color: #ffff; font-size: 15px;">Cancel Order</button>
-        </form>
-        <% } else { %>
-          <button class="btn"
-            style="background: #7F1734; color: #ffff; cursor: auto; font-size: 15px;">Cancelled</button>
-          <% } %>
+      <% if(order.isCancelled) { %>
+        <button class="btn" style="background: #7F1734; color: #ffff; cursor: auto; font-size: 15px;">Cancelled</button>
+        <% } else if(order.isShipped) { %>
+          <button class="btn" style="background: DAA520; color: #ffff; cursor: auto; font-size: 15px;">Shipped</button>
+          <% } else if(order.isDelivered) { %>
+            <button class="btn"
+              style="background: #088178; color: #ffff; cursor: auto; font-size: 15px;">Delivered</button>
+            <% } else { %>
+              <form action="/cancel-order" method="post">
+                <input type="hidden" name="orderId" value="<%= order._id %>">
+                <button class="btn" style="background: #7F1734; color: #ffff; font-size: 15px;">Cancel Order</button>
+              </form>
+              <% } %>
     </div>
   </div>
 </body>

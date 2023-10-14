@@ -23,7 +23,6 @@ const productSchema = new mongoose.Schema(
         type: Boolean,
         default: false,
       },
-      estProfit: Number,
     },
     {
       timestamps: true,

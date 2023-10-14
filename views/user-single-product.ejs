@@ -18,19 +18,15 @@
               <div class="row mb-50">
                 <div class="col-md-6 col-sm-12 col-xs-12">
                   <div class="detail-gallery">
-                    <!-- MAIN SLIDES -->
                     <figure class="border-radius-10 mb-2">
-                      <img src="<%= product.mainImage %>" style="width: 70%;" data-zoom-image="<%= product.mainImage %>"
-                        alt="product image">
+                      <img src="<%= product.mainImage %>" alt="product image">
                     </figure>
-                    <!-- THUMBNAILS -->
                     <div class="slider-nav-thumbnails pl-15 pr-15">
                       <% product.images.forEach(image=> { %>
                         <div><img src="<%= image %>" alt="product image"></div>
                         <% }) %>
                     </div>
                   </div>
-                  <!-- End Gallery -->
                 </div>
                 <div class="col-md-6 col-sm-12 col-xs-12">
                   <div class="detail-info">
