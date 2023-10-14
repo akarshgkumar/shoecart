@@ -633,10 +633,31 @@ router.post("/clear-wishlist", async (req, res) => {
     const userId = decoded.userId;
 
     await Wishlist.findOneAndDelete({ userId });
-
-    res.json({ success: true, wishlistItems: 0 });
+    req.flash("success", "Wishlist cleared successfully")
+    res.redirect("/wishlist");
   } catch (error) {
     console.error("Error clearing wishlist:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+});
+
+router.post("/remove-from-wishlist", async (req, res) => {
+  try {
+    const productId = req.body.productId;
+    const decoded = jwt.verify(req.cookies.jwt, JWT_SECRET);
+    const userId = decoded.userId;
+
+    let wishlist = await Wishlist.findOne({ userId });
+    wishlist.products = wishlist.products.filter(
+      p => p.productId.toString() !== productId
+    );
+
+    await wishlist.save();
+    const totalWishlistItems = wishlist.products.length;
+    
+    res.json({ success: true, wishlistItems: totalWishlistItems });
+  } catch (error) {
+    console.error("Error removing from wishlist:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
@@ -1241,6 +1262,8 @@ router.post("/add-to-wishlist", async (req, res) => {
   }
 });
 
+
+
 router.get("/wishlist", async (req, res) => {
   try {
     const token = req.cookies.jwt;
@@ -1252,9 +1275,10 @@ router.get("/wishlist", async (req, res) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     const userId = decoded.userId;
 
-    const wishlist = await Wishlist.findOne({ userId }).populate(
-      "products.productId"
-    );
+    const wishlist = await Wishlist.findOne({ userId }).populate({
+      path: "products.productId",
+      match: { isDeleted: false },
+    });
 
     const validProducts =
       wishlist?.products.filter((product) => product.productId) || [];
