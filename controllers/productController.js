@@ -33,7 +33,8 @@ router.get("/view-full-products", async (req, res) => {
         });
     } catch (err) {
         console.error("Error fetching products:", err);
-        res.status(500).send("Internal Server Error");
+        req.flash("error", "Error fetching products");
+        res.redirect("/home");
     }
 });
 

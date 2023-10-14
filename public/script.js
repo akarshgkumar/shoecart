@@ -65,7 +65,6 @@ function showAlert(message) {
   }, 2000);
 }
 
-
 function deleteOrder(orderId) {
   $.ajax({
     url: `/admin/delete-order/${orderId}`,
@@ -79,11 +78,10 @@ function deleteOrder(orderId) {
     },
     error: function (jqXHR, textStatus, errorThrown) {
       console.error("Error:", errorThrown);
-      alert("Error deleting order."); // Notify user of the error
+      showAlert("Error deleting order."); // Notify user of the error
     },
   });
 }
-
 
 function showSuccess(message) {
   const alertDiv = document.createElement("div");
@@ -122,11 +120,11 @@ function showSuccess(message) {
 $(function () {
   if (typeof successMessage !== "undefined") {
     showSuccess(successMessage);
-    successMessage= undefined;
+    successMessage = undefined;
   }
   if (typeof errorMessage !== "undefined") {
     showAlert(errorMessage);
-    errorMessage= undefined;
+    errorMessage = undefined;
   }
   $(".admin-edit-order-form").validate({
     rules: {
@@ -619,9 +617,9 @@ function resendOTP() {
       console.log(data);
       if (data.success) {
         setOtpExpiry();
-        alert("OTP sent!");
+        showSuccess("OTP sent!");
       } else {
-        alert("Error resending OTP.");
+        showAlert("Error resending OTP.");
       }
     });
 }

@@ -49,9 +49,13 @@
           <a href="/admin/edit-order/<%= order._id %>" class="btn"
             style="background: #383e50; color: #ffff; font-size: 15px;">Edit Order</a>
         </div>
-        <p>Estimated delivery:
-          <span style="color: #00563B; margin-left: 5px;"><%= order.deliveryDate.toLocaleString('en-US', { year: 'numeric' , month: 'long' , day: 'numeric' }) %></span>
-        </p>
+        <% if (!order.isDelivered) { %>
+          <p>Estimated delivery:
+            <span style="color: #00563B; margin-left: 5px;">
+              <%= order.deliveryDate.toLocaleString('en-US', { year: 'numeric' , month: 'long' , day: 'numeric' }) %>
+            </span>
+          </p>
+          <% } %>
       </div>
     </div>
 
@@ -98,7 +102,8 @@
         </p>
         <p>Status : <%= order.status %>
         </p>
-        <p>ShippedDate : <%= order.shippedDate ? order.shippedDate.toLocaleString('en-US', { year: 'numeric' , month: 'long' , day: 'numeric' })  : 'Not Shipped' %>
+        <p>ShippedDate : <%= order.shippedDate ? order.shippedDate.toLocaleString('en-US', { year: 'numeric' ,
+            month: 'long' , day: 'numeric' }) : 'Not Shipped' %>
         </p>
       </div>
       <div class="col-md-4">

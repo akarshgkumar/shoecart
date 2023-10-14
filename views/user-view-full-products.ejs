@@ -67,10 +67,15 @@
                                                     <i class="fi-rs-search"></i>
                                                 </a>
                                                 <a aria-label="Add To Wishlist" class="action-btn hover-up"
-                                                    href="shop-wishlist.html">
+                                                    href="javascript:void(0);" onclick="addToWishlist(this);"
+                                                    data-product-id="<%= product._id %>">
                                                     <i class="fi-rs-heart"></i>
                                                 </a>
-                                                <a aria-label="Add To Cart" onclick="addToCart(this, '<%= product.sizes[0] %>')" class="action-btn hover-up addToCartButton"
+
+                                                </a>
+                                                <a aria-label="Add To Cart"
+                                                    onclick="addToCart(this, '<%= product.sizes[0] %>')"
+                                                    class="action-btn hover-up addToCartButton"
                                                     href="javascript:void(0);" data-product-id="<%= product._id %>">
                                                     <i class="fi-rs-shopping-bag-add"></i>
                                                 </a>
@@ -94,7 +99,9 @@
                                                 <span>₹<%= product.price %> </span>
                                             </div>
                                             <div class="product-action-1 show">
-                                                <a aria-label="Add To Cart" onclick="addToCart(this, '<%= product.sizes[0] %>')" class="action-btn hover-up addToCartButton"
+                                                <a aria-label="Add To Cart"
+                                                    onclick="addToCart(this, '<%= product.sizes[0] %>')"
+                                                    class="action-btn hover-up addToCartButton"
                                                     href="javascript:void(0);" data-product-id="<%= product._id %>">
                                                     <i class="fi-rs-shopping-bag-add"></i>
                                                 </a>
@@ -226,4 +233,6 @@
     </main>
     <%- include('user-footer') %>
         <script defer src="/static/cart.js"></script>
+        <script defer src="/static/wishlist.js"></script>
+
         <%- include('footer') %>

@@ -95,6 +95,7 @@ router.get("/view-single-order/:orderId", async (req, res) => {
     const order = await Order.findById(req.params.orderId).populate(
       "products.product"
     );
+    console.log(order)
     res.render("admin-view-single-order", { order });
   } catch (error) {
     console.error("Error fetching order:", error);
@@ -169,11 +170,11 @@ router.post(
       updatedProductData.images = allImageUrls;
 
       await Product.findByIdAndUpdate(productId, updatedProductData);
-      req.flash("success", "Order edited successfully")
+      req.flash("success", "Product edited successfully")
       res.redirect("/admin/view-products");
     } catch (err) {
       console.error(err);
-      req.flash("error", "Internal servor error");
+      req.flash("error", "Internal server error");
       res.redirect(`/admin/edit-product/${productId}`);
     }
   }
@@ -228,10 +229,11 @@ router.post(
 
       const result = await product.save();
       console.log("result :", result);
+      req.flash("success", "product added successfully")
       res.redirect("/admin/view-products");
     } catch (err) {
       console.log("Error while adding product:", err);
-      res.end("error", err);
+      req.flash("flash", "internal server error")
     }
   }
 );

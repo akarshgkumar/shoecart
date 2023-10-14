@@ -47,13 +47,15 @@
       <div>
         <div class="mb-2 d-flex justify-content-end">
           <a href="#" class="btn"
-            style="margin-right: 10px; background-color: #383e50; color: #fff; font-size: 15px;">Invoice</a>
+            style="margin-right: 10px; background-color: #383e50; color: #fff; font-size: 15px; padding: 10px 20px">Download Invoice</a>
         </div>
-        <p>Estimated delivery:
-          <span style="color: #00563B; margin-left: 5px;">
-            <%= order.deliveryDate.toLocaleString('en-US', { year: 'numeric' , month: 'long' , day: 'numeric' }) %>
-          </span>
-        </p>
+        <% if (!order.isDelivered) { %>
+          <p>Estimated delivery:
+            <span style="color: #00563B; margin-left: 5px;">
+              <%= order.deliveryDate.toLocaleString('en-US', { year: 'numeric' , month: 'long' , day: 'numeric' }) %>
+            </span>
+          </p>
+          <% } %>
       </div>
     </div>
 
@@ -130,11 +132,12 @@
         style="margin-right: 10px; background-color: #383e50; color: #fff; font-size: 15px;">Go Back</a>
       <% if(order.isCancelled) { %>
         <button class="btn" style="background: #7F1734; color: #ffff; cursor: auto; font-size: 15px;">Cancelled</button>
-        <% } else if(order.isShipped) { %>
-          <button class="btn" style="background: #DAA520; color: #ffff; cursor: auto; font-size: 15px;">Shipped</button>
-          <% } else if(order.isDelivered) { %>
+        <% } else if(order.isDelivered) { %>
+          <button class="btn"
+            style="background: #088178; color: #ffff; cursor: auto; font-size: 15px;">Delivered</button>
+          <% } else if(order.isShipped) { %>
             <button class="btn"
-              style="background: #088178; color: #ffff; cursor: auto; font-size: 15px;">Delivered</button>
+              style="background: #DAA520; color: #ffff; cursor: auto; font-size: 15px;">Shipped</button>
             <% } else { %>
               <form action="/cancel-order" method="post">
                 <input type="hidden" name="orderId" value="<%= order._id %>">

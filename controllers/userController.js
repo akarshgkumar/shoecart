@@ -8,6 +8,7 @@ const User = require("../models/User");
 const Cart = require("../models/Cart");
 const Product = require("../models/Product");
 const Order = require("../models/Order");
+const Wishlist = require("../models/Wishlist");
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -133,8 +134,43 @@ async function fetchCartForUser(req, res, next) {
   }
 }
 
+async function fetchWishlistForUser(req, res, next) {
+  try {
+    const token = req.cookies.jwt;
+    if (!token) {
+      res.locals.wishlistItems = 0;
+      return next();
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.userId;
+
+    const wishlist = await Wishlist.findOne({ userId }).populate({
+      path: "products.productId",
+      select: "isDeleted",
+    });
+
+    if (wishlist) {
+      const validProducts = wishlist.products?.filter(
+        (product) => product.productId && !product.productId.isDeleted
+      );
+
+      const totalWishlistItems = validProducts.length;
+      res.locals.wishlistItems = totalWishlistItems;
+    } else {
+      res.locals.wishlistItems = 0;
+    }
+    next();
+  } catch (error) {
+    console.error("Error fetching wishlist in middleware:", error);
+    res.locals.wishlistItems = 0;
+    next();
+  }
+}
+
 router.use(setLoginStatus);
 router.use(fetchCartForUser);
+router.use(fetchWishlistForUser);
 router.use(fetchUserFromToken);
 
 router.get("/login", noCache, redirectIfLoggedIn, (req, res) => {
@@ -178,6 +214,7 @@ router.post("/verify-otp", async (req, res) => {
     if (forgot === "true") {
       res.redirect(`/reset-password?email=${encodeURIComponent(email)}`);
     } else {
+      req.flash("success", "Sucessfully logged in");
       res.redirect("/home");
     }
   } else {
@@ -211,9 +248,8 @@ router.post("/reset-password", async (req, res) => {
     res.redirect("/login");
   } catch (error) {
     console.error("Error resetting password:", error);
-    res
-      .status(500)
-      .render("reset-password", { error: "Internal Server Error" });
+    req.flash("success", "Sucessfully logged in");
+    res.redirect("/reset-password");
   }
 });
 
@@ -236,15 +272,6 @@ router.get("/account", async (req, res) => {
     );
 
     const orders = order.map((order) => {
-      if (order.isShipped) {
-        order.status = "Shipped";
-      } else if (order.isDelivered) {
-        order.status = "Delivered";
-      } else if (order.isCancelled) {
-        order.status = "Cancelled";
-      } else {
-        order.status = "Processing";
-      }
       const totalItems = order.products.reduce(
         (acc, curr) => acc + curr.quantity,
         0
@@ -280,7 +307,8 @@ router.get("/account", async (req, res) => {
     res.render("user-account", userData);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal server error");
+    req.flash("error", "Internal server error");
+    res.redirect("/home");
   }
 });
 
@@ -321,6 +349,7 @@ router.get("/", (req, res) => {
 
 router.get("/logout", (req, res) => {
   res.clearCookie("jwt");
+  req.flash("success", "logged out successfully");
   res.redirect("/login");
 });
 
@@ -381,6 +410,7 @@ router.post("/login", async (req, res) => {
         httpOnly: true,
         maxAge: 730 * 24 * 60 * 60 * 1000,
       });
+      req.flash("success", "Sucessfully logged in");
       res.redirect("/home");
     } else {
       res.render("login", { notFound: "Incorrect email or password" });
@@ -597,6 +627,20 @@ router.post("/add-to-cart", async (req, res) => {
   }
 });
 
+router.post("/clear-wishlist", async (req, res) => {
+  try {
+    const decoded = jwt.verify(req.cookies.jwt, JWT_SECRET);
+    const userId = decoded.userId;
+
+    await Wishlist.findOneAndDelete({ userId });
+
+    res.json({ success: true, wishlistItems: 0 });
+  } catch (error) {
+    console.error("Error clearing wishlist:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+});
+
 router.post("/remove-from-cart", async (req, res) => {
   try {
     const productId = req.body.productId;
@@ -616,8 +660,8 @@ router.post("/remove-from-cart", async (req, res) => {
       (acc, product) => acc + product.quantity,
       0
     );
-
-    res.json({ success: true, cartItems: totalItems });
+    req.flash("success", "Wishlist cleared.");
+    res.redirect("/wishlist");
   } catch (error) {
     console.error("Error removing from cart:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
@@ -625,10 +669,16 @@ router.post("/remove-from-cart", async (req, res) => {
 });
 
 router.post("/clear-cart", async (req, res) => {
-  const { userEmail } = req.body;
+  try {
+    const decoded = jwt.verify(req.cookies.jwt, JWT_SECRET);
+    const userId = decoded.userId;
 
-  await Cart.findOneAndRemove({ userEmail });
-  req.flash("success", "Cart cleared");
+    await Cart.findOneAndRemove({ userId });
+    req.flash("success", "Cart cleared");
+  } catch (error) {
+    console.error("Error clearing the cart:", error);
+    req.flash("error", "Failed to clear cart. Please try again.");
+  }
   res.redirect("/cart");
 });
 
@@ -660,7 +710,8 @@ router.get("/cart", async (req, res) => {
     res.render("shop-cart", { products: populatedProducts, userId });
   } catch (error) {
     console.error("Error fetching cart:", error);
-    res.status(500).send("Internal server error");
+    req.flash("error", "Internal server error");
+    res.redirect("/home");
   }
 });
 
@@ -717,7 +768,8 @@ router.post("/edit-account", async (req, res) => {
     res.redirect("/account");
   } catch (error) {
     console.error("Error updating the user:", error);
-    res.status(500).send("Internal server error");
+    req.flash("error", "Internal server error");
+    res.redirect("/account");
   }
 });
 
@@ -762,6 +814,7 @@ router.post("/add-address", async (req, res) => {
     });
 
     await user.save();
+    req.flash("success", "Address added successfully");
     res.redirect("/account");
   } catch (error) {
     console.error("Error adding address:", error);
@@ -787,6 +840,7 @@ router.post("/update-address/:addressId", async (req, res) => {
   const address = req.user.addresses.id(addressId);
   Object.assign(address, updatedAddress);
   await req.user.save();
+  req.flash("success", "Address updated successfully");
   res.redirect("/account");
 });
 
@@ -861,7 +915,7 @@ router.post("/remove-address/:addressId", async (req, res) => {
         $pull: { addresses: { _id: addressId } },
       }
     );
-
+    req.flash("success", "Address removed successfully");
     res.redirect("/account");
   } catch (error) {
     console.error(error);
@@ -881,18 +935,20 @@ router.post("/change-password", async (req, res) => {
     const isValidPassword = await bcrypt.compare(oldPassword, user.password);
 
     if (!isValidPassword) {
-      return res.redirect("/account?error=Current password is incorrect.");
+      req.flash("error", "Old Password is incorrect");
+      return res.redirect("/account#change-password");
     }
 
     if (newPassword !== confirmNewPassword) {
-      return res.redirect("/account?error=New passwords do not match.");
+      req.flash("error", "New passwords doesn't match");
+      return res.redirect("/account");
     }
 
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedNewPassword;
     await user.save();
-
-    return res.redirect("/account?message=Password changed successfully.");
+    req.flash("success", "Password changed successfully");
+    return res.redirect("/account");
   } catch (error) {
     console.error("Error changing password:", error);
     return res.redirect("/account?error=Internal Server Error");
@@ -1026,7 +1082,7 @@ router.post("/place-order", async (req, res) => {
     !zipcode ||
     !payment_option
   ) {
-    req.flash("error","fill all required fields");
+    req.flash("error", "fill all required fields");
     return res.redirect("/checkout");
   }
 
@@ -1091,11 +1147,11 @@ router.post("/place-order", async (req, res) => {
     }
 
     await Cart.deleteOne({ userId: user });
-    req.flash("success", "Order is successful")
+    req.flash("success", "Order is successful");
     return res.redirect("/home");
   } catch (err) {
     console.error("Error placing order:", err);
-    req.flash("error", "An error occured while placing order");
+    req.flash("error", "An error occurred while placing order");
     return res.redirect("/checkout");
   }
 });
@@ -1144,6 +1200,70 @@ router.post("/validate-cart", async (req, res) => {
   } catch (error) {
     console.error("Error:", error);
     res.json({ status: "failure", message: "An error occurred" });
+  }
+});
+
+router.post("/add-to-wishlist", async (req, res) => {
+  try {
+    const { productId } = req.body;
+
+    if (!req.cookies.jwt) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Not authenticated" });
+    }
+
+    const decoded = jwt.verify(req.cookies.jwt, JWT_SECRET);
+    const userId = decoded.userId;
+
+    let wishlist = await Wishlist.findOne({ userId });
+
+    if (!wishlist) {
+      wishlist = new Wishlist({ userId, products: [] });
+    }
+
+    const productIndex = wishlist.products.findIndex(
+      (p) => p.productId.toString() === productId
+    );
+
+    if (productIndex === -1) {
+      wishlist.products.push({ productId });
+    }
+
+    await wishlist.save();
+
+    const totalWishlistItems = wishlist.products.length;
+
+    res.json({ success: true, wishlistItems: totalWishlistItems });
+  } catch (error) {
+    console.error("Error adding to wishlist:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+});
+
+router.get("/wishlist", async (req, res) => {
+  try {
+    const token = req.cookies.jwt;
+
+    if (!token) {
+      return res.redirect("/login");
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.userId;
+
+    const wishlist = await Wishlist.findOne({ userId }).populate(
+      "products.productId"
+    );
+
+    const validProducts =
+      wishlist?.products.filter((product) => product.productId) || [];
+
+    res.render("user-wishlist", { products: validProducts, userId });
+  } catch (error) {
+    console.error("Error fetching wishlist:", error);
+    req.flash("error", "Error fetching wishlist");
+    res.redirect("/home");
   }
 });
 

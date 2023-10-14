@@ -33,7 +33,7 @@
                       <tr>
                         <td class="image product-thumbnail"><img src="<%= product.mainImage %>" alt="#"></td>
                         <td class="product-des product-name">
-                          <h5 class="product-name"><a href="#">
+                          <h5 class="product-name"><a href="/product/view-single-product/<%= product._id %>">
                               <%= product.name %>
                             </a></h5>
                           <p>Available Stocks : <%= product.stock %>
@@ -75,7 +75,6 @@
                         <tr>
                           <td colspan="7" class="text-end">
                             <form action="/clear-cart" method="post">
-                              <input type="hidden" id="hiddenUserId" name="userId" value="<%= userId %>">
                               <button type="submit" class="btn btn-link text-muted clear-btn-cart">
                                 <i class="fi-rs-cross-small"></i> Clear Cart
                               </button>
@@ -85,14 +84,17 @@
                   </tbody>
                 </table>
               </div>
-              <% } else { %>
-                <p>No items in cart</p>
-                <% } %>
 
-                  <div class="cart-action text-end">
-                    <a class="btn" href="/product/view-full-products"><i class="fi-rs-shopping-bag mr-10"></i>Continue
-                      Shopping</a>
-                  </div>
+              <div class="cart-action text-end">
+                <a class="btn" href="/product/view-full-products"><i class="fi-rs-shopping-bag mr-10"></i>Continue
+                  Shopping</a>
+              </div>
+              <% } else { %>
+                <p class="mb-20">Cart products are empty.</p>
+                <a class="btn" href="/product/view-full-products"><i
+                        class="fi-rs-shopping-bag mr-10"></i>Continue
+                    Shopping</a>
+                <% } %>
                   <div class="divider center_icon mt-50 mb-50"><i class="fi-rs-fingerprint"></i></div>
                   <% if (products.length> 0) { %>
                     <% let cartTotal=0; products.forEach(product=> {
@@ -125,7 +127,8 @@
                               </table>
                             </div>
                             <div class="d-flex justify-content-center mt-3">
-                              <a href="javascript:void(0);" class="btn" id="proceedToCheckoutBtn"> <i class="fi-rs-box-alt mr-10"></i> Proceed To
+                              <a href="javascript:void(0);" class="btn" id="proceedToCheckoutBtn"> <i
+                                  class="fi-rs-box-alt mr-10"></i> Proceed To
                                 CheckOut</a>
                             </div>
                           </div>
