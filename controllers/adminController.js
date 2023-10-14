@@ -111,7 +111,8 @@ router.get("/edit-product/:productId", async (req, res) => {
   if (product) {
     res.render("admin-edit-product", { product, category, brands });
   } else {
-    res.send("Invalid product");
+    req.flash("error", "Invalid product");
+    res.redirect("/admin/view-products");
   }
 });
 
@@ -145,7 +146,6 @@ router.post(
           req.files.mainImage && req.files.mainImage[0]
             ? req.files.mainImage[0].path
             : product.mainImage,
-        estProfit: req.body.estProfit,
       };
 
       const newImageUrls = req.files.image
@@ -161,6 +161,11 @@ router.post(
       }
 
       const allImageUrls = retainedImages.concat(newImageUrls);
+      if (allImageUrls.length > 3) {
+        req.flash("error", "Only submit 3 sub images");
+        return res.redirect(`/admin/edit-product/${productId}`);
+      }
+      if(allImageUrls)
       updatedProductData.images = allImageUrls;
 
       await Product.findByIdAndUpdate(productId, updatedProductData);
@@ -213,7 +218,6 @@ router.post(
         description: req.body.description,
         stock: req.body.stock,
         price: req.body.price,
-        estProfit: req.body.estProfit,
         mainImage:
           req.files.mainImage && req.files.mainImage[0]
             ? req.files.mainImage[0].path

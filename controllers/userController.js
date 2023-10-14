@@ -1026,6 +1026,7 @@ router.post("/place-order", async (req, res) => {
     !zipcode ||
     !payment_option
   ) {
+    req.flash("error","fill all required fields");
     return res.redirect("/checkout");
   }
 
