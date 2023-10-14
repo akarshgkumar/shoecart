@@ -1247,12 +1247,12 @@ router.post("/add-to-wishlist", async (req, res) => {
       (p) => p.productId.toString() === productId
     );
 
-    if (productIndex === -1) {
-      wishlist.products.push({ productId });
+    if (productIndex !== -1) {
+      return res.json({ success: false, alreadyExists: true });
     }
 
+    wishlist.products.push({ productId });
     await wishlist.save();
-
     const totalWishlistItems = wishlist.products.length;
 
     res.json({ success: true, wishlistItems: totalWishlistItems });
@@ -1261,7 +1261,6 @@ router.post("/add-to-wishlist", async (req, res) => {
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
-
 
 
 router.get("/wishlist", async (req, res) => {

@@ -10,6 +10,8 @@ function addToWishlist(buttonElement) {
       if (data.success) {
         showSuccess('Product added to wishlist');
         $("#wishlist-count").text(data.wishlistItems);
+      } else if (data.alreadyExists) {
+        showAlert('Item already exists in wishlist!');
       } else {
         showAlert('Failed to add product to wishlist!');
       }
