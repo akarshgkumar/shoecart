@@ -209,10 +209,6 @@ $(function () {
         min: 0,
         digits: true,
       },
-      estProfit: {
-        required: true,
-        min: 0,
-      },
       description: {
         required: true,
         noSpaceStartEnd: true,
@@ -267,10 +263,6 @@ $(function () {
         required: true,
         min: 0,
         digits: true,
-      },
-      estProfit: {
-        required: true,
-        min: 0,
       },
       description: {
         required: true,

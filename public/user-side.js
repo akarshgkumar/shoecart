@@ -121,12 +121,12 @@ $(function () {
   }
   const defaultAddressDataElement =
     document.getElementById("defaultAddressData");
-    console.log(defaultAddressDataElement)
-    let defaultAddress;
-    if(defaultAddressDataElement){
-      defaultAddress = JSON.parse(defaultAddressDataElement.textContent);
-      console.log(defaultAddress);
-    }
+  console.log(defaultAddressDataElement);
+  let defaultAddress;
+  if (defaultAddressDataElement) {
+    defaultAddress = JSON.parse(defaultAddressDataElement.textContent);
+    console.log(defaultAddress);
+  }
 
   $("#useDefaultAddress").change(function () {
     if (this.checked) {
@@ -287,6 +287,7 @@ $(function () {
         maxlength: 50,
       },
       phoneNo: {
+        required: true,
         digits: true,
         minlength: 10,
         maxlength: 15,
@@ -354,10 +355,11 @@ $(function () {
         maxlength: 20,
       },
       phoneNo: {
+        required: true,
         digits: true,
-        minlength: 10,
-        maxLength: 15,
+        maxlength: 15,
       },
+
       submitHandler: function (form) {
         form.submit();
       },

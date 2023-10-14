@@ -98,6 +98,8 @@ function addToCart(btn, defaultSize) {
         $("#cart-count").text(data.cartItems);
         updateTotalAndSubtotal();
         showSuccess("Product added to cart");
+      } else {
+        showAlert('Failed to add product to cart!');
       }
     },
   });

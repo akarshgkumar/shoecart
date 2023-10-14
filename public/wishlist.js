@@ -22,6 +22,33 @@ function addToWishlist(buttonElement) {
   });
 }
 
+function addToCartOnWishlist(btn, defaultSize) {
+  const productId = $(btn).data("product-id");
+  const quantity = 1;
+
+  $.ajax({
+    url: "/add-to-cart",
+    type: "POST",
+    data: {
+      productId: productId,
+      size: defaultSize,
+      quantity: quantity,
+    },
+    success: function (data) {
+      if (data.success) {
+        $("#cart-count").text(data.cartItems);
+        showSuccess("Product added to cart");
+      } else {
+        showAlert('Failed to add product to cart!');
+      }
+    },
+    error: function (error) {
+      console.error('Error adding to cart:', error);
+      showAlert("Error occurred while adding to cart");
+    }
+  });
+}
+
 function removeFromWishlist(buttonElement) {
   const productId = $(buttonElement).data('product-id');
 

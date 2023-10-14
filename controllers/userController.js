@@ -218,8 +218,9 @@ router.post("/verify-otp", async (req, res) => {
       res.redirect("/home");
     }
   } else {
+    req.flash("error", "Invalid or expired otp")
     res.redirect(
-      `/enter-otp?error=Invalid%20or%20expired%20OTP&email=${encodeURIComponent(
+      `/enter-otp?email=${encodeURIComponent(
         email
       )}`
     );
@@ -670,24 +671,29 @@ router.post("/remove-from-cart", async (req, res) => {
     const userId = decoded.userId;
 
     const cart = await Cart.findOne({ userId });
-    if (!cart) return res.json({ success: false, message: "No cart found" });
+    if (!cart) {
+      return res.json({ success: false, message: "No cart found" });
+    }
 
     cart.products = cart.products.filter(
       (p) => p.productId.toString() !== productId
     );
 
     await cart.save();
+
     const totalItems = cart.products.reduce(
       (acc, product) => acc + product.quantity,
       0
     );
-    req.flash("success", "Wishlist cleared.");
-    res.redirect("/wishlist");
+
+    res.json({ success: true, cartItems: totalItems }); 
+
   } catch (error) {
     console.error("Error removing from cart:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
+
 
 router.post("/clear-cart", async (req, res) => {
   try {
@@ -948,6 +954,7 @@ router.post("/change-password", async (req, res) => {
   try {
     const { oldPassword, newPassword, confirmNewPassword, userId } = req.body;
     const user = await User.findById(userId);
+    console.log(req.body)
 
     if (!user) {
       return res.redirect("/account?error=User not found.");
@@ -957,7 +964,7 @@ router.post("/change-password", async (req, res) => {
 
     if (!isValidPassword) {
       req.flash("error", "Old Password is incorrect");
-      return res.redirect("/account#change-password");
+      return res.redirect("/account");
     }
 
     if (newPassword !== confirmNewPassword) {
