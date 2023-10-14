@@ -169,11 +169,12 @@ router.post(
       updatedProductData.images = allImageUrls;
 
       await Product.findByIdAndUpdate(productId, updatedProductData);
-
+      req.flash("success", "Order edited successfully")
       res.redirect("/admin/view-products");
     } catch (err) {
       console.error(err);
-      res.status(500).send("Internal Server Error");
+      req.flash("error", "Internal servor error");
+      res.redirect(`/admin/edit-product/${productId}`);
     }
   }
 );

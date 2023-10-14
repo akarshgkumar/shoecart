@@ -100,7 +100,8 @@
         </p>
         <p>Status : <%= order.status %>
         </p>
-        <p>ShippedDate : <%= order.shippedDate ? order.shipppedDate : 'Not Shipped' %>
+        <p>ShippedDate : <%= order.shippedDate ? order.shippedDate.toLocaleString('en-US', { year: 'numeric' ,
+            month: 'long' , day: 'numeric' }) : 'Not Shipped' %>
         </p>
       </div>
       <div class="col-md-4">
@@ -130,7 +131,7 @@
       <% if(order.isCancelled) { %>
         <button class="btn" style="background: #7F1734; color: #ffff; cursor: auto; font-size: 15px;">Cancelled</button>
         <% } else if(order.isShipped) { %>
-          <button class="btn" style="background: DAA520; color: #ffff; cursor: auto; font-size: 15px;">Shipped</button>
+          <button class="btn" style="background: #DAA520; color: #ffff; cursor: auto; font-size: 15px;">Shipped</button>
           <% } else if(order.isDelivered) { %>
             <button class="btn"
               style="background: #088178; color: #ffff; cursor: auto; font-size: 15px;">Delivered</button>

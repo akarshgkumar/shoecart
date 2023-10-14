@@ -1091,6 +1091,7 @@ router.post("/place-order", async (req, res) => {
     }
 
     await Cart.deleteOne({ userId: user });
+    req.flash("success", "Order is successful")
     return res.redirect("/home");
   } catch (err) {
     console.error("Error placing order:", err);
