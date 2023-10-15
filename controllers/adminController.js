@@ -13,8 +13,8 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const multer = require("multer");
-
-
+const { customAlphabet } = require("nanoid");
+const nanoid = customAlphabet("1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ", 6);
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -208,10 +208,35 @@ router.post(
   ]),
   async (req, res, next) => {
     try {
+      let uniqueShortId;
+      let existingProduct;
+      let retryLimit = 10;
+      let retryCount = 0;
+
+      do {
+        uniqueShortId = nanoid();
+        try {
+          existingProduct = await Product.findOne({ shortId: uniqueShortId });
+        } catch (dbError) {
+          console.error("Error querying the database:", dbError);
+          req.flash("error", "Failed to check product uniqueness. Please try again.");
+          return res.redirect("/admin/add-product");
+        }
+        retryCount++;
+      } while (existingProduct && retryCount < retryLimit);
+
+      if (retryCount === retryLimit) {
+        console.error("Reached maximum retry limit when generating a unique shortId.");
+        req.flash("error", "Failed to generate a unique product ID. Please try again later.");
+        return res.redirect("/admin/add-product");
+      }
+
       let imageUrls = req.files.image
         ? req.files.image.map((file) => file.path)
         : [];
+
       const product = new Product({
+        shortId: uniqueShortId,
         name: req.body.product_name,
         color: req.body.product_color,
         size: req.body.product_size,
@@ -220,23 +245,23 @@ router.post(
         description: req.body.description,
         stock: req.body.stock,
         price: req.body.price,
-        mainImage:
-          req.files.mainImage && req.files.mainImage[0]
-            ? req.files.mainImage[0].path
-            : undefined,
-        images: imageUrls,
+        mainImage: req.files.mainImage && req.files.mainImage[0] ? req.files.mainImage[0].path : undefined,
+        images: imageUrls
       });
 
       const result = await product.save();
       console.log("result :", result);
-      req.flash("success", "product added successfully")
+      req.flash("success", "Product added successfully");
       res.redirect("/admin/view-products");
     } catch (err) {
       console.log("Error while adding product:", err);
-      req.flash("flash", "internal server error")
+      req.flash("error", "Internal server error. Failed to add the product.");
+      res.redirect("/admin/add-product");
     }
   }
 );
+
+
 
 router.get("/edit-brand/:brandId", async (req, res) => {
   const brandId = req.params.brandId;

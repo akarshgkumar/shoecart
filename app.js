@@ -55,7 +55,9 @@ app.use((req, res, next) => {
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send("something broke!");
+  req.flash("error", "Something went wrong! Please try again.");
+  res.redirect('back');
 });
 
-app.listen(config.server.port, () => console.log("running at port 3000"));
+
+app.listen(config.server.port, () => console.log(`running at port ${config.server.port}`));

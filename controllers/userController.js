@@ -9,6 +9,8 @@ const Cart = require("../models/Cart");
 const Product = require("../models/Product");
 const Order = require("../models/Order");
 const Wishlist = require("../models/Wishlist");
+const { customAlphabet } = require("nanoid");
+const nanoid = customAlphabet("1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ", 6);
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -570,7 +572,7 @@ router.post("/signup", async (req, res) => {
       });
   } catch (error) {
     console.error(error);
-    if (error.code === 11000) {
+    if (error.name === "MongoError" && error.code === 11000) {
       res.redirect("/signup?error=Email%20already%20exists");
     } else {
       res.status(500).send("Internal Server Error");
@@ -591,7 +593,7 @@ router.post("/add-to-cart", async (req, res) => {
     const decoded = jwt.verify(req.cookies.jwt, JWT_SECRET);
     const userId = decoded.userId;
 
-    const product = await Product.findById(productId); 
+    const product = await Product.findById(productId);
     if (!product || product.stock < quantity) {
       return res.json({
         success: false,
@@ -1117,6 +1119,14 @@ router.post("/place-order", async (req, res) => {
   }
 
   try {
+    let uniqueShortId = nanoid();
+    let existingOrder = await Order.findOne({ shortId: uniqueShortId });
+
+    while (existingOrder) {
+      uniqueShortId = nanoid();
+      existingOrder = await Order.findOne({ shortId: uniqueShortId });
+    }
+
     const cart = await Cart.findOne({ userId: user });
 
     if (!cart) {
@@ -1130,10 +1140,6 @@ router.post("/place-order", async (req, res) => {
         const product = await Product.findById(cartProduct.productId).populate(
           "brand"
         );
-        if (cartProduct.quantity > product.stock) {
-          req.flash("error", "Sorry some products are out of stock");
-          return res.redirect("/checkout");
-        }
         return {
           product: product._id,
           quantity: cartProduct.quantity,
@@ -1145,26 +1151,28 @@ router.post("/place-order", async (req, res) => {
         };
       })
     );
+
     const deliveryDate = new Date();
     deliveryDate.setDate(deliveryDate.getDate() + 3);
 
     const order = new Order({
+      shortId: uniqueShortId,
       user: user,
       products: mappedProducts,
       address: {
-        name: req.body.name,
-        email: req.body.email,
-        phoneNo: req.body.phone,
-        companyName: req.body.cname,
-        address: req.body.shipping_address,
-        addressLine1: req.body.shipping_address2,
-        city: req.body.city,
-        state: req.body.state,
-        postalCode: req.body.zipcode,
+        name: name,
+        email: email,
+        phoneNo: phone,
+        companyName: cname,
+        address: shipping_address,
+        addressLine1: shipping_address2,
+        city: city,
+        state: state,
+        postalCode: zipcode,
       },
-      paymentMethod: req.body.payment_option,
-      subTotal: parseFloat(req.body.subTotal),
-      totalAmount: parseFloat(req.body.totalAmount),
+      paymentMethod: payment_option,
+      subTotal: parseFloat(totalAmount),
+      totalAmount: parseFloat(totalAmount),
       deliveryDate: deliveryDate,
     });
 
@@ -1180,8 +1188,16 @@ router.post("/place-order", async (req, res) => {
     req.flash("success", "Order is successful");
     return res.redirect("/home");
   } catch (err) {
-    console.error("Error placing order:", err);
-    req.flash("error", "An error occurred while placing order");
+    if (err.name === "MongoError" && err.code === 11000) {
+      console.error("Duplicate key error:", err);
+      req.flash(
+        "error",
+        "An error occurred while processing your order. Please try again."
+      );
+    } else {
+      console.error("Error placing order:", err);
+      req.flash("error", "An error occurred while placing order");
+    }
     return res.redirect("/checkout");
   }
 });
@@ -1207,7 +1223,9 @@ router.post("/validate-cart", async (req, res) => {
       return res.json({ status: "failure", message: "Cart is empty" });
     }
 
-    const validProducts = cart.products.filter(product => !product.productId.isDeleted);
+    const validProducts = cart.products.filter(
+      (product) => !product.productId.isDeleted
+    );
 
     if (validProducts.length === 0) {
       return res.json({ status: "failure", message: "Cart is empty" });
@@ -1238,7 +1256,6 @@ router.post("/validate-cart", async (req, res) => {
     res.json({ status: "failure", message: "An error occurred" });
   }
 });
-
 
 router.post("/add-to-wishlist", async (req, res) => {
   try {
