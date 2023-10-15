@@ -96,13 +96,9 @@
                           onclick="addToCart(this, '<%= product.sizes[0] %>')"
                           class="button button-add-to-cart addToCartButton">Add to cart</button>
                         <a aria-label="Add To Wishlist" class="action-btn hover-up" href="javascript:void(0);"
-                          onclick="addToWishlist(this);"  data-product-id="<%= product._id %>"><i class="fi-rs-heart"></i></a>
+                          onclick="addToWishlist(this);" data-product-id="<%= product._id %>"><i
+                            class="fi-rs-heart"></i></a>
                       </div>
-                      <ul class="product-meta font-xs color-grey mt-50">
-                        <li>Availability:<span class="in-stock text-brand ml-5">
-                            <%= product.stock %> Items In Stock
-                          </span></li>
-                      </ul>
                     </div>
 
     </section>

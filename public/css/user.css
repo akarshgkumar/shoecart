@@ -7543,6 +7543,13 @@ span.fi-rs-apps {
   
 }
 
+.forgot-password-link-account {
+  text-decoration: underline;
+  margin-left: 20px;
+  color: #36454F;
+  font-size: 14px;
+}
+
 .main-menu.hover-boder > nav > ul > li:hover > a::after {
   width: 100%;
   left: 0;

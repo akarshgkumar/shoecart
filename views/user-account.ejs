@@ -61,12 +61,6 @@
                             Password
                           </a>
                         </li>
-                        <li class="nav-item">
-                          <a class="nav-link" href="/check-email/true?email=<%= encodeURIComponent(email) %>"><i
-                              class="fi-rs-user mr-10"></i>Forgot
-                            Password
-                          </a>
-                        </li>
                       </ul>
                     </div>
                   </div>
@@ -346,6 +340,7 @@
                                 <input type="hidden" name="userId" value="<%= userId %>">
                                 <div class="col-md-12">
                                   <button type="submit" class="btn btn-fill-out submit">Confirm</button>
+                                  <a class="forgot-password-link-account" href="/check-email/true?email=<%= encodeURIComponent(email) %>">Forgot Password?</a>
                                 </div>
                               </form>
                             </div>

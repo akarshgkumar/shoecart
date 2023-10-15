@@ -218,12 +218,8 @@ router.post("/verify-otp", async (req, res) => {
       res.redirect("/home");
     }
   } else {
-    req.flash("error", "Invalid or expired otp")
-    res.redirect(
-      `/enter-otp?email=${encodeURIComponent(
-        email
-      )}`
-    );
+    req.flash("error", "Invalid or expired otp");
+    res.redirect(`/enter-otp?email=${encodeURIComponent(email)}`);
   }
 });
 
@@ -595,6 +591,14 @@ router.post("/add-to-cart", async (req, res) => {
     const decoded = jwt.verify(req.cookies.jwt, JWT_SECRET);
     const userId = decoded.userId;
 
+    const product = await Product.findById(productId); 
+    if (!product || product.stock < quantity) {
+      return res.json({
+        success: false,
+        message: "Not enough stock available",
+      });
+    }
+
     let cart = await Cart.findOne({ userId });
     if (!cart) {
       cart = new Cart({ userId, products: [] });
@@ -634,7 +638,7 @@ router.post("/clear-wishlist", async (req, res) => {
     const userId = decoded.userId;
 
     await Wishlist.findOneAndDelete({ userId });
-    req.flash("success", "Wishlist cleared successfully")
+    req.flash("success", "Wishlist cleared successfully");
     res.redirect("/wishlist");
   } catch (error) {
     console.error("Error clearing wishlist:", error);
@@ -650,12 +654,12 @@ router.post("/remove-from-wishlist", async (req, res) => {
 
     let wishlist = await Wishlist.findOne({ userId });
     wishlist.products = wishlist.products.filter(
-      p => p.productId.toString() !== productId
+      (p) => p.productId.toString() !== productId
     );
 
     await wishlist.save();
     const totalWishlistItems = wishlist.products.length;
-    
+
     res.json({ success: true, wishlistItems: totalWishlistItems });
   } catch (error) {
     console.error("Error removing from wishlist:", error);
@@ -686,14 +690,12 @@ router.post("/remove-from-cart", async (req, res) => {
       0
     );
 
-    res.json({ success: true, cartItems: totalItems }); 
-
+    res.json({ success: true, cartItems: totalItems });
   } catch (error) {
     console.error("Error removing from cart:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
-
 
 router.post("/clear-cart", async (req, res) => {
   try {
@@ -954,7 +956,7 @@ router.post("/change-password", async (req, res) => {
   try {
     const { oldPassword, newPassword, confirmNewPassword, userId } = req.body;
     const user = await User.findById(userId);
-    console.log(req.body)
+    console.log(req.body);
 
     if (!user) {
       return res.redirect("/account?error=User not found.");
@@ -1201,14 +1203,20 @@ router.post("/validate-cart", async (req, res) => {
     const userId = req.body.userId;
     const cart = await Cart.findOne({ userId }).populate("products.productId");
 
-    if (!cart) {
+    if (!cart || cart.products.length === 0) {
+      return res.json({ status: "failure", message: "Cart is empty" });
+    }
+
+    const validProducts = cart.products.filter(product => !product.productId.isDeleted);
+
+    if (validProducts.length === 0) {
       return res.json({ status: "failure", message: "Cart is empty" });
     }
 
     let isValid = true;
 
-    for (let i = 0; i < cart.products.length; i++) {
-      const productInCart = cart.products[i];
+    for (let i = 0; i < validProducts.length; i++) {
+      const productInCart = validProducts[i];
       const actualProduct = await Product.findById(productInCart.productId);
 
       if (actualProduct.stock < productInCart.quantity) {
@@ -1230,6 +1238,7 @@ router.post("/validate-cart", async (req, res) => {
     res.json({ status: "failure", message: "An error occurred" });
   }
 });
+
 
 router.post("/add-to-wishlist", async (req, res) => {
   try {
@@ -1268,7 +1277,6 @@ router.post("/add-to-wishlist", async (req, res) => {
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
-
 
 router.get("/wishlist", async (req, res) => {
   try {

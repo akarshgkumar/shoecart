@@ -74,6 +74,7 @@ $(function () {
       },
       error: function (error) {
         console.error("Error updating quantity:", error);
+        showAlert("Unexpected error occurred");
       },
     });
   });
@@ -99,8 +100,12 @@ function addToCart(btn, defaultSize) {
         updateTotalAndSubtotal();
         showSuccess("Product added to cart");
       } else {
-        showAlert('Failed to add product to cart!');
+        showAlert(data.message);
       }
+    },
+    error: function (error) {
+      console.error("Error adding product to cart:", error);
+      showAlert("Unexpected error occurred");
     },
   });
 }
@@ -115,15 +120,17 @@ function removeFromCart(buttonElement) {
     data: JSON.stringify({ productId }),
     success: function (data) {
       if (data.success) {
-        if (data.success) {
-          updateTotalAndSubtotal();
-          $(buttonElement).closest("tr").remove();
-          $("#cart-count").text(data.cartItems);
-          showSuccess("Product removed from cart");
-        } else {
-          showAlert("Failed to remove product from cart!");
-        }
+        $(buttonElement).closest("tr").remove();
+        $("#cart-count").text(data.cartItems);
+        updateTotalAndSubtotal();
+        showSuccess("Product removed from cart");
+      } else {
+        showAlert("Failed to remove product from cart!");
       }
+    },
+    error: function (error) {
+      console.error("Error removing product to cart:", error);
+      showAlert("Unexpected error occurred");
     },
   });
 }

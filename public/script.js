@@ -65,24 +65,6 @@ function showAlert(message) {
   }, 2000);
 }
 
-function deleteOrder(orderId) {
-  $.ajax({
-    url: `/admin/delete-order/${orderId}`,
-    method: "DELETE",
-    dataType: "json",
-    success: function (data) {
-      if (data.message) {
-        showSuccess("Order deleted succesfully"); // Notify user
-        location.reload(); // Reload the page to reflect changes
-      }
-    },
-    error: function (jqXHR, textStatus, errorThrown) {
-      console.error("Error:", errorThrown);
-      showAlert("Error deleting order."); // Notify user of the error
-    },
-  });
-}
-
 function showSuccess(message) {
   const alertDiv = document.createElement("div");
   alertDiv.className = "alert";
