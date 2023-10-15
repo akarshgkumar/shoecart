@@ -282,8 +282,7 @@ router.get("/account", async (req, res) => {
       return {
         id:
           "#" +
-          order._id.toString().substring(order._id.toString().length - 4) +
-          "...",
+          order.shortId,
         date: order.createdAt.toDateString(),
         status: order.status,
         total: `₹${totalAmount.toFixed(2)}`,

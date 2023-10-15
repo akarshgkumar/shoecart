@@ -39,7 +39,7 @@
   <div class="container mt-5">
     <div class="order-header">
       <div>
-        <h4>Order ID: <%= order._id %>
+        <h4>Order ID: #<%= order.shortId %>
         </h4>
         <p>Order date: <%= new Date(order.createdAt).toLocaleDateString() %>
         </p>
