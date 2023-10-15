@@ -9,6 +9,11 @@ const session = require("express-session");
 const userController = require("./controllers/userController");
 const adminController = require("./controllers/adminController");
 const productController = require("./controllers/productController");
+const orderController = require("./controllers/orderController");
+const cartController = require("./controllers/cartController");
+const wishlistController = require("./controllers/wishlistController");
+const authMiddleware = require("./middlewares/authMiddleware");
+const cartAndWishlistMiddleware = require("./middlewares/cartAndWishlistMiddleware");
 
 const app = express();
 
@@ -21,6 +26,11 @@ app.use(
 );
 
 app.use(flash());
+app.use(cookieParser());
+
+app.use(authMiddleware.setLoginStatus);
+app.use(cartAndWishlistMiddleware.fetchCartForUser);
+app.use(cartAndWishlistMiddleware.fetchWishlistForUser);
 
 app.use((req, res, next) => {
   res.set("Cache-Control", "no-store");
@@ -45,6 +55,12 @@ app.set("view engine", "ejs");
 
 app.use("/", userController);
 
+app.use("/order", orderController);
+
+app.use("/cart", cartController);
+
+app.use("/wishlist", wishlistController);
+
 app.use("/admin", adminController);
 
 app.use("/product", productController);
@@ -56,8 +72,9 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
   console.error(err.stack);
   req.flash("error", "Something went wrong! Please try again.");
-  res.redirect('back');
+  res.redirect("back");
 });
 
-
-app.listen(config.server.port, () => console.log(`running at port ${config.server.port}`));
+app.listen(config.server.port, () =>
+  console.log(`running at port ${config.server.port}`)
+);

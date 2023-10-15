@@ -12,7 +12,7 @@
         <div class="page-header breadcrumb-wrap">
           <div class="container">
             <div class="breadcrumb">
-              <a href="index.html" rel="nofollow">Home</a>
+              <a href="/home" rel="nofollow">Home</a>
               <span></span> Shop
               <span></span> Checkout
             </div>
@@ -24,7 +24,7 @@
               <div class="col-lg-6 mb-sm-15">
                 <div class="toggle_info">
                   <span><i class="fi-rs-user mr-10"></i><span class="text-muted">Select from existing address?</span> <a
-                      href="/select-address">Click here</a></span>
+                      href="/order/select-address">Click here</a></span>
                 </div>
               </div>
               <div class="col-lg-6">
@@ -62,7 +62,7 @@
                   <input style="width: auto; height: auto;" type="checkbox" id="useDefaultAddress" class="me-1">
                   <label for="useDefaultAddress">Use default address</label>
                 </div>
-                <form action="/place-order" method="post" class="checkout-form">
+                <form action="/order/place-order" method="post" class="checkout-form">
                   <input type="hidden" name="user" value="<%= userId %>">
                   <div class="form-group">
                     <label for="name">Full Name :</label>
@@ -123,7 +123,7 @@
                             <tr>
                               <td class="image product-thumbnail"><img src="<%= product.mainImage %>" alt="#"></td>
                               <td>
-                                <h5><a href="#">
+                                <h5><a>
                                     <%= product.name %>
                                   </a></h5>
                                 <span class="product-qty">x <%= product.quantity %> ( Size : <%= product.size %>

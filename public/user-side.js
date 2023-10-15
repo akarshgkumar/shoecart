@@ -244,7 +244,7 @@ $(function () {
       },
       success: function (response) {
         console.log("Default address updated successfully!");
-        window.location.href = "/checkout";
+        window.location.href = "/order/checkout";
       },
       error: function (error) {
         console.log("Error updating default address.");

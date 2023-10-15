@@ -3,7 +3,7 @@ function addToWishlist(buttonElement) {
 
   $.ajax({
     type: 'POST',
-    url: '/add-to-wishlist',
+    url: '/wishlist/add-to-wishlist',
     contentType: 'application/json',
     data: JSON.stringify({ productId }),
     success: function (data) {
@@ -27,7 +27,7 @@ function addToCartOnWishlist(btn, defaultSize) {
   const quantity = 1;
 
   $.ajax({
-    url: "/add-to-cart",
+    url: "/cart/add-to-cart",
     type: "POST",
     data: {
       productId: productId,
@@ -54,7 +54,7 @@ function removeFromWishlist(buttonElement) {
 
   $.ajax({
     type: 'POST',
-    url: '/remove-from-wishlist',
+    url: '/wishlist/remove-from-wishlist',
     contentType: 'application/json',
     data: JSON.stringify({ productId }),
     success: function(data) {
@@ -75,7 +75,7 @@ function removeFromWishlist(buttonElement) {
 function clearWishlist() {
   $.ajax({
     type: 'POST',
-    url: '/clear-wishlist',
+    url: '/wishlist/clear-wishlist',
     success: function(data) {
       if (data.success) {
         showSuccess('Wishlist cleared');

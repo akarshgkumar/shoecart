@@ -5,10 +5,12 @@ const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
 const sgMail = require("@sendgrid/mail");
 const User = require("../models/User");
+const Cart = require("../models/Cart");
+const Product = require("../models/Product");
 const Order = require("../models/Order");
-const noCache = require('../middlewares/noCache');
-const redirectIfLoggedIn = require('../middlewares/user/redirectIfLoggedIn');
-
+const Wishlist = require("../models/Wishlist");
+const { customAlphabet } = require("nanoid");
+const nanoid = customAlphabet("1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ", 6);
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 

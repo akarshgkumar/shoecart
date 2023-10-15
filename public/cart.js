@@ -23,13 +23,14 @@ $(function () {
 
     const userId = $("#hiddenUserId").val();
     $.ajax({
-      url: "/validate-cart",
+      url: "/order/validate-cart",
       method: "POST",
       data: { userId: userId },
       dataType: "json",
       success: function (response) {
+        console.log(response);
         if (response.status === "success") {
-          window.location.href = "/checkout";
+          window.location.href = "/order/checkout";
         } else {
           showAlert(response.message);
         }
@@ -61,7 +62,7 @@ $(function () {
 
     $.ajax({
       type: "POST",
-      url: "/update-cart-quantity",
+      url: "/cart/update-cart-quantity",
       contentType: "application/json",
       data: JSON.stringify({ productId, quantity: currentQty }),
       success: function (data) {
@@ -87,7 +88,7 @@ function addToCart(btn, defaultSize) {
   const quantity = parseInt($(".detail-qty .qty-val").text()) || 1;
 
   $.ajax({
-    url: "/add-to-cart",
+    url: "/cart/add-to-cart",
     type: "POST",
     data: {
       productId: productId,
@@ -115,7 +116,7 @@ function removeFromCart(buttonElement) {
 
   $.ajax({
     type: "POST",
-    url: "/remove-from-cart",
+    url: "/cart/remove-from-cart",
     contentType: "application/json",
     data: JSON.stringify({ productId }),
     success: function (data) {
