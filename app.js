@@ -15,6 +15,7 @@ const wishlistController = require("./controllers/user/wishlistController");
 const authMiddleware = require("./middlewares/authMiddleware");
 const cartAndWishlistMiddleware = require("./middlewares/cartAndWishlistMiddleware");
 
+
 const app = express();
 
 app.use(
@@ -25,7 +26,6 @@ app.use(
   })
 );
 
-app.use(cookieParser());
 app.use(flash());
 
 app.use((req, res, next) => {
@@ -34,6 +34,7 @@ app.use((req, res, next) => {
   res.locals.error_messages = req.flash("error");
   next();
 });
+app.use(cookieParser());
 
 app.use(authMiddleware.setLoginStatus);
 app.use(cartAndWishlistMiddleware.fetchCartForUser);
@@ -48,7 +49,6 @@ mongoose
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(cookieParser());
 
 app.use("/static", express.static(path.join(__dirname, "public")));
 

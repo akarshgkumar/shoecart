@@ -3,7 +3,10 @@
     <%= error %>
   </div>
   <% } %>
-    <%- include('partials/user-header') %>
+    <script>
+      const RAZORPAY_KEY_ID = '<%= RAZORPAY_KEY_ID %>';
+    </script>
+    <%- include('partials/checkout-header') %>
       <div id="defaultAddressData" style="display:none;">
         <%= JSON.stringify(defaultAddress) %>
       </div>
@@ -162,7 +165,7 @@
                         <input class="form-check-input" type="radio" name="payment_option" id="exampleRadios3"
                           value="Razor Pay" required>
                         <label class="form-check-label" for="exampleRadios3" data-bs-toggle="collapse"
-                          data-target="#razorpay" aria-controls="razorpay">Razor Pay</label>
+                          data-target="#razorpay" aria-controls="razorpay">Pay Now</label>
                         <div class="form-group collapse in" id="razorpay">
                           <p class="text-muted mt-5">There are many variations of passages of Lorem Ipsum available, but
                             the majority have suffered alteration. </p>
@@ -188,7 +191,8 @@
                       </div>
                     </div>
                   </div>
-                  <button type="submit" class="btn btn-fill-out btn-block mt-30">Place Order</button>
+                  <button type="submit" class="btn btn-fill-out btn-block mt-30">Place
+                    Order</button>
                   <% let dateThreeDaysFromNow=new Date(); dateThreeDaysFromNow.setDate(dateThreeDaysFromNow.getDate() +
                     3); %>
 
@@ -204,4 +208,6 @@
         </section>
       </main>
 
-      <%- include('../partials/footer') %>
+      </body>
+
+      </html>

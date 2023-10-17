@@ -1,10 +1,10 @@
 <% if (success_messages && success_messages.length> 0) { %>
   <script>
-    const successMessage = '<%= success_messages[0] %>';
+    let successMessage = '<%= success_messages[0] %>';
   </script>
   <% } %>
     <% if (error_messages && error_messages.length> 0) { %>
       <script>
-        const errorMessage = '<%= error_messages[0] %>';
+        let errorMessage = '<%= error_messages[0] %>';
       </script>
       <% } %>

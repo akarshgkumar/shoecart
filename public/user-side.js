@@ -83,6 +83,7 @@ function showSuccess(message) {
   alertDiv.style.right = "20px";
   alertDiv.style.zIndex = "9999";
   alertDiv.style.top = "60px";
+
   alertDiv.style.opacity = "0";
   alertDiv.style.transition = "opacity 0.5s ease-in-out";
   alertDiv.style.backgroundColor = "#088178"; // Green
@@ -250,10 +251,59 @@ $(function () {
         error.insertAfter(element);
       }
     },
-    submitHandler: function (form) {
-      form.submit();
+    submitHandler: async function (form) {
+      console.log("on submit handler");
+      let paymentOption = document.querySelector(
+        'input[name="payment_option"]:checked'
+      ).value;
+
+      if (paymentOption === "Razor Pay") {
+        const response = await fetch("/order/place-order", {
+          method: "POST",
+          body: new FormData(form),
+        });
+        const data = await response.json();
+        console.log("key id :", RAZORPAY_KEY_ID);
+
+        var options = {
+          key: RAZORPAY_KEY_ID,
+          amount: data.amount,
+          currency: "INR",
+          name: "Akarsh G Kumar",
+          description: "Order Payment",
+          order_id: data.order_id,
+          handler: function (response) {
+            form.submit();
+          },
+          prefill: {
+            name: document.getElementById("name").value,
+            email: document.getElementById("email").value,
+          },
+          notes: {
+            address: "Razorpay Corporate Office",
+          },
+          theme: {
+            color: "#3399cc",
+          },
+        };
+        var rzp1 = new window.Razorpay(options);
+        rzp1.open();
+        rzp1.on("payment.failed", function (response) {
+          alert(response.error.code);
+          alert(response.error.description);
+          alert(response.error.source);
+          alert(response.error.step);
+          alert(response.error.reason);
+          alert(response.error.metadata.order_id);
+          alert(response.error.metadata.payment_id);
+        });
+      } else {
+        console.log('on here')
+        form.submit();
+      }
     },
   });
+
   $('input[name="address-select-checkout"]').on("change", function () {
     console.log("on address select ajax");
     const selectedAddressId = $(this).data("address-id");

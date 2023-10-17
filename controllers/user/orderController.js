@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const Razorpay = require("razorpay");
 const Cart = require("../../models/Cart");
 const Product = require("../../models/Product");
 const User = require("../../models/User");
@@ -9,7 +10,6 @@ const nanoid = customAlphabet("1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ", 6);
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
 const validator = require("validator");
-const noCache = require('../../middlewares/noCache');
 
 router.get("/checkout", async (req, res) => {
   try {
@@ -55,12 +55,13 @@ router.get("/checkout", async (req, res) => {
     const user = await User.findById(userId);
     const defaultAddress = user.addresses.find((address) => address.default);
 
-    res.render("user-checkout", {
+    res.render("user/user-checkout", {
       products: populatedProducts,
       defaultAddress: defaultAddress,
       userId,
       totalPrice,
       error,
+      RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
     });
   } catch (error) {
     console.error("Error fetching checkout data:", error);
@@ -103,7 +104,7 @@ router.get("/view-single-order/:orderId", async (req, res) => {
     const order = await Order.findById(req.params.orderId).populate(
       "products.product"
     );
-    res.render("user-view-single-order", { order });
+    res.render("user/user-view-single-order", { order });
   } catch (error) {
     console.error("Error fetching order:", error);
     res.status(500).send("Server error");
@@ -124,7 +125,7 @@ router.get("/select-address", async (req, res) => {
       return res.status(404).send("User not found");
     }
 
-    res.render("select-address", { addresses: user.addresses, userId });
+    res.render("user/select-address", { addresses: user.addresses, userId });
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal server error");
@@ -206,13 +207,21 @@ router.post("/place-order", async (req, res) => {
   }
 
   try {
-    let uniqueShortId = nanoid();
-    let existingOrder = await Order.findOne({ shortId: uniqueShortId });
+    let uniqueShortId;
+    let existingOrder;
+    let maxAttempts = 10;
+    let attempts = 0;
 
-    while (existingOrder) {
+    do {
       uniqueShortId = nanoid();
       existingOrder = await Order.findOne({ shortId: uniqueShortId });
-    }
+      attempts++;
+
+      if (attempts >= maxAttempts) {
+        req.flash("error", "Unexpected error occurred, please try again");
+        return res.redirect("/order/checkout");
+      }
+    } while (existingOrder);
 
     const cart = await Cart.findOne({ userId: user });
 
@@ -239,10 +248,7 @@ router.post("/place-order", async (req, res) => {
       })
     );
 
-    const deliveryDate = new Date();
-    deliveryDate.setDate(deliveryDate.getDate() + 3);
-
-    const order = new Order({
+    const newOrder = new Order({
       shortId: uniqueShortId,
       user: user,
       products: mappedProducts,
@@ -258,12 +264,56 @@ router.post("/place-order", async (req, res) => {
         postalCode: zipcode,
       },
       paymentMethod: payment_option,
-      subTotal: parseFloat(totalAmount),
-      totalAmount: parseFloat(totalAmount),
-      deliveryDate: deliveryDate,
+      totalAmount: totalAmount,
+      subTotal: totalAmount,
     });
 
-    await order.save();
+    if (payment_option === "Razor Pay") {
+      
+      const instance = new Razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID,
+        key_secret: process.env.RAZORPAY_KEY_SECRET,
+      });
+
+      const options = {
+        amount: parseFloat(totalAmount) * 100,
+        currency: "INR",
+      };
+
+      try {
+        console.log("instance :", instance);
+        console.log("instance.orders : ", instance.orders);
+        const razorOrder = await instance.orders.create(options);
+        newOrder.paymentStatus = "INITIATED";
+        newOrder.razorOrderId = razorOrder.id;
+
+        return res.json({
+          order_id: razorOrder.id,
+          amount: totalAmount * 100,
+        });
+      } catch (err) {
+        console.error("Error:", err);
+        req.flash("error", "An error occurred while initiating payment");
+        return res.redirect("/order/checkout");
+      }
+    }
+
+    // if (payment_option === "Razor Pay" && req.body.razorpay_payment_id) {
+    //   const razorpayPaymentId = req.body.razorpay_payment_id;
+    //   const captureResponse = await instance.payments.capture(
+    //     razorpayPaymentId,
+    //     parseFloat(totalAmount) * 100
+    //   );
+
+    //   if (captureResponse.error) {
+    //     req.flash("error", "Error capturing payment");
+    //     return res.redirect("/order/checkout");
+    //   } else {
+    //     newOrder.paymentStatus = "CAPTURED";
+    //   }
+    // }
+
+    await newOrder.save();
 
     for (let cartProduct of cart.products) {
       const product = await Product.findById(cartProduct.productId);
@@ -272,6 +322,7 @@ router.post("/place-order", async (req, res) => {
     }
 
     await Cart.deleteOne({ userId: user });
+
     req.flash("success", "Order is successful");
     return res.redirect("/home");
   } catch (err) {

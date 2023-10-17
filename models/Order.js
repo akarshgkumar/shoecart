@@ -26,22 +26,22 @@ const orderSchema = new mongoose.Schema(
           type: Number,
           required: true,
         },
-        size: { 
+        size: {
           type: Number,
           required: true,
         },
         mainImg: {
           type: String,
-          required: true
+          required: true,
         },
         name: {
           type: String,
-          required: true
+          required: true,
         },
         brand: {
           type: String,
-          required: true
-        }
+          required: true,
+        },
       },
     ],
     address: {
@@ -87,17 +87,23 @@ const orderSchema = new mongoose.Schema(
     },
     subTotal: {
       type: Number,
-      required: true
+      required: true,
     },
     status: {
       type: String,
-      enum: ['Processing', 'Shipped', 'Delivered', 'Cancelled', 'Returned'],
-      default: 'Processing'
+      enum: ["Processing", "Shipped", "Delivered", "Cancelled", "Returned"],
+      default: "Processing",
     },
+    razorOrderId: String,
     deliveryDate: Date,
     shippedDate: Date,
     cancelledDate: Date,
     returnDate: Date,
+    paymentStatus: {
+      type: String,
+      enum: ["INITIATED", "CAPTURED", "FAILED", "PENDING"],
+      default: "PENDING",
+    },
   },
   {
     timestamps: true,
