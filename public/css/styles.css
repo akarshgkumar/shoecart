@@ -27,6 +27,12 @@ html {
   border-color: #fedcb9;
 }
 
+.alert-light-blue {
+  color: #1F305E;
+  background-color: #89CFF0;
+  border-color: #fedcb9;
+}
+
 .alert-danger {
   color: #ffffff;
   background-color: #c51e3a;

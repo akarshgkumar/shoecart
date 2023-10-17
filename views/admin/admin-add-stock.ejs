@@ -1,0 +1,31 @@
+<%- include('partials/header') %>
+  <%- include('partials/aside-nav') %>
+    <main class="main-wrap">
+      <%- include('partials/admin-header') %>
+        <section class="content-main">
+          <form class="stock-form" action="/admin/add-stock/<%= productId %>" method="POST">
+            <div class="row">
+              <div class="col-9">
+                <div class="content-header">
+                  <h2 class="content-title">Add Stocks</h2>
+                  <div>
+                    <button type="submit" class="btn btn-md rounded font-sm hover-up">Confirm</button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="card mb-4">
+                  <div class="card-body">
+                    <div class="mb-4">
+                      <label for="stock_no" class="form-label">Number Of Stocks : </label>
+                      <input type="number" placeholder="Type here" class="form-control" id="stock_no" name="stock_no">
+                      <input type="number" type="hidden" id="existing_stock" name="existing_stock">
+                      <span class="error-span"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </form>
+        </section>
+    </main>
+    <%- include('../partials/footer') %>

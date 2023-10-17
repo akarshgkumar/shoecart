@@ -6,12 +6,12 @@ const cookieParser = require("cookie-parser");
 const config = require("./config/default");
 const flash = require("connect-flash");
 const session = require("express-session");
-const userController = require("./controllers/userController");
-const adminController = require("./controllers/adminController");
-const productController = require("./controllers/productController");
-const orderController = require("./controllers/orderController");
-const cartController = require("./controllers/cartController");
-const wishlistController = require("./controllers/wishlistController");
+const accountController = require("./controllers/user/accountController");
+const adminController = require("./controllers/admin/adminController");
+const productController = require("./controllers/user/productController");
+const orderController = require("./controllers/user/orderController");
+const cartController = require("./controllers/user/cartController");
+const wishlistController = require("./controllers/user/wishlistController");
 const authMiddleware = require("./middlewares/authMiddleware");
 const cartAndWishlistMiddleware = require("./middlewares/cartAndWishlistMiddleware");
 
@@ -25,12 +25,8 @@ app.use(
   })
 );
 
-app.use(flash());
 app.use(cookieParser());
-
-app.use(authMiddleware.setLoginStatus);
-app.use(cartAndWishlistMiddleware.fetchCartForUser);
-app.use(cartAndWishlistMiddleware.fetchWishlistForUser);
+app.use(flash());
 
 app.use((req, res, next) => {
   res.set("Cache-Control", "no-store");
@@ -38,6 +34,11 @@ app.use((req, res, next) => {
   res.locals.error_messages = req.flash("error");
   next();
 });
+
+app.use(authMiddleware.setLoginStatus);
+app.use(cartAndWishlistMiddleware.fetchCartForUser);
+app.use(cartAndWishlistMiddleware.fetchWishlistForUser);
+
 
 mongoose
   .connect(config.database.uri, config.database.options)
@@ -53,7 +54,7 @@ app.use("/static", express.static(path.join(__dirname, "public")));
 
 app.set("view engine", "ejs");
 
-app.use("/", userController);
+app.use("/", accountController);
 
 app.use("/order", orderController);
 

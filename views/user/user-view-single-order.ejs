@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShoeCart</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <style>
+    .product-image {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      margin-right: 15px;
+    }
+
+    p {
+      padding: 0;
+      margin: 0;
+    }
+
+    .col-md-4 {
+      line-height: 2;
+    }
+
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e5e5e5;
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+    }
+  </style>
+  <script defer src="/static/user-side.js"></script>
+</head>
+
+<body>
+  <%- include ('../partials/flash-messages') %>
+    <div class="container mt-5">
+      <div class="order-header">
+        <div>
+          <h4>Order ID: #<%= order.shortId %>
+          </h4>
+          <p>Order date: <%= new Date(order.createdAt).toLocaleDateString() %>
+          </p>
+        </div>
+        <div>
+          <div class="mb-2 d-flex justify-content-end">
+            <a href="#" class="btn"
+              style="margin-right: 10px; background-color: #383e50; color: #fff; font-size: 15px; padding: 10px 20px">Download
+              Invoice</a>
+          </div>
+          <% if(order.status==="Returned" ) { %>
+            <p style="color: #E23D28; margin-left: 5px;">Order Returned At <%= new
+                Date(order.returnDate).toLocaleDateString() %>
+            </p>
+            <% } else if (order.status !=="Delivered" ) { %>
+              <p>Estimated delivery:
+                <span style="color: #00563B; margin-left: 5px;">
+                  <%= order.deliveryDate.toLocaleString('en-US', { year: 'numeric' , month: 'long' , day: 'numeric' })
+                    %>
+                </span>
+              </p>
+              <% } else { %>
+                <p>Delivered date:
+                  <span style="color: #00563B; margin-left: 5px;">
+                    <%= order.deliveryDate.toLocaleString('en-US', { year: 'numeric' , month: 'long' , day: 'numeric' })
+                      %>
+                  </span>
+                </p>
+                <% } %>
+        </div>
+      </div>
+
+      <table class="table table-bordered mt-5">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Details</th>
+            <th>Price</th>
+            <th>Quantity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% order.products.forEach(product=> { %>
+            <tr>
+              <td>
+                <img src="<%= product.mainImg %>" alt="Shoe Image" class="product-image">
+                <%= product.name.length> 50 ? product.name.substring(0, 50) + "..." : product.name %>
+
+              </td>
+              <td>
+                Size : <%= product.size %> | Brand : <%= product.brand %>
+              </td>
+              <td>
+                ₹<%= product.price %>
+              </td>
+              <td>
+                <%= product.quantity %>
+              </td>
+            </tr>
+            <% }) %>
+        </tbody>
+      </table>
+
+
+      <div class="row mt-5">
+        <div class="col-md-4">
+          <h5>Details</h5>
+          <p>Payment : <%= order.paymentMethod %>
+          </p>
+          <p>Shipped : <%= (order.status==='Shipped' || order.status==='Delivered' ) ? 'Yes' : 'No' %>
+          </p>
+          <p>Delivered : <%= order.status==='Delivered' ? 'Yes' : 'No' %>
+          </p>
+          </p>
+          <p>Status : <%= order.status %>
+          </p>
+          <p>ShippedDate :
+            <% if (order.shippedDate) { %>
+              <%= order.shippedDate.toLocaleString('en-US', { year: 'numeric' , month: 'long' , day: 'numeric' }) %>
+                <% } else if (["Shipped", "Delivered" ].includes(order.status)) { %>
+                  Invalid Date
+                  <% } else { %>
+                    Not Shipped
+                    <% } %>
+          </p>
+
+        </div>
+        <div class="col-md-4">
+          <h5>Shipping Address:</h5>
+          <p>
+            <%= order.address.name %><br>
+              <%= order.address.address %>, <%= order.address.addressLine1 ? order.address.addressLine1 + ',' : '' %>
+                  <br>
+                  <%= order.address.city %>, <%= order.address.state %><br>
+                      <%= order.address.postalCode %>
+          </p>
+        </div>
+        <div class="col-md-4 text-end">
+          <h5>Order Summary:</h5>
+          <p>Subtotal: ₹<%= order.subTotal %>
+          </p>
+          <p>Shipping: Free</p>
+          <hr>
+          <p>Total: ₹<%= order.totalAmount %>
+          </p>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end mt-5">
+        <a href="/account" class="btn"
+          style="margin-right: 10px; background-color: #383e50; color: #fff; font-size: 15px;">Go Back</a>
+
+        <% let currentDate=new Date(); let deliveryDate=new Date(order.deliveryDate); let returnEndDate=new
+          Date(order.deliveryDate); returnEndDate.setDate(deliveryDate.getDate() + 10); let
+          withinReturnPeriod=currentDate <=returnEndDate; %>`
+
+          <% if(order.status==='Cancelled' ) { %>
+            <button class="btn"
+              style="background: #7F1734; color: #ffff; cursor: auto; font-size: 15px;">Cancelled</button>
+            <% } else if(order.status==='Delivered' && withinReturnPeriod) { %>
+              <a href="/order/return-reason/<%= order._id %>"><button class="btn"
+                  style="background: #7F1734;; color: #ffff; font-size: 15px;">Return</button></a>
+              </form>
+              <% } else if(order.status==='Delivered' ) { %>
+                <button class="btn"
+                  style="background: #088178; color: #ffff; cursor: auto; font-size: 15px;">Delivered</button>
+                <% } else if(order.status==='Shipped' ) { %>
+                  <button class="btn"
+                    style="background: #DAA520; color: #ffff; cursor: auto; font-size: 15px;">Shipped</button>
+                  <% } else if(order.status==="Returned" ) { %>
+                    <button class="btn"
+                      style="background: #7F1734; color: #ffff; cursor: auto; font-size: 15px;">Returned</button>
+                    <% } else { %>
+                      <form action="/order/cancel-order" method="post">
+                        <input type="hidden" name="orderId" value="<%= order._id %>">
+                        <button class="btn" style="background: #7F1734; color: #ffff; font-size: 15px;">Cancel
+                          Order</button>
+                      </form>
+                      <% } %>
+      </div>
+    </div>
+</body>
+
+</html>

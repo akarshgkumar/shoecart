@@ -89,24 +89,15 @@ const orderSchema = new mongoose.Schema(
       type: Number,
       required: true
     },
-    isDelivered: {
-      type: Boolean,
-      default: false,
-    },
-    isShipped: {
-      type: Boolean,
-      default: false,
-    },
     status: {
       type: String,
+      enum: ['Processing', 'Shipped', 'Delivered', 'Cancelled', 'Returned'],
       default: 'Processing'
     },
     deliveryDate: Date,
     shippedDate: Date,
-    isCancelled: {
-      type: Boolean,
-      default: false,
-    },
+    cancelledDate: Date,
+    returnDate: Date,
   },
   {
     timestamps: true,

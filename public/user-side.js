@@ -152,6 +152,30 @@ $(function () {
     }
   });
 
+  $(".return-reason-form").validate({
+    rules: {
+      reason: {
+        required: true,
+      },
+      additionalInfo: {
+        required: true,
+        minlength: 5,
+        maxlength: 100,
+      },
+    },
+    messages: {
+      reason: "Please select a reason for return.",
+      additionalInfo: {
+        required: "Please provide additional message.",
+        minlength: "Enter at least 5 characters.",
+        maxlength: "Enter no more than 100 characters.",
+      },
+    },
+    submitHandler: function (form) {
+      form.submit();
+    },
+  });
+
   $(".checkout-form").validate({
     rules: {
       name: {

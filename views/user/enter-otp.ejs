@@ -1,0 +1,55 @@
+<%- include('partials/header') %>
+  <% if (typeof error !=='undefined' ) { %>
+    <div class="alert alert-danger" role="alert">
+      <%= error %>
+    </div>
+    <% } %>
+      <div class="limiter">
+        <div class="container-login100">
+          <div class="wrap-login100">
+            <div class="login100-pic">
+              <img class="otp-shoe-img" src="/static/images/login-shoe.png" alt="IMG">
+            </div>
+
+            <form action="/verify-otp" class="login100-form login-form" method="post">
+              <span class="login100-form-title login-text">
+                OTP Verification
+              </span>
+
+              <div class="wrap-input100">
+                <input class="input100" id="otp-email-input" type="text" name="email" value="<%= email %>" readonly>
+                <p class="read-only-text">Go back to change the email</p>
+                <span class="symbol-input100">
+                  <i class="fa fa-envelope" aria-hidden="true"></i>
+                </span>
+              </div>
+              <input type="hidden" value="<%= forgot %>" name="forgot">
+
+              <div class="wrap-input100">
+                <input class="input100" type="text" name="otp" id="otp-input" placeholder="Enter OTP">
+                <span class="error-span">&nbsp;</span>
+                <span class="symbol-input100">
+                  <i class="fa fa-key" aria-hidden="true"></i>
+                </span>
+              </div>
+              <div class="otp-wrapper">
+                <div id="otp-timer">Expiry time: </div>
+                <button type="button" id="resend-otp" onclick="resendOTP()">Resend OTP</button>
+              </div>
+              <div class="container-login100-form-btn">
+                <button class="login100-form-btn">
+                  Confirm
+                </button>
+              </div>
+
+              <div class="text-center login-another-page-link">
+                <a class="txt2" href="/signup">
+                  Back to signup
+                  <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <%- include('../partials/footer') %>
