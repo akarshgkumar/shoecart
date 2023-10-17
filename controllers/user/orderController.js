@@ -177,6 +177,7 @@ router.post("/validate-cart", async (req, res) => {
 });
 
 router.post("/place-order", async (req, res) => {
+  console.log('on place order');
   const {
     user,
     name,
@@ -268,50 +269,52 @@ router.post("/place-order", async (req, res) => {
       subTotal: totalAmount,
     });
 
-    if (payment_option === "Razor Pay") {
-      
-      const instance = new Razorpay({
-        key_id: process.env.RAZORPAY_KEY_ID,
-        key_secret: process.env.RAZORPAY_KEY_SECRET,
-      });
+    const instance = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
 
+    if (payment_option === "Razor Pay") {
       const options = {
         amount: parseFloat(totalAmount) * 100,
         currency: "INR",
       };
 
       try {
-        console.log("instance :", instance);
-        console.log("instance.orders : ", instance.orders);
+        console.log('on try place order');
+
         const razorOrder = await instance.orders.create(options);
         newOrder.paymentStatus = "INITIATED";
         newOrder.razorOrderId = razorOrder.id;
+
+        if (req.body.razorpay_payment_id) {
+          const razorpayPaymentId = req.body.razorpay_payment_id;
+          const captureResponse = await instance.payments.capture(
+            razorpayPaymentId,
+            parseFloat(totalAmount) * 100
+          );
+          console.log('before capture response');
+          if (captureResponse.error) {
+            req.flash("error", "Error capturing payment");
+            return res.redirect("/order/checkout");
+          } else {
+            newOrder.paymentStatus = "CAPTURED";
+          }
+        }
+        console.log('on before json');
 
         return res.json({
           order_id: razorOrder.id,
           amount: totalAmount * 100,
         });
+        console.log('on after json');
+
       } catch (err) {
         console.error("Error:", err);
         req.flash("error", "An error occurred while initiating payment");
         return res.redirect("/order/checkout");
       }
     }
-
-    // if (payment_option === "Razor Pay" && req.body.razorpay_payment_id) {
-    //   const razorpayPaymentId = req.body.razorpay_payment_id;
-    //   const captureResponse = await instance.payments.capture(
-    //     razorpayPaymentId,
-    //     parseFloat(totalAmount) * 100
-    //   );
-
-    //   if (captureResponse.error) {
-    //     req.flash("error", "Error capturing payment");
-    //     return res.redirect("/order/checkout");
-    //   } else {
-    //     newOrder.paymentStatus = "CAPTURED";
-    //   }
-    // }
 
     await newOrder.save();
 
@@ -397,5 +400,9 @@ router.post("/return-reason", async (req, res) => {
     res.redirect(`/order/view-single-order/${orderId}`);
   }
 });
+
+router.get('order/success', (req, res) => {
+  res.end("succcess");
+})
 
 module.exports = router;

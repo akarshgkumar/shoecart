@@ -251,54 +251,58 @@ $(function () {
         error.insertAfter(element);
       }
     },
-    submitHandler: async function (form) {
+    submitHandler: function (form) {
       console.log("on submit handler");
       let paymentOption = document.querySelector(
         'input[name="payment_option"]:checked'
       ).value;
 
       if (paymentOption === "Razor Pay") {
-        const response = await fetch("/order/place-order", {
+        let formData = $(form).serialize();
+        $.ajax({
+          url: "/order/place-order",
           method: "POST",
-          body: new FormData(form),
-        });
-        const data = await response.json();
-        console.log("key id :", RAZORPAY_KEY_ID);
-
-        var options = {
-          key: RAZORPAY_KEY_ID,
-          amount: data.amount,
-          currency: "INR",
-          name: "Akarsh G Kumar",
-          description: "Order Payment",
-          order_id: data.order_id,
-          handler: function (response) {
-            form.submit();
+          data: formData,
+          success: function (response) {
+            if (response.order_id && response.amount) {
+              var options = {
+                key: RAZORPAY_KEY_ID,
+                amount: response.amount,
+                order_id: response.order_id,
+                handler: function (response) {
+                  res.redirect("/order/success");
+                },
+                prefill: {
+                  name: "Your User's Name",
+                  email: "user@example.com",
+                  contact: "1234567890",
+                },
+                notes: {
+                  address: "Your user's address",
+                },
+                theme: {
+                  color: "#F37254",
+                },
+              };
+              var rzp1 = new Razorpay(options);
+              rzp1.open();
+              rzp1.on("payment.failed", function (response) {
+                showAlert(
+                  "Payment failed due to network issues. Please try again."
+                );
+              });
+            } else {
+              showAlert(
+                "There was an error fetching payment details. Please try again later."
+              );
+            }
           },
-          prefill: {
-            name: document.getElementById("name").value,
-            email: document.getElementById("email").value,
+          error: function (error) {
+            showAlert("Error placing order. Please try again.");
           },
-          notes: {
-            address: "Razorpay Corporate Office",
-          },
-          theme: {
-            color: "#3399cc",
-          },
-        };
-        var rzp1 = new window.Razorpay(options);
-        rzp1.open();
-        rzp1.on("payment.failed", function (response) {
-          alert(response.error.code);
-          alert(response.error.description);
-          alert(response.error.source);
-          alert(response.error.step);
-          alert(response.error.reason);
-          alert(response.error.metadata.order_id);
-          alert(response.error.metadata.payment_id);
         });
       } else {
-        console.log('on here')
+        console.log("on here");
         form.submit();
       }
     },
