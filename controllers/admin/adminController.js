@@ -640,7 +640,7 @@ router.get('/search-order-email', async (req, res) => {
     const orders = await Order.find({ 'address.email': new RegExp(emailQuery, 'i') });
 
     if (orders.length > 0) {
-      return res.render('admin-view-orders', { orders });
+      return res.render('admin/admin-view-orders', { orders });
     } else {
       req.flash('error', 'No orders found with that email');
       return res.redirect('/admin/view-orders');

@@ -8,6 +8,7 @@ const User = require("../../models/User");
 const Order = require("../../models/Order");
 const noCache = require('../../middlewares/noCache');
 const redirectIfLoggedIn = require('../../middlewares/user/redirectIfLoggedIn');
+const generateOTP = require("../../utils/generateOTP")
 
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);

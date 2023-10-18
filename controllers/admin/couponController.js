@@ -37,6 +37,7 @@ router.get("/edit-coupon/:couponId", async (req, res) => {
   }
 });
 
+
 router.post("/edit-coupon/:couponId", async (req, res) => {
   const coupon = await Coupon.findById(req.params.couponId);
   if (!coupon) {
@@ -45,7 +46,7 @@ router.post("/edit-coupon/:couponId", async (req, res) => {
   }
   coupon.code = req.body.coupon_code || coupon.code;
   coupon.discountPercentage =
-    req.body.discount_percentage || coupon.discountPercentage;
+  req.body.discount_percentage || coupon.discountPercentage;
   await coupon.save();
   req.flash("success", "Coupon edited successfully")
   res.redirect("/admin/coupon/view-coupons");
@@ -64,6 +65,38 @@ router.get("/check-coupon/:code", async (req, res) => {
     }
   } catch (error) {
     return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/delete-coupon/:couponId", async (req, res) => {
+  try {
+    const couponId = req.params.couponId;
+    await Coupon.findByIdAndUpdate(couponId, { $set: { isDeleted: true } });
+    res.redirect("/admin/coupon/view-coupons");
+  } catch (err) {
+    console.error("Error while deleting coupons:", err);
+    req.flash("error", "Unexpected error occurred, try again later!");
+    res.redirect("back");
+  }
+});
+
+router.get('/search-coupon', async (req, res) => {
+  try {
+    const query = req.query.q;
+    const coupons = await Coupon.find({ 
+      code: new RegExp(query, 'i'),
+      isDeleted: false
+    });
+
+    if (coupons.length > 0) {
+      return res.render('admin/admin-view-coupons', { coupons });
+    } else {
+      req.flash('error', 'No coupon found with that code');
+      return res.redirect('/admin/coupon/view-coupons');
+    }
+  } catch(err) {
+    console.error("An error occurred:", err);
+    res.status(500).send("Internal Server Error");
   }
 });
 
