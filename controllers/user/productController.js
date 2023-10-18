@@ -48,4 +48,42 @@ router.get("/view-single-product/:productId", async (req, res) => {
     res.render("user/user-single-product", { product });
 });
 
+router.get("/filter-products/category/:categoryId", async (req, res) => {
+    const categoryId = req.params.categoryId;
+    
+    const options = {
+        page: parseInt(req.query.page) || 1,
+        limit: 10,
+        populate: ["category", "brand"],
+        customLabels: {
+            docs: "products",
+            totalDocs: "productCount",
+        },
+    };
+    
+    try {
+        const filter = { category: categoryId, isDeleted: false, brand: { "$exists": true, "$ne": null } };
+        const result = await Product.paginate(filter, options);
+        const categories = await Category.find({ isDeleted: false });
+        const latestProducts = await Product.find(filter)
+            .sort({ createdAt: -1 })
+            .limit(3)
+            .populate(["category", "brand"]);
+
+        res.render("user/user-view-full-products", {
+            products: result.products,
+            productCount: result.productCount,
+            current: result.page,
+            pages: result.totalPages,
+            categories: categories,
+            latestProducts: latestProducts
+        });
+    } catch (err) {
+        console.error("Error fetching products by category:", err);
+        req.flash("error", "Error fetching products");
+        res.redirect("/home");
+    }
+});
+
+
 module.exports = router;

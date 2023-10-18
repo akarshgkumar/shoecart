@@ -135,8 +135,9 @@
                         <div class="widget-category mb-30">
                             <h5 class="section-title style-1 mb-30 wow fadeIn animated">Category</h5>
                             <ul class="categories">
+                                <li><a href="/product/view-full-products">All</a></li>
                                 <% categories.forEach(category=> { %>
-                                    <li><a href="/product/view-full-products" class="capitalize">
+                                    <li><a href="/product/filter-products/category/<%= category._id %>" class="capitalize">
                                             <%= category.name %>
                                         </a></li>
                                     <% }); %>
