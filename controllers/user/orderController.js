@@ -208,6 +208,28 @@ router.post("/place-order", async (req, res) => {
   }
 
   try {
+    const cart = await Cart.findOne({ userId: user });
+    if (!cart) {
+      return res.redirect(
+        "/order/checkout?error=No%20cart%20found%20for%20the%20user."
+      );
+    }
+
+    if (payment_option === "Razor Pay") {
+      const instance = new Razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID,
+        key_secret: process.env.RAZORPAY_KEY_SECRET,
+      });
+      const options = {
+        amount: parseFloat(totalAmount) * 100,
+        currency: "INR",
+      };
+
+      const razorOrder = await instance.orders.create(options);
+
+      return res.json({ order_id: razorOrder.id, amount: totalAmount * 100 });
+    }
+    
     let uniqueShortId,
       existingOrder,
       attempts = 0,
@@ -222,13 +244,6 @@ router.post("/place-order", async (req, res) => {
         return res.redirect("/order/checkout");
       }
     } while (existingOrder);
-
-    const cart = await Cart.findOne({ userId: user });
-    if (!cart) {
-      return res.redirect(
-        "/order/checkout?error=No%20cart%20found%20for%20the%20user."
-      );
-    }
 
     const mappedProducts = await Promise.all(
       cart.products.map(async (cartProduct) => {
@@ -267,22 +282,6 @@ router.post("/place-order", async (req, res) => {
       subTotal: totalAmount,
     });
 
-    if (payment_option === "Razor Pay") {
-      const instance = new Razorpay({
-        key_id: process.env.RAZORPAY_KEY_ID,
-        key_secret: process.env.RAZORPAY_KEY_SECRET,
-      });
-      const options = {
-        amount: parseFloat(totalAmount) * 100,
-        currency: "INR",
-      };
-
-      const razorOrder = await instance.orders.create(options);
-      newOrder.razorOrderId = razorOrder.id;
-
-      return res.json({ order_id: razorOrder.id, amount: totalAmount * 100 });
-    }
-
     await newOrder.save();
     for (let cartProduct of cart.products) {
       const product = await Product.findById(cartProduct.productId);
@@ -316,6 +315,84 @@ router.post("/validate-order", async (req, res) => {
     .digest("hex");
 
   if (generatedSignature === razorpay_signature) {
+    const {
+      user,
+      name,
+      email,
+      phone,
+      cname,
+      shipping_address,
+      shipping_address2,
+      city,
+      state,
+      zipcode,
+      payment_option,
+      totalAmount,
+    } = req.body;
+    const cart = await Cart.findOne({ userId: user });
+    let uniqueShortId,
+      existingOrder,
+      attempts = 0,
+      maxAttempts = 10;
+
+    do {
+      uniqueShortId = nanoid();
+      existingOrder = await Order.findOne({ shortId: uniqueShortId });
+      attempts++;
+      if (attempts >= maxAttempts) {
+        req.flash("error", "Unexpected error occurred, please try again");
+        return res.redirect("/order/checkout");
+      }
+    } while (existingOrder);
+
+    const mappedProducts = await Promise.all(
+      cart.products.map(async (cartProduct) => {
+        const product = await Product.findById(cartProduct.productId).populate(
+          "brand"
+        );
+        return {
+          product: product._id,
+          quantity: cartProduct.quantity,
+          price: product.price,
+          size: cartProduct.size,
+          mainImg: product.mainImage,
+          name: product.name,
+          brand: product.brand.name,
+        };
+      })
+    );
+
+    const newOrder = new Order({
+      razorOrderId: razorpay_order_id,
+      shortId: uniqueShortId,
+      user: user,
+      products: mappedProducts,
+      address: {
+        name,
+        email,
+        phoneNo: phone,
+        companyName: cname,
+        address: shipping_address,
+        addressLine1: shipping_address2,
+        city,
+        state,
+        postalCode: zipcode,
+      },
+      paymentMethod: payment_option,
+      totalAmount: totalAmount,
+      subTotal: totalAmount,
+      isPaid: true,
+    });
+    await newOrder.save();
+
+    for (let cartProduct of cart.products) {
+      const product = await Product.findById(cartProduct.productId);
+      product.stock -= cartProduct.quantity;
+      await product.save();
+    }
+
+    await Cart.deleteOne({ userId: user });
+
     req.flash("success", "Order is successful");
     return res.redirect("/order/success");
   } else {
