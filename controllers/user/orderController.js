@@ -5,6 +5,7 @@ const Cart = require("../../models/Cart");
 const Product = require("../../models/Product");
 const User = require("../../models/User");
 const Order = require("../../models/Order");
+const crypto = require("crypto");
 const { customAlphabet } = require("nanoid");
 const nanoid = customAlphabet("1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ", 6);
 const jwt = require("jsonwebtoken");
@@ -177,7 +178,6 @@ router.post("/validate-cart", async (req, res) => {
 });
 
 router.post("/place-order", async (req, res) => {
-  console.log('on place order');
   const {
     user,
     name,
@@ -208,16 +208,15 @@ router.post("/place-order", async (req, res) => {
   }
 
   try {
-    let uniqueShortId;
-    let existingOrder;
-    let maxAttempts = 10;
-    let attempts = 0;
+    let uniqueShortId,
+      existingOrder,
+      attempts = 0,
+      maxAttempts = 10;
 
     do {
       uniqueShortId = nanoid();
       existingOrder = await Order.findOne({ shortId: uniqueShortId });
       attempts++;
-
       if (attempts >= maxAttempts) {
         req.flash("error", "Unexpected error occurred, please try again");
         return res.redirect("/order/checkout");
@@ -225,7 +224,6 @@ router.post("/place-order", async (req, res) => {
     } while (existingOrder);
 
     const cart = await Cart.findOne({ userId: user });
-
     if (!cart) {
       return res.redirect(
         "/order/checkout?error=No%20cart%20found%20for%20the%20user."
@@ -254,14 +252,14 @@ router.post("/place-order", async (req, res) => {
       user: user,
       products: mappedProducts,
       address: {
-        name: name,
-        email: email,
+        name,
+        email,
         phoneNo: phone,
         companyName: cname,
         address: shipping_address,
         addressLine1: shipping_address2,
-        city: city,
-        state: state,
+        city,
+        state,
         postalCode: zipcode,
       },
       paymentMethod: payment_option,
@@ -269,54 +267,23 @@ router.post("/place-order", async (req, res) => {
       subTotal: totalAmount,
     });
 
-    const instance = new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID,
-      key_secret: process.env.RAZORPAY_KEY_SECRET,
-    });
-
     if (payment_option === "Razor Pay") {
+      const instance = new Razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID,
+        key_secret: process.env.RAZORPAY_KEY_SECRET,
+      });
       const options = {
         amount: parseFloat(totalAmount) * 100,
         currency: "INR",
       };
 
-      try {
-        console.log('on try place order');
+      const razorOrder = await instance.orders.create(options);
+      newOrder.razorOrderId = razorOrder.id;
 
-        const razorOrder = await instance.orders.create(options);
-        newOrder.paymentStatus = "INITIATED";
-        newOrder.razorOrderId = razorOrder.id;
-
-        if (req.body.razorpay_payment_id) {
-          const razorpayPaymentId = req.body.razorpay_payment_id;
-          const captureResponse = await instance.payments.capture(
-            razorpayPaymentId,
-            parseFloat(totalAmount) * 100
-          );
-          console.log('before capture response');
-          if (captureResponse.error) {
-            req.flash("error", "Error capturing payment");
-            return res.redirect("/order/checkout");
-          } else {
-            newOrder.paymentStatus = "CAPTURED";
-          }
-        }
-        console.log('on before json');
-
-        return res.json({
-          order_id: razorOrder.id,
-          amount: totalAmount * 100,
-        });
-
-      } catch (err) {
-        console.error("Error:", err);
-        req.flash("error", "An error occurred while initiating payment");
-        return res.redirect("/order/checkout");
-      }
+      return res.json({ order_id: razorOrder.id, amount: totalAmount * 100 });
     }
 
     await newOrder.save();
-
     for (let cartProduct of cart.products) {
       const product = await Product.findById(cartProduct.productId);
       product.stock -= cartProduct.quantity;
@@ -324,20 +291,35 @@ router.post("/place-order", async (req, res) => {
     }
 
     await Cart.deleteOne({ userId: user });
-
     req.flash("success", "Order is successful");
-    return res.redirect("/home");
+    return res.redirect("/order/success");
   } catch (err) {
     if (err.name === "MongoError" && err.code === 11000) {
-      console.error("Duplicate key error:", err);
       req.flash(
         "error",
         "An error occurred while processing your order. Please try again."
       );
     } else {
-      console.error("Error placing order:", err);
       req.flash("error", "An error occurred while placing order");
     }
+    return res.redirect("/order/checkout");
+  }
+});
+
+router.post("/validate-order", async (req, res) => {
+  const { razorpay_payment_id, razorpay_order_id, razorpay_signature } =
+    req.body;
+  const text = razorpay_order_id + "|" + razorpay_payment_id;
+  const generatedSignature = crypto
+    .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+    .update(text)
+    .digest("hex");
+
+  if (generatedSignature === razorpay_signature) {
+    req.flash("success", "Order is successful");
+    return res.redirect("/order/success");
+  } else {
+    req.flash("error", "Payment verification failed");
     return res.redirect("/order/checkout");
   }
 });
@@ -400,8 +382,8 @@ router.post("/return-reason", async (req, res) => {
   }
 });
 
-router.get('/success', (req, res) => {
-  res.render('/user/order-success');
-})
+router.get("/success", (req, res) => {
+  res.render("user/order-success");
+});
 
 module.exports = router;

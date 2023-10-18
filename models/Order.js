@@ -99,11 +99,10 @@ const orderSchema = new mongoose.Schema(
     shippedDate: Date,
     cancelledDate: Date,
     returnDate: Date,
-    paymentStatus: {
-      type: String,
-      enum: ["INITIATED", "CAPTURED", "FAILED", "PENDING"],
-      default: "PENDING",
-    },
+    isPaid: {
+      type: Boolean,
+      default: false
+    }
   },
   {
     timestamps: true,

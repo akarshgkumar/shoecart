@@ -258,7 +258,11 @@ $(function () {
       ).value;
 
       if (paymentOption === "Razor Pay") {
-        let formData = $(form).serialize();
+        const formData = $(form).serialize();
+        const userName = $("input[name='name']").val();
+        const userEmail = $("input[name='email']").val();
+        const userPhone = $("input[name='phone']").val();
+        const userAddress = $("input[name='shipping_address']").val();
         $.ajax({
           url: "/order/place-order",
           method: "POST",
@@ -270,33 +274,39 @@ $(function () {
                 amount: response.amount,
                 order_id: response.order_id,
                 handler: function (response) {
-                  location.href = "/order/success"
+                  $("<input type='hidden' name='razorpay_payment_id' />")
+                    .val(response.razorpay_payment_id)
+                    .appendTo(form);
+                  $("<input type='hidden' name='razorpay_order_id' />")
+                    .val(response.razorpay_order_id)
+                    .appendTo(form);
+                  $("<input type='hidden' name='razorpay_signature' />")
+                    .val(response.razorpay_signature)
+                    .appendTo(form);
+                  form.action = "/order/validate-order";
+                  form.submit();
                 },
                 prefill: {
-                  name: "Your User's Name",
-                  email: "user@example.com",
-                  contact: "1234567890",
+                  name: userName,
+                  email: userEmail,
+                  contact: userPhone,
                 },
                 notes: {
-                  address: "Your user's address",
+                  address: userAddress,
                 },
                 theme: {
-                  color: "#F37254",
+                  color: "#088178",
                 },
               };
               var rzp1 = new Razorpay(options);
               rzp1.open();
-              rzp1.on("payment.failed", function (response) {
-                showAlert(
-                  "Payment failed due to network issues. Please try again."
-                );
-              });
-            } else {
+            rzp1.on("payment.failed", function (response) {
               showAlert(
-                "There was an error fetching payment details. Please try again later."
+                "Payment failed due to network issues. Please try again."
               );
-            }
-          },
+            });
+          }
+        },
           error: function (error) {
             showAlert("Error placing order. Please try again.");
           },
