@@ -103,12 +103,15 @@
         </div>
         <div class="col-md-4 text-end">
           <h5>Order Summary:</h5>
-          <p>Subtotal: ₹<%= order.subTotal %>
+          <p>Subtotal: ₹<%= order.totalAmount %>
           </p>
           <p>Shipping: Free</p>
           <hr>
           <p>Total: ₹<%= order.totalAmount %>
           </p>
+          <% if( order.totalAmount != order.totalAfterDiscount  ) { %>
+          <p>Total After Discount: <span style="color: #00563B;">₹<%= order.totalAfterDiscount %></span></p>
+          <% } %>
         </div>
       </div>
 

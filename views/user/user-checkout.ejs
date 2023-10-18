@@ -41,10 +41,10 @@
                     <p class="mb-30 font-sm">If you have a coupon code, please apply it below.</p>
                     <form method="post">
                       <div class="form-group">
-                        <input type="text" placeholder="Enter Coupon Code...">
+                        <input type="text" name="couponCode" placeholder="Enter Coupon Code...">
                       </div>
                       <div class="form-group">
-                        <button class="btn  btn-md" name="login">Apply Coupon</button>
+                        <button class="btn  btn-md" name="applyCoupon">Apply Coupon</button>
                       </div>
                     </form>
                   </div>
@@ -110,7 +110,7 @@
                     <h4>Your Orders</h4>
                   </div>
                   <div class="table-responsive order_table text-center">
-                    <table class="table">
+                    <table class="table checkout-table">
                       <thead>
                         <tr>
                           <th colspan="2">Product</th>
@@ -145,13 +145,17 @@
                                 <th>Shipping</th>
                                 <td colspan="2"><em>Free Shipping</em></td>
                               </tr>
+                              <tr id="couponRow" style="display: none;">
+                                <th>Discount</th>
+                                <td id="couponDiscount" colspan="2"></td>
+                              </tr>
                               <tr>
                                 <th>Total</th>
-                                <td colspan="2" class="product-subtotal"><span class="font-xl text-brand fw-900">₹<%=
-                                      totalPrice.toFixed(2) %></span></td>
+                                <td id="finalTotal" colspan="2" class="product-subtotal"><span
+                                    class="font-xl text-brand fw-900">₹<%= totalPrice.toFixed(2) %></span></td>
                               </tr>
-                              <input type="hidden" name="subTotal" value="<%= totalPrice.toFixed(2) %>">
                               <input type="hidden" name="totalAmount" value="<%= totalPrice.toFixed(2) %>">
+                              <input type="hidden" name="totalAfterDiscount" value="<%= totalPrice.toFixed(2) %>">
                       </tbody>
                     </table>
                   </div>

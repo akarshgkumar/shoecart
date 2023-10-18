@@ -5,6 +5,7 @@ const Cart = require("../../models/Cart");
 const Product = require("../../models/Product");
 const User = require("../../models/User");
 const Order = require("../../models/Order");
+const Coupon = require("../../models/Coupon");
 const crypto = require("crypto");
 const { customAlphabet } = require("nanoid");
 const nanoid = customAlphabet("1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ", 6);
@@ -191,6 +192,7 @@ router.post("/place-order", async (req, res) => {
     zipcode,
     payment_option,
     totalAmount,
+    totalAfterDiscount,
   } = req.body;
 
   if (
@@ -221,15 +223,18 @@ router.post("/place-order", async (req, res) => {
         key_secret: process.env.RAZORPAY_KEY_SECRET,
       });
       const options = {
-        amount: parseFloat(totalAmount) * 100,
+        amount: parseFloat(totalAfterDiscount) * 100,
         currency: "INR",
       };
 
       const razorOrder = await instance.orders.create(options);
 
-      return res.json({ order_id: razorOrder.id, amount: totalAmount * 100 });
+      return res.json({
+        order_id: razorOrder.id,
+        amount: totalAfterDiscount * 100,
+      });
     }
-    
+
     let uniqueShortId,
       existingOrder,
       attempts = 0,
@@ -279,7 +284,8 @@ router.post("/place-order", async (req, res) => {
       },
       paymentMethod: payment_option,
       totalAmount: totalAmount,
-      subTotal: totalAmount,
+      totalAfterDiscount: totalAfterDiscount,
+      deliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     });
 
     await newOrder.save();
@@ -291,7 +297,7 @@ router.post("/place-order", async (req, res) => {
 
     await Cart.deleteOne({ userId: user });
     req.flash("success", "Order is successful");
-    return res.redirect("/order/success");
+    return res.redirect(`/order/success/${newOrder._id}`);
   } catch (err) {
     if (err.name === "MongoError" && err.code === 11000) {
       req.flash(
@@ -328,6 +334,7 @@ router.post("/validate-order", async (req, res) => {
       zipcode,
       payment_option,
       totalAmount,
+      totalAfterDiscount,
     } = req.body;
     const cart = await Cart.findOne({ userId: user });
     let uniqueShortId,
@@ -380,8 +387,9 @@ router.post("/validate-order", async (req, res) => {
       },
       paymentMethod: payment_option,
       totalAmount: totalAmount,
-      subTotal: totalAmount,
+      totalAfterDiscount: totalAfterDiscount,
       isPaid: true,
+      deliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     });
     await newOrder.save();
 
@@ -394,7 +402,7 @@ router.post("/validate-order", async (req, res) => {
     await Cart.deleteOne({ userId: user });
 
     req.flash("success", "Order is successful");
-    return res.redirect("/order/success");
+    return res.redirect(`/order/success/${newOrder._id}`);
   } else {
     req.flash("error", "Payment verification failed");
     return res.redirect("/order/checkout");
@@ -459,8 +467,19 @@ router.post("/return-reason", async (req, res) => {
   }
 });
 
-router.get("/success", (req, res) => {
-  res.render("user/order-success");
+router.get("/success/:orderId", (req, res) => {
+  res.render("user/order-success", {orderId : req.params.orderId});
+});
+
+router.post("/apply-coupon", async (req, res) => {
+  const { couponCode } = req.body;
+
+  const coupon = await Coupon.findOne({ code: couponCode });
+  if (!coupon) {
+    return res.json({ error: "Invalid coupon code." });
+  }
+
+  return res.json({ discountPercentage: coupon.discountPercentage });
 });
 
 module.exports = router;

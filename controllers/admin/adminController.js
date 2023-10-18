@@ -5,7 +5,6 @@ const Category = require("../../models/Category");
 const Brand = require("../../models/Brand");
 const User = require("../../models/User");
 const Order = require("../../models/Order");
-const Coupon = require("../../models/Coupon");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");

@@ -419,7 +419,7 @@ label.error {
 }
 
 #addToCartButton {
-  z-index: 9999; 
+  z-index: 9999;
   position: relative;
 }
 
@@ -7302,8 +7302,6 @@ span.fi-rs-apps {
   top: 4px;
 }
 
-
-
 .main-menu > nav > ul > li ul.sub-menu li:hover > a {
   color: #000;
 }
@@ -7540,13 +7538,20 @@ span.fi-rs-apps {
     display: inline-block;
     width: 600px;
   }
-  
+}
+
+#removeCoupon {
+  float: right;
+  margin-right: 20px;
+  color: #B31B1B;
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 .forgot-password-link-account {
   text-decoration: underline;
   margin-left: 20px;
-  color: #36454F;
+  color: #36454f;
   font-size: 14px;
 }
 
@@ -10598,4 +10603,3 @@ input.form-control {
 .view-text-order {
   text-decoration: underline;
 }
-

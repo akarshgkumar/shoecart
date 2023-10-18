@@ -42,6 +42,21 @@ function togglePassword(clickedElement) {
   }
 }
 
+function updateTotalAfterDiscount() {
+  if ($("#couponRow").css("display") !== "none") {
+    let discountAmount = parseFloat(
+      $("#couponDiscount").text().replace("₹", "").trim()
+    );
+    let totalAfterDiscount =
+      parseFloat($("input[name='totalAmount']").val()) - discountAmount;
+    console.log(totalAfterDiscount);
+    $("input[name='totalAfterDiscount']").val(totalAfterDiscount.toFixed(2));
+  } else {
+    let totalAfterDiscount = parseFloat($("input[name='totalAmount']").val());
+    $("input[name='totalAfterDiscount']").val(totalAfterDiscount.toFixed(2));
+  }
+}
+
 function showAlert(message) {
   const alertDiv = document.createElement("div");
   alertDiv.className = "alert";
@@ -127,6 +142,55 @@ $(function () {
   if (defaultAddressDataElement) {
     defaultAddress = JSON.parse(defaultAddressDataElement.textContent);
     console.log(defaultAddress);
+  }
+
+  let originalTotalValue = $('input[name="totalAmount"]').val();
+  let originalTotal = parseFloat(originalTotalValue) || 0;
+  console.log(originalTotal);
+  let discount = 0;
+
+  if ($('button[name="applyCoupon"]').length) {
+    $('button[name="applyCoupon"]').on("click", function (e) {
+      e.preventDefault();
+      const couponCode = $('input[name="couponCode"]').val();
+
+      $.post("/order/apply-coupon", { couponCode }, function (data) {
+        if (data.error) {
+          showAlert(data.error);
+        } else {
+          showSuccess("Coupon applied successfully!");
+          let discountPercentage = data.discountPercentage;
+          discount = (originalTotal * discountPercentage) / 100;
+          if ($("#couponRow").length) {
+            $("#couponRow").show();
+            $("#couponDiscount").html(
+              "₹" +
+                discount.toFixed(2) +
+                '<span id="removeCoupon">Remove</span>'
+            );
+            updateTotalAfterDiscount();
+            $("#finalTotal").text("₹" + (originalTotal - discount).toFixed(2));
+          }
+        }
+      });
+    });
+  }
+
+  if ($(".checkout-table").length) {
+    $(".checkout-table").on("click", "#removeCoupon", function () {
+      console.log("remove coupon clicked");
+      if ($("#couponRow").length) {
+        $("#couponRow").hide();
+        updateTotalAfterDiscount();
+      }
+      discount = 0;
+      if ($("#finalTotal").length) {
+        $("#finalTotal").text("₹" + originalTotal.toFixed(2));
+      }
+      if ($('input[name="couponCode"]').length) {
+        $('input[name="couponCode"]').val("");
+      }
+    });
   }
 
   $("#useDefaultAddress").change(function () {
@@ -300,13 +364,13 @@ $(function () {
               };
               var rzp1 = new Razorpay(options);
               rzp1.open();
-            rzp1.on("payment.failed", function (response) {
-              showAlert(
-                "Payment failed due to network issues. Please try again."
-              );
-            });
-          }
-        },
+              rzp1.on("payment.failed", function (response) {
+                showAlert(
+                  "Payment failed due to network issues. Please try again."
+                );
+              });
+            }
+          },
           error: function (error) {
             showAlert("Error placing order. Please try again.");
           },
