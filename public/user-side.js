@@ -270,7 +270,7 @@ $(function () {
                 amount: response.amount,
                 order_id: response.order_id,
                 handler: function (response) {
-                  res.redirect("/order/success");
+                  location.href = "/order/success"
                 },
                 prefill: {
                   name: "Your User's Name",

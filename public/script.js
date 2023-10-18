@@ -31,6 +31,30 @@ $.validator.addMethod(
   "Leading and trailing spaces are not allowed."
 );
 
+$.validator.addMethod(
+  "noSpaces",
+  function (value, element) {
+    return value.indexOf(" ") < 0;
+  },
+  "Spaces are not allowed."
+);
+
+$.validator.addMethod(
+  "between0And100",
+  function (value, element) {
+    return value >= 0 && value <= 100;
+  },
+  "Please enter a value between 0 and 100."
+);
+
+$.validator.addMethod(
+  "allCaps",
+  function (value, element) {
+    return value === value.toUpperCase();
+  },
+  "Coupon code must be in uppercase."
+);
+
 function showAlert(message) {
   const alertDiv = document.createElement("div");
   alertDiv.className = "alert";
@@ -108,6 +132,57 @@ $(function () {
     showAlert(errorMessage);
     errorMessage = undefined;
   }
+
+  $(".coupon-form").validate({
+    rules: {
+      coupon_code: {
+        required: true,
+        minlength: 4,
+        noSpaces: true,
+        allCaps: true,
+        maxlength: 8,
+      },
+      discount_percentage: {
+        required: true,
+        number: true,
+        between0And100: true,
+      },
+    },
+    messages: {
+      coupon_code: {
+        required: "Please enter the coupon code.",
+        minlength: "Coupon code must have at least {0} characters.",
+        maxlength: "Coupon code cannot exceed {0} characters.",
+        noSpaces: "Spaces are not allowed in coupon code.",
+        allCaps: "Coupon code must be in uppercase.",
+      },
+      discount_percentage: {
+        required: "Please enter the discount percentage.",
+        number: "Please enter a valid number.",
+        between0And100: "Please enter a value between 0 and 100.",
+      },
+    },
+    submitHandler: function (form) {
+      const couponCodeInput = $("#coupon_code");
+      const couponCode = couponCodeInput.val();
+
+      $.get(`/admin/coupon/check-coupon/${couponCode}`)
+        .done(function (response) {
+          if (response.exists) {
+            $("#coupon_code").next(".error-span").text("Coupon code already exists");
+            couponCodeInput.focus();
+          } else {
+            $("#coupon_code").next(".error-span").text("");
+            form.submit();
+          }
+        })
+        .fail(function (error) {
+          showAlert("error", "Error checking coupon, try again later!");
+          console.error("Error checking coupon:", error);
+        });
+    },
+  });
+
   $(".admin-edit-order-form").validate({
     rules: {
       order_name: {
@@ -515,20 +590,41 @@ $(function () {
     }
   });
 
-  $("#category_name").on("input", function () {
-    const categoryName = $(this).val();
+  $("#coupon_code").on("input", function () {
+    const brandName = $(this).val();
 
-    if (categoryName.trim()) {
-      $.get(`/admin/check-category/${categoryName}`)
+    if (brandName.trim()) {
+      $.get(`/admin/check-brand/${brandName}`)
         .done(function (response) {
           if (response.exists) {
-            $(".error-span").text("category name already exists");
+            $(".error-span").text("Brand name already exists");
           } else {
             $(".error-span").text("");
           }
         })
         .fail(function (error) {
-          console.error("Error checking category:", error);
+          console.error("Error checking brand:", error);
+        });
+    } else {
+      $(".error-span").text("");
+    }
+  });
+
+  $("#coupon_code").on("input", function () {
+    const couponCode = $(this).val();
+
+    if (couponCode.trim()) {
+      $.get(`/admin/coupon/check-coupon/${couponCode}`)
+        .done(function (response) {
+          if (response.exists) {
+            $("#coupon_code").next(".error-span").text("Coupon name already exists");
+          } else {
+            $("#coupon_code").next(".error-span").text("");
+          }
+        })
+        .fail(function (error) {
+          showAlert("error", "Error checking coupon, try again later!");
+          console.error("Error checking coupon:", error);
         });
     } else {
       $(".error-span").text("");

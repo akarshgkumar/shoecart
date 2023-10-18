@@ -1,0 +1,70 @@
+<%- include('partials/header') %>
+  <%- include('partials/aside-nav') %>
+    <main class="main-wrap">
+      <%- include('partials/admin-header') %>
+        <section class="content-main">
+          <div class="content-header">
+            <div>
+              <h2 class="content-title card-title">Coupons </h2>
+              <p>Coupon management</p>
+            </div>
+            <div>
+              <a href="/admin/coupon/add-coupon" class="btn btn-primary"><i
+                  class="text-muted material-icons md-post_add"></i>Add New coupon</a>
+            </div>
+          </div>
+          <div class="card mb-4">
+            <header class="card-header">
+              <div class="row gx-3">
+                <div class="col-lg-4 mb-lg-0 mb-15 me-auto">
+                  <form action="/admin/coupon/search-coupon" method="get">
+                    <input type="text" name="q" placeholder="Search..." class="form-control">
+                  </form>
+                </div>
+              </div>
+            </header>
+            <div class="card-body">
+              <% coupons.filter(coupon=> !coupon.isDeleted).forEach(coupon => { %>
+                <article class="itemlist">
+                  <div class="row align-items-center">
+                    <div class="col col-check flex-grow-0">
+                    </div>
+                    <div class="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
+                      <a class="itemside" href="#">
+                        <div class="info">
+                          <h6 class="mb-0 capitalize">
+                            <%= coupon.code %>
+                          </h6>
+                        </div>
+                      </a>
+                    </div>
+                    <div class="col-lg-2 col-sm-2 col-4 col-price"> <span><%= coupon.discountPercentage %>%</span> </div>
+                    <div class="col-lg-2 col-sm-2 col-4 col-status">
+                    </div>
+                    <div class="col-lg-1 col-sm-2 col-4 col-date">
+                      <% let date=new Date(coupon.createdAt); let day=("0" + date.getDate()).slice(-2); let month=("0" +
+                        (date.getMonth() + 1)).slice(-2); let year=date.getFullYear(); %>
+                        <span>
+                          <%= `${day}.${month}.${year}` %>
+                        </span>
+                    </div>
+                    <div class="col-lg-2 col-sm-2 col-4 col-action text-end">
+                      <a href="/admin/coupon/edit-coupon/<%= coupon._id %>"
+                        class="btn btn-sm font-sm rounded btn-brand">
+                        <i class="material-icons md-edit"></i> Edit
+                      </a>
+                      <a href="/admin/coupon/delete-coupon/<%= coupon._id %>"
+                        class="btn btn-sm font-sm btn-light rounded">
+                        <i class="material-icons md-delete_forever"></i> Delete
+                      </a>
+                    </div>
+                  </div>
+                </article>
+                <% }) %>
+            </div>
+          </div>
+        </section>
+    </main>
+    </body>
+
+    </html>

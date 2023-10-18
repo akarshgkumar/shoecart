@@ -1,0 +1,39 @@
+<%- include('partials/header') %>
+  <%- include('partials/aside-nav') %>
+    <main class="main-wrap">
+      <%- include('partials/admin-header') %>
+        <section class="content-main">
+          <form class="coupon-form" action="/admin/coupon/edit-coupon/<%= coupon._id %>" method="POST">
+            <div class="row">
+              <div class="col-9">
+                <div class="content-header">
+                  <h2 class="content-title">Edit Coupon</h2>
+                  <div>
+                    <button type="submit" class="btn btn-md rounded font-sm hover-up">Submit</button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="card mb-4">
+                  <div class="card-body">
+                    <div class="mb-4">
+                      <label for="coupon_code" class="form-label">Coupon Code : </label>
+                      <input type="text" placeholder="Type here" class="form-control" id="coupon_code"
+                        name="coupon_code" value="<%= coupon.code %>">
+                      <span class="error-span"></span>
+                    </div>
+                    <div class="mb-4">
+                      <label for="discount_percentage" class="form-label">Discount Percentage : </label>
+                      <input type="number" placeholder="Type here" class="form-control" id="discount_percentage"
+                        name="discount_percentage" value="<%= coupon.discountPercentage %>">
+                      <span class="error-span"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </form>
+        </section>
+    </main>
+    </body>
+
+    </html>

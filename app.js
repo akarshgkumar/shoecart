@@ -8,6 +8,7 @@ const flash = require("connect-flash");
 const session = require("express-session");
 const accountController = require("./controllers/user/accountController");
 const adminController = require("./controllers/admin/adminController");
+const couponController = require("./controllers/admin/couponController");
 const productController = require("./controllers/user/productController");
 const orderController = require("./controllers/user/orderController");
 const cartController = require("./controllers/user/cartController");
@@ -62,9 +63,12 @@ app.use("/cart", cartController);
 
 app.use("/wishlist", wishlistController);
 
+app.use("/product", productController);
+
 app.use("/admin", adminController);
 
-app.use("/product", productController);
+app.use("/admin/coupon", couponController);
+
 
 app.use((req, res, next) => {
   res.status(404).render("404");

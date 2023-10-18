@@ -307,7 +307,6 @@ router.post("/place-order", async (req, res) => {
           order_id: razorOrder.id,
           amount: totalAmount * 100,
         });
-        console.log('on after json');
 
       } catch (err) {
         console.error("Error:", err);
@@ -401,8 +400,8 @@ router.post("/return-reason", async (req, res) => {
   }
 });
 
-router.get('order/success', (req, res) => {
-  res.end("succcess");
+router.get('/success', (req, res) => {
+  res.render('/user/order-success');
 })
 
 module.exports = router;
