@@ -50,6 +50,7 @@ app.use("/admin", adminController);
 app.use("/admin/coupon", couponController);
 
 app.use(authMiddleware.setLoginStatus);
+app.use(authMiddleware.fetchUserFromToken);
 app.use(cartAndWishlistMiddleware.fetchCartForUser);
 app.use(cartAndWishlistMiddleware.fetchWishlistForUser);
 app.use(fetchCategoryMiddleware);

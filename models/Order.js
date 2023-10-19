@@ -97,13 +97,20 @@ const orderSchema = new mongoose.Schema(
     returnDate: Date,
     totalAfterDiscount: {
       type: mongoose.Schema.Types.Decimal128,
-      required: true
+      required: true,
     },
     isPaid: {
       type: Boolean,
-      default: false
+      default: false,
     },
-    walletPaidAmount : mongoose.Schema.Types.Decimal128,
+    totalAmountPaid: {
+      type: mongoose.Schema.Types.Decimal128,
+      default: 0,
+    },
+    walletPaidAmount: {
+      type: mongoose.Schema.Types.Decimal128,
+      default: 0,
+    },
   },
   {
     timestamps: true,

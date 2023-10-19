@@ -1,5 +1,4 @@
  <%- include ('../partials/single-order-header') %>
- <%- include ('../partials/flash-messages') %>
     <div class="container mt-5">
       <div class="order-header">
         <div>
@@ -89,6 +88,7 @@
                     Not Shipped
                     <% } %>
           </p>
+          <p>Total Amount Paid : <span style="color: #00563B;">₹<%= order.totalAmountPaid %></span></p>
 
         </div>
         <div class="col-md-4">
@@ -112,6 +112,7 @@
           <% if( order.totalAmount != order.totalAfterDiscount  ) { %>
           <p>Total After Discount: <span style="color: #00563B;">₹<%= order.totalAfterDiscount %></span></p>
           <% } %>
+          <p>Amount Yet To Be Paid : <span style="color: #00563B;">₹<%= order.totalAfterDiscount - order.totalAmountPaid %></span></p>
         </div>
       </div>
 

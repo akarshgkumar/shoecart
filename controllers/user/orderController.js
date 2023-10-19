@@ -77,6 +77,16 @@ router.post("/cancel-order", async (req, res) => {
     const { orderId } = req.body;
 
     const order = await Order.findById(orderId);
+    const token = req.cookies.jwt;
+    if (!token) {
+      return res.redirect("/login");
+    }
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.userId;
+    console.log(userId);
+    await User.findByIdAndUpdate(userId, {
+      $inc: { "wallet.balance": order.totalAmountPaid },
+    });
 
     if (!order || order.status == "Cancelled") {
       req.flash("error", "Order not found or already cancelled");
@@ -335,6 +345,7 @@ router.post("/place-order", async (req, res) => {
       paymentMethod: payment_option,
       totalAmount: totalAmount,
       totalAfterDiscount: totalAfterDiscount,
+      totalAmountPaid: paidAmountOnWallet,
       walletPaidAmount: paidAmountOnWallet,
       deliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     });
@@ -464,6 +475,7 @@ router.post("/validate-order", async (req, res) => {
       totalAmount: totalAmount,
       totalAfterDiscount: totalAfterDiscount,
       walletPaidAmount: amountPaidThroughWallet,
+      totalAmountPaid: totalAfterDiscount,
       isPaid: true,
       deliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     });
@@ -503,26 +515,36 @@ router.get("/return-reason/:orderId", async (req, res) => {
 
 router.post("/return-reason", async (req, res) => {
   let orderId;
-
+  console.log("on first");
   try {
     let { reason, additionalInfo } = req.body;
     orderId = req.body.orderId;
-
+    const token = req.cookies.jwt;
+    if (!token) {
+      return res.redirect("/login");
+    }
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.userId;
+    console.log(userId);
+    console.log("on return reason route");
     const sanitizedAdditionalInfo = validator.escape(additionalInfo);
     const sanitizedReason = validator.escape(reason);
-
+    
     const validReasons = ["size", "damaged", "color"];
-
+    
     if (!validReasons.includes(sanitizedReason)) {
       req.flash("error", "Please select a valid return reason");
       return res.redirect(`/view-single-order/${orderId}`);
     }
-
+    
     const order = await Order.findById(orderId);
     if (!order) {
       return res.status(404).send({ error: "Order not found" });
     }
-
+    await User.findByIdAndUpdate(userId, {
+      $inc: { "wallet.balance": order.totalAfterDiscount },
+    });
+    
     order.returnMsg = sanitizedAdditionalInfo;
 
     if (sanitizedReason !== "damaged") {
@@ -538,10 +560,11 @@ router.post("/return-reason", async (req, res) => {
     order.returnDate = new Date();
     order.status = "Returned";
     await order.save();
-
+    console.log("on try");
     req.flash("success", "Order returned successfully");
     res.redirect(`/order/view-single-order/${orderId}`);
   } catch (error) {
+    console.log("on catch");
     req.flash("error", "An error occurred, try again later");
     res.redirect(`/order/view-single-order/${orderId}`);
   }

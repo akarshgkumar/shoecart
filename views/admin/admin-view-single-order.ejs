@@ -85,11 +85,12 @@
             <% if (order.shippedDate) { %>
               <%= order.shippedDate.toLocaleString('en-US', { year: 'numeric' , month: 'long' , day: 'numeric' }) %>
                 <% } else if (["shipped", "delivered" ].includes(order.status)) { %>
-                  'Invalid Date'
+                  Invalid Date
                   <% } else { %>
-                    'Not Shipped'
+                    Not Shipped
                     <% } %>
           </p>
+          <p>Total Amount Paid : <span style="color: #00563B;">₹<%= order.totalAmountPaid %></span></p>
         </div>
         <div class="col-md-4">
           <h5>Shipping Address:</h5>
@@ -112,6 +113,8 @@
           <% if( order.totalAmount !=order.totalAfterDiscount ) { %>
             <p>Total After Discount: <span style="color: #00563B;">₹<%= order.totalAfterDiscount %></span></p>
             <% } %>
+              <p>Amount Yet To Be Paid : <span style="color: #00563B;">₹<%= order.totalAfterDiscount -
+                    order.totalAmountPaid %></span></p>
         </div>
       </div>
 
