@@ -102,7 +102,8 @@ const orderSchema = new mongoose.Schema(
     isPaid: {
       type: Boolean,
       default: false
-    }
+    },
+    walletPaidAmount : mongoose.Schema.Types.Decimal128,
   },
   {
     timestamps: true,

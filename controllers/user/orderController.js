@@ -62,6 +62,7 @@ router.get("/checkout", async (req, res) => {
       defaultAddress: defaultAddress,
       userId,
       totalPrice,
+      walletBalance: user.wallet?.balance,
       error,
       RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
     });

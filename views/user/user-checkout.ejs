@@ -166,36 +166,34 @@
                     </div>
                     <div class="payment_option">
                       <div class="custome-radio">
-                        <input class="form-check-input" type="radio" name="payment_option" id="exampleRadios3"
+                        <input class="form-check-input" type="radio" name="payment_option" id="razorpay_radio_btn"
                           value="Razor Pay" required>
-                        <label class="form-check-label" for="exampleRadios3" data-bs-toggle="collapse"
+                        <label class="form-check-label" for="razorpay_radio_btn" data-bs-toggle="collapse"
                           data-target="#razorpay" aria-controls="razorpay">Pay Now</label>
-                        <div class="form-group collapse in" id="razorpay">
+                        <div class="form-group collapse" id="razorpay">
                           <p class="text-muted mt-5">There are many variations of passages of Lorem Ipsum available, but
                             the majority have suffered alteration. </p>
                         </div>
                       </div>
                       <div class="custome-radio">
-                        <input class="form-check-input" type="radio" name="payment_option" id="exampleRadios4"
-                          value="Wallet Payment" required>
-                        <label class="form-check-label" for="exampleRadios4" data-bs-toggle="collapse"
-                          data-target="#walletPayment" aria-controls="walletPayment">Wallet Payment</label>
-                        <div class="form-group collapse in" id="walletPayment">
-                          <p class="text-muted mt-5">Please send your cheque to Store Name, Store Street, Store Town,
-                            Store State / County, Store Postcode. </p>
+                        <input class="form-check-input" type="radio" name="payment_option" id="cod_radio_btn"
+                          value="Cash On Delivery" required>
+                        <label class="form-check-label" for="cod_radio_btn" data-bs-toggle="collapse" data-target="#cod"
+                          aria-controls="cod">Cash On Delivery</label>
+                        <div class="form-group collapse" id="cod">
+                          <p class="text-muted mt-5">There are many variations of passages of Lorem Ipsum available, but
+                            the majority have suffered alteration. </p>
                         </div>
                       </div>
-                      <div class="custome-radio">
-                        <input class="form-check-input" type="radio" name="payment_option" id="exampleRadios5"
-                          value="Cash On Delivery" required>
-                        <label class="form-check-label" for="exampleRadios5" data-bs-toggle="collapse"
-                          data-target="#cod" aria-controls="cod">Cash On Delivery</label>
-                        <div class="form-group collapse in" id="cod">
-                        </div>
+                      <hr>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="walletPayment" id="walletPayment">
+                        <input type="hidden" name="walletBalance" value="<%= walletBalance %>">
+                        <label class="form-check-label" for="walletPayment"><span style="color: black; margin-right: 5px;">Use Wallet</span> (Wallet Balance : ₹<%= walletBalance %>)</label>
                       </div>
                     </div>
                   </div>
-                  <button type="submit" class="btn btn-fill-out btn-block mt-30">Place
+                  <button type="submit" class="btn btn-fill-out btn-block mt-10">Place
                     Order</button>
                   <% let dateThreeDaysFromNow=new Date(); dateThreeDaysFromNow.setDate(dateThreeDaysFromNow.getDate() +
                     3); %>
