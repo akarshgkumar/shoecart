@@ -68,7 +68,7 @@ router.get("/checkout", async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching checkout data:", error);
-    res.status(500).send("Internal server error");
+    res.redirect("/home");
   }
 });
 
@@ -179,7 +179,13 @@ router.post("/validate-cart", async (req, res) => {
   }
 });
 
+const calculateAmountAfterWalletUsage = (total, walletBalance) => {
+  if (walletBalance >= total) return 0;
+  else return total - walletBalance;
+};
+
 router.post("/place-order", async (req, res) => {
+  console.log("on place order");
   const {
     user,
     name,
@@ -191,10 +197,11 @@ router.post("/place-order", async (req, res) => {
     city,
     state,
     zipcode,
-    payment_option,
     totalAmount,
     totalAfterDiscount,
   } = req.body;
+
+  let { payment_option } = req.body;
 
   if (
     !name ||
@@ -217,25 +224,67 @@ router.post("/place-order", async (req, res) => {
         "/order/checkout?error=No%20cart%20found%20for%20the%20user."
       );
     }
+    const fetchedUser = await User.findById(user);
+    let walletBalance = fetchedUser.wallet?.balance;
+    console.log(walletBalance);
+    let paidAmountOnWallet = 0;
 
-    if (payment_option === "Razor Pay") {
-      const instance = new Razorpay({
-        key_id: process.env.RAZORPAY_KEY_ID,
-        key_secret: process.env.RAZORPAY_KEY_SECRET,
-      });
-      const options = {
-        amount: parseFloat(totalAfterDiscount) * 100,
-        currency: "INR",
-      };
+    if (req.body.walletPayment === "on") {
+      const amountAfterWalletUsage = calculateAmountAfterWalletUsage(
+        parseFloat(totalAfterDiscount),
+        walletBalance
+      );
 
-      const razorOrder = await instance.orders.create(options);
+      if (amountAfterWalletUsage === 0) {
+        if (
+          payment_option === "Razor Pay" ||
+          payment_option === "Cash On Delivery"
+        ) {
+          console.log("on amountAfter 0");
+          payment_option = "Wallet Payment";
+          paidAmountOnWallet = parseFloat(totalAfterDiscount);
+          walletBalance = walletBalance - paidAmountOnWallet;
+        }
+      } else if (payment_option === "Razor Pay") {
+        const instance = new Razorpay({
+          key_id: process.env.RAZORPAY_KEY_ID,
+          key_secret: process.env.RAZORPAY_KEY_SECRET,
+        });
+        const options = {
+          amount: parseFloat(amountAfterWalletUsage) * 100,
+          currency: "INR",
+        };
 
-      return res.json({
-        order_id: razorOrder.id,
-        amount: totalAfterDiscount * 100,
-      });
+        const razorOrder = await instance.orders.create(options);
+
+        return res.json({
+          order_id: razorOrder.id,
+          amount: amountAfterWalletUsage * 100,
+        });
+      } else {
+        paidAmountOnWallet = walletBalance;
+        walletBalance = walletBalance - paidAmountOnWallet;
+      }
+    } else {
+      if (payment_option === "Razor Pay") {
+        const instance = new Razorpay({
+          key_id: process.env.RAZORPAY_KEY_ID,
+          key_secret: process.env.RAZORPAY_KEY_SECRET,
+        });
+        const options = {
+          amount: parseFloat(totalAfterDiscount) * 100,
+          currency: "INR",
+        };
+
+        const razorOrder = await instance.orders.create(options);
+
+        return res.json({
+          order_id: razorOrder.id,
+          amount: totalAfterDiscount * 100,
+        });
+      }
     }
-
+    console.log("before creating short id");
     let uniqueShortId,
       existingOrder,
       attempts = 0,
@@ -286,20 +335,29 @@ router.post("/place-order", async (req, res) => {
       paymentMethod: payment_option,
       totalAmount: totalAmount,
       totalAfterDiscount: totalAfterDiscount,
+      walletPaidAmount: paidAmountOnWallet,
       deliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     });
 
     await newOrder.save();
+    console.log("after saving order");
     for (let cartProduct of cart.products) {
       const product = await Product.findById(cartProduct.productId);
       product.stock -= cartProduct.quantity;
       await product.save();
     }
-
+    console.log("after saving product");
+    await User.findByIdAndUpdate(user, {
+      $inc: { "wallet.balance": -paidAmountOnWallet },
+    });
     await Cart.deleteOne({ userId: user });
+    console.log("after deleting cart");
     req.flash("success", "Order is successful");
+    console.log("after success flash");
+    console.log(`${newOrder._id}`);
     return res.redirect(`/order/success/${newOrder._id}`);
   } catch (err) {
+    console.error(err);
     if (err.name === "MongoError" && err.code === 11000) {
       req.flash(
         "error",
@@ -313,6 +371,7 @@ router.post("/place-order", async (req, res) => {
 });
 
 router.post("/validate-order", async (req, res) => {
+  console.log("on validate order route");
   const { razorpay_payment_id, razorpay_order_id, razorpay_signature } =
     req.body;
   const text = razorpay_order_id + "|" + razorpay_payment_id;
@@ -320,6 +379,11 @@ router.post("/validate-order", async (req, res) => {
     .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
     .update(text)
     .digest("hex");
+
+  if (!req.body.razorpay_paid_amount) {
+    console.log("razorpay_paid_amount is not received");
+    return;
+  }
 
   if (generatedSignature === razorpay_signature) {
     const {
@@ -336,7 +400,11 @@ router.post("/validate-order", async (req, res) => {
       payment_option,
       totalAmount,
       totalAfterDiscount,
+      razorpay_paid_amount,
     } = req.body;
+    console.log("Type of totalAfterDiscount:", typeof totalAfterDiscount);
+    console.log("Type of razorpay_paid_amount:", typeof razorpay_paid_amount);
+
     const cart = await Cart.findOne({ userId: user });
     let uniqueShortId,
       existingOrder,
@@ -369,6 +437,12 @@ router.post("/validate-order", async (req, res) => {
         };
       })
     );
+    console.log("after discount", totalAfterDiscount);
+    console.log("razor", razorpay_paid_amount);
+
+    const amountPaidThroughWallet =
+      parseFloat(totalAfterDiscount) - parseFloat(razorpay_paid_amount);
+    console.log(amountPaidThroughWallet);
 
     const newOrder = new Order({
       razorOrderId: razorpay_order_id,
@@ -389,10 +463,15 @@ router.post("/validate-order", async (req, res) => {
       paymentMethod: payment_option,
       totalAmount: totalAmount,
       totalAfterDiscount: totalAfterDiscount,
+      walletPaidAmount: amountPaidThroughWallet,
       isPaid: true,
       deliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     });
     await newOrder.save();
+
+    await User.findByIdAndUpdate(user, {
+      $inc: { "wallet.balance": -amountPaidThroughWallet },
+    });
 
     for (let cartProduct of cart.products) {
       const product = await Product.findById(cartProduct.productId);
@@ -469,7 +548,9 @@ router.post("/return-reason", async (req, res) => {
 });
 
 router.get("/success/:orderId", (req, res) => {
-  res.render("user/order-success", {orderId : req.params.orderId});
+  console.log("on order success route");
+  console.log(req.params.orderId);
+  res.render("user/order-success", { orderId: req.params.orderId });
 });
 
 router.post("/apply-coupon", async (req, res) => {

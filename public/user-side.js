@@ -129,7 +129,7 @@ function showSuccess(message) {
 function navigateToCategory(selectElement) {
   const selectedURL = selectElement.value;
   if (selectedURL) {
-      window.location.href = selectedURL;
+    window.location.href = selectedURL;
   }
 }
 
@@ -327,7 +327,19 @@ $(function () {
       let paymentOption = document.querySelector(
         'input[name="payment_option"]:checked'
       ).value;
-
+      if ($("#walletPayment").is(":checked")) {
+        let totalAfterDiscountString = $(
+          'input[name="totalAfterDiscount"]'
+        ).val();
+        let totalAfterDiscountNumber = parseFloat(totalAfterDiscountString);
+        let walletBalanceString = $('input[name="walletBalance"]').val();
+        let walletBalanceNumber = parseFloat(walletBalanceString);
+        if (walletBalanceNumber >= totalAfterDiscountNumber) {
+          console.log("wallet greater than total discount");
+          form.submit();
+          return;
+        }
+      }
       if (paymentOption === "Razor Pay") {
         const formData = $(form).serialize();
         const userName = $("input[name='name']").val();
@@ -340,6 +352,9 @@ $(function () {
           data: formData,
           success: function (response) {
             if (response.order_id && response.amount) {
+              $("<input type='hidden' name='razorpay_paid_amount' />")
+                .val(response.amount / 100)
+                .appendTo(form);
               var options = {
                 key: RAZORPAY_KEY_ID,
                 amount: response.amount,
@@ -383,7 +398,7 @@ $(function () {
           },
         });
       } else {
-        console.log("on here");
+        console.log("on else not checked");
         form.submit();
       }
     },
