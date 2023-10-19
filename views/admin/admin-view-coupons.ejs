@@ -69,13 +69,13 @@
               <ul class="pagination justify-content-start">
                 <% for (let i=1; i <=pages; i++) { %>
                   <li class="page-item <%= current == i ? 'active' : '' %>"><a class="page-link"
-                      href="/product/view-full-products?page=<%= i %>">
+                      href="/admin/view-coupons?page=<%= i %>">
                       <%= i %>
                     </a></li>
                   <% } %>
                     <% if(current < pages) { %>
                       <li class="page-item"><a class="page-link"
-                          href="/product/view-full-products?page=<%= current + 1 %>"><i
+                          href="/admin/view-coupons?page=<%= current + 1 %>"><i
                             class="fi-rs-angle-double-small-right"></i></a></li>
                       <% } %>
               </ul>
