@@ -99,6 +99,7 @@ router.get("/account", async (req, res) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     const userId = decoded.userId;
     const user = await User.findOne({ _id: userId });
+    console.log("user name :",user.name)
 
     if (!user) {
       return res.status(404).send("User not found");
@@ -136,11 +137,12 @@ router.get("/account", async (req, res) => {
       phoneNo: user.phoneNo,
       orders: orders,
       addresses: user.addresses,
+      walletBalance: user.wallet?.balance,
       message: req.query.message,
       error: req.query.error,
     };
 
-    res.render("user/user-account", userData);
+    res.render("user/user-account", {...userData, categories: req.categories});
   } catch (error) {
     console.error(error);
     req.flash("error", "Internal server error");

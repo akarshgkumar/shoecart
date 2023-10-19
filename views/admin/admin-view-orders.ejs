@@ -58,7 +58,7 @@
                         <td>
                           <%= order.address.email %>
                         </td>
-                        <td>₹<%= order.totalAmount.toFixed(2) %>
+                        <td>₹<%= order.totalAfterDiscount %>
                         </td>
                         <td>
                           <% if (order.status === 'Delivered') { %>

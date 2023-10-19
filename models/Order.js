@@ -82,7 +82,7 @@ const orderSchema = new mongoose.Schema(
       required: true,
     },
     totalAmount: {
-      type: Number,
+      type: mongoose.Schema.Types.Decimal128,
       required: true,
     },
     status: {
@@ -95,7 +95,10 @@ const orderSchema = new mongoose.Schema(
     shippedDate: Date,
     cancelledDate: Date,
     returnDate: Date,
-    totalAfterDiscount: Number,
+    totalAfterDiscount: {
+      type: mongoose.Schema.Types.Decimal128,
+      required: true
+    },
     isPaid: {
       type: Boolean,
       default: false

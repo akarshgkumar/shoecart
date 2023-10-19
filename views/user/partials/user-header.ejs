@@ -55,7 +55,7 @@
             </div>
             <div class="header-right">
               <div class="search-style-2">
-                <form action="">
+                <form action="/product/search-products" method="get">
                   <select class="select-active" onchange="navigateToCategory(this)">
                     <option value="/product/view-full-products" <%=typeof selectedCategoryId !='undefined' &&
                       !selectedCategoryId ? 'selected' : '' %>>
@@ -66,10 +66,10 @@
                       <option class="category-list-dropdown" value="/product/filter-products/category/<%= category._id %>" <%=typeof selectedCategoryId
                         !=='undefined' && selectedCategoryId==category._id ? 'selected' : '' %>>
                         <%= category.name %>
-                      </option>
+                      </option> 
                       <% }); %>
                   </select>
-                  <input type="text" placeholder="Search for items...">
+                  <input type="text" name="q" placeholder="Search for items...">
                 </form>
               </div>
               <div class="header-action-right">
@@ -104,8 +104,8 @@
             </div>
             <div class="header-nav d-none d-lg-flex">
               <div class="main-categori-wrap d-none d-lg-block">
-                <a class="categori-button-active" href="#">
-                  <span class="fi-rs-apps"></span> Browse Categories
+                <a class="categori-button-active" href="/product/view-full-products">
+                  <span class="fi-rs-apps"></span> View All Products
                 </a>
               </div>
               <div class="main-menu main-menu-padding-1 main-menu-lh-2 d-none d-lg-block">

@@ -49,6 +49,12 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    wallet: {
+      balance: {
+        type: mongoose.Schema.Types.Decimal128,
+        default: 0
+      }
+    },
   },
   {
     timestamps: true,
