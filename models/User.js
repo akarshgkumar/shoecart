@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
 const AddressSchema = new mongoose.Schema({
   address: String,
@@ -60,6 +61,8 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+userSchema.plugin(mongoosePaginate);
 
 const User = mongoose.model("User", userSchema);
 

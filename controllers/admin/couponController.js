@@ -3,8 +3,25 @@ const router = express.Router();
 const Coupon = require("../../models/Coupon");
 
 router.get("/view-coupons", async (req, res) => {
-  const coupons = await Coupon.find({ isDeleted: false });
-  res.render("admin/admin-view-coupons", { coupons });
+  const options = {
+    page: parseInt(req.query.page) || 1,
+    limit: 10,
+  };
+
+  const filter = { isDeleted: false };
+
+  try {
+    const result = await Coupon.paginate(filter, options);
+    res.render("admin/admin-view-coupons", {
+      coupons: result.docs,
+      couponCount: result.totalDocs,
+      current: result.page,
+      pages: result.totalPages,
+    });
+  } catch (err) {
+    console.error("Error fetching coupons:", err);
+    res.redirect("/admin-home");
+  }
 });
 
 router.get("/add-coupon", (req, res) => {
@@ -37,7 +54,6 @@ router.get("/edit-coupon/:couponId", async (req, res) => {
   }
 });
 
-
 router.post("/edit-coupon/:couponId", async (req, res) => {
   const coupon = await Coupon.findById(req.params.couponId);
   if (!coupon) {
@@ -46,9 +62,9 @@ router.post("/edit-coupon/:couponId", async (req, res) => {
   }
   coupon.code = req.body.coupon_code || coupon.code;
   coupon.discountPercentage =
-  req.body.discount_percentage || coupon.discountPercentage;
+    req.body.discount_percentage || coupon.discountPercentage;
   await coupon.save();
-  req.flash("success", "Coupon edited successfully")
+  req.flash("success", "Coupon edited successfully");
   res.redirect("/admin/coupon/view-coupons");
 });
 
@@ -80,21 +96,21 @@ router.get("/delete-coupon/:couponId", async (req, res) => {
   }
 });
 
-router.get('/search-coupon', async (req, res) => {
+router.get("/search-coupon", async (req, res) => {
   try {
     const query = req.query.q;
-    const coupons = await Coupon.find({ 
-      code: new RegExp(query, 'i'),
-      isDeleted: false
+    const coupons = await Coupon.find({
+      code: new RegExp(query, "i"),
+      isDeleted: false,
     });
 
     if (coupons.length > 0) {
-      return res.render('admin/admin-view-coupons', { coupons });
+      return res.render("admin/admin-view-coupons", { coupons });
     } else {
-      req.flash('error', 'No coupon found with that code');
-      return res.redirect('/admin/coupon/view-coupons');
+      req.flash("error", "No coupon found with that code");
+      return res.redirect("/admin/coupon/view-coupons");
     }
-  } catch(err) {
+  } catch (err) {
     console.error("An error occurred:", err);
     res.status(500).send("Internal Server Error");
   }

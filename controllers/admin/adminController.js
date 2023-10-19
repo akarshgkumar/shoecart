@@ -70,7 +70,9 @@ router.post("/", async (req, res) => {
     });
     res.redirect("/admin/dashboard");
   } else {
-    res.render("admin/admin-login", { notFound: "Incorrect username or password" });
+    res.render("admin/admin-login", {
+      notFound: "Incorrect username or password",
+    });
   }
 });
 
@@ -86,8 +88,35 @@ router.get("/logout", (req, res) => {
 });
 
 router.get("/view-products", async (req, res) => {
-  const products = await Product.find().populate("category").populate("brand");
-  res.render("admin/admin-view-products", { products });
+  const options = {
+    page: parseInt(req.query.page) || 1,
+    limit: 10,
+    populate: ["category", "brand"],
+    customLabels: {
+      docs: "products",
+      totalDocs: "productCount",
+    },
+  };
+
+  try {
+    const filter = {
+      isDeleted: false,
+      brand: { $exists: true, $ne: null },
+      category: { $exists: true, $ne: null },
+    };
+    const result = await Product.paginate(filter, options);
+
+    res.render("admin/admin-view-products", {
+      products: result.products,
+      productCount: result.productCount,
+      current: result.page,
+      pages: result.totalPages,
+    });
+  } catch (err) {
+    console.error("Error fetching products:", err);
+    req.flash("error", "Error fetching products");
+    res.redirect("/admin-home");
+  }
 });
 
 router.get("/view-single-order/:orderId", async (req, res) => {
@@ -95,7 +124,7 @@ router.get("/view-single-order/:orderId", async (req, res) => {
     const order = await Order.findById(req.params.orderId).populate(
       "products.product"
     );
-    console.log(order)
+    console.log(order);
     res.render("admin/admin-view-single-order", { order });
   } catch (error) {
     console.error("Error fetching order:", error);
@@ -166,11 +195,10 @@ router.post(
         req.flash("error", "Only submit 3 sub images");
         return res.redirect(`/admin/edit-product/${productId}`);
       }
-      if(allImageUrls)
-      updatedProductData.images = allImageUrls;
+      if (allImageUrls) updatedProductData.images = allImageUrls;
 
       await Product.findByIdAndUpdate(productId, updatedProductData);
-      req.flash("success", "Product edited successfully")
+      req.flash("success", "Product edited successfully");
       res.redirect("/admin/view-products");
     } catch (err) {
       console.error(err);
@@ -219,15 +247,23 @@ router.post(
           existingProduct = await Product.findOne({ shortId: uniqueShortId });
         } catch (dbError) {
           console.error("Error querying the database:", dbError);
-          req.flash("error", "Failed to check product uniqueness. Please try again.");
+          req.flash(
+            "error",
+            "Failed to check product uniqueness. Please try again."
+          );
           return res.redirect("/admin/add-product");
         }
         retryCount++;
       } while (existingProduct && retryCount < retryLimit);
 
       if (retryCount === retryLimit) {
-        console.error("Reached maximum retry limit when generating a unique shortId.");
-        req.flash("error", "Failed to generate a unique product ID. Please try again later.");
+        console.error(
+          "Reached maximum retry limit when generating a unique shortId."
+        );
+        req.flash(
+          "error",
+          "Failed to generate a unique product ID. Please try again later."
+        );
         return res.redirect("/admin/add-product");
       }
 
@@ -245,8 +281,11 @@ router.post(
         description: req.body.description,
         stock: req.body.stock,
         price: req.body.price,
-        mainImage: req.files.mainImage && req.files.mainImage[0] ? req.files.mainImage[0].path : undefined,
-        images: imageUrls
+        mainImage:
+          req.files.mainImage && req.files.mainImage[0]
+            ? req.files.mainImage[0].path
+            : undefined,
+        images: imageUrls,
       });
 
       const result = await product.save();
@@ -260,8 +299,6 @@ router.post(
     }
   }
 );
-
-
 
 router.get("/edit-brand/:brandId", async (req, res) => {
   const brandId = req.params.brandId;
@@ -315,13 +352,47 @@ router.post("/edit-brand/:brandId", async (req, res) => {
 });
 
 router.get("/view-brands", async (req, res) => {
-  const brands = await Brand.find({ isDeleted: false });
-  res.render("admin/admin-view-brands", { brands });
+  const options = {
+    page: parseInt(req.query.page) || 1,
+    limit: 10,
+  };
+
+  const filter = { isDeleted: false };
+
+  try {
+    const result = await Brand.paginate(filter, options);
+    res.render("admin/admin-view-brands", {
+      brands: result.docs,
+      brandCount: result.totalDocs,
+      current: result.page,
+      pages: result.totalPages,
+    });
+  } catch (err) {
+    console.error("Error fetching brands:", err);
+    res.redirect("/admin-home");
+  }
 });
 
 router.get("/view-category", async (req, res) => {
-  const category = await Category.find({ isDeleted: false });
-  res.render("admin/admin-view-category", { category });
+  const options = {
+    page: parseInt(req.query.page) || 1,
+    limit: 10,
+  };
+
+  const filter = { isDeleted: false };
+
+  try {
+    const result = await Category.paginate(filter, options);
+    res.render("admin/admin-view-category", {
+      category: result.docs,
+      categoryCount: result.totalDocs,
+      current: result.page,
+      pages: result.totalPages,
+    });
+  } catch (err) {
+    console.error("Error fetching categories:", err);
+    res.redirect("/admin-home");
+  }
 });
 
 router.get("/add-category", (req, res) => {
@@ -469,8 +540,29 @@ router.get("/search-users", async (req, res) => {
 });
 
 router.get("/view-users", async (req, res) => {
-  const users = await User.find({ verified: true });
-  res.render("admin/admin-view-users", { users });
+  const options = {
+    page: parseInt(req.query.page) || 1,
+    limit: 10,
+    customLabels: {
+      docs: "users",
+      totalDocs: "userCount",
+    },
+  };
+
+  const filter = { verified: true };
+
+  try {
+    const result = await User.paginate(filter, options);
+    res.render("admin/admin-view-users", {
+      users: result.users,
+      userCount: result.userCount,
+      current: result.page,
+      pages: result.totalPages,
+    });
+  } catch (err) {
+    console.error("Error fetching users:", err);
+    res.redirect("/admin-home");
+  }
 });
 
 router.get("/unblock-user/:userId", async (req, res) => {
@@ -516,11 +608,25 @@ router.get("/block-user/:userId", async (req, res) => {
 });
 
 router.get("/view-orders", async (req, res) => {
+  const options = {
+    page: parseInt(req.query.page) || 1,
+    limit: 10,
+    populate: ["user", "products.product"],
+    customLabels: {
+      docs: "orders",
+      totalDocs: "orderCount",
+    },
+  };
+
   try {
-    const orders = await Order.find({})
-      .populate("user")
-      .populate("products.product");
-      res.render("admin/admin-view-orders", {orders})
+    const result = await Order.paginate({}, options);
+
+    res.render("admin/admin-view-orders", {
+      orders: result.orders,
+      orderCount: result.orderCount,
+      current: result.page,
+      pages: result.totalPages,
+    });
   } catch (err) {
     console.error("Error fetching orders:", err);
     res.status(500).send("Internal server error");
@@ -547,7 +653,10 @@ router.get("/edit-order/:orderId", async (req, res) => {
       return res.status(404).send("Order not found");
     }
 
-    res.render("admin/admin-edit-order", { order: order, formatDate: formatDate });
+    res.render("admin/admin-edit-order", {
+      order: order,
+      formatDate: formatDate,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).send("Server Error");
@@ -557,7 +666,8 @@ router.get("/edit-order/:orderId", async (req, res) => {
 router.post("/edit-order/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { order_name, shipped_date, delivery_date, status, order_email } = req.body;
+    const { order_name, shipped_date, delivery_date, status, order_email } =
+      req.body;
 
     const order = await Order.findById(id);
 
@@ -584,11 +694,9 @@ router.post("/edit-order/:id", async (req, res) => {
       }
     }
 
-    const updatedOrder = await Order.findByIdAndUpdate(
-      id,
-      updateFields,
-      { new: true }
-    );
+    const updatedOrder = await Order.findByIdAndUpdate(id, updateFields, {
+      new: true,
+    });
 
     await updatedOrder.save();
 
@@ -599,7 +707,6 @@ router.post("/edit-order/:id", async (req, res) => {
       req.flash("error", "Failed to update Order");
       res.redirect("/admin/view-orders");
     }
-
   } catch (error) {
     console.error("Error updating order:", error);
     req.flash("error", "An error occurred while updating the order.");
@@ -607,13 +714,12 @@ router.post("/edit-order/:id", async (req, res) => {
   }
 });
 
-
 router.get("/search-orders", async (req, res) => {
   try {
     const searchQuery = req.query.searchQuery;
 
     if (mongoose.Types.ObjectId.isValid(searchQuery)) {
-      const orders = await Order.find({ "_id": searchQuery }).exec();
+      const orders = await Order.find({ _id: searchQuery }).exec();
 
       if (orders.length > 0) {
         return res.render("admin/admin-view-orders", { orders });
@@ -625,7 +731,6 @@ router.get("/search-orders", async (req, res) => {
       req.flash("error", "Invalid ID format");
       return res.redirect("/admin/view-orders");
     }
-
   } catch (error) {
     console.error("Search error:", error);
     req.flash("error", "Unexpected Error");
@@ -633,21 +738,23 @@ router.get("/search-orders", async (req, res) => {
   }
 });
 
-router.get('/search-order-email', async (req, res) => {
+router.get("/search-order-email", async (req, res) => {
   try {
     const emailQuery = req.query.emailQuery;
-    const orders = await Order.find({ 'address.email': new RegExp(emailQuery, 'i') });
+    const orders = await Order.find({
+      "address.email": new RegExp(emailQuery, "i"),
+    });
 
     if (orders.length > 0) {
-      return res.render('admin/admin-view-orders', { orders });
+      return res.render("admin/admin-view-orders", { orders });
     } else {
-      req.flash('error', 'No orders found with that email');
-      return res.redirect('/admin/view-orders');
+      req.flash("error", "No orders found with that email");
+      return res.redirect("/admin/view-orders");
     }
   } catch (error) {
     console.error("Search error:", error);
-    req.flash('error', 'Unexpected Error');
-    return res.redirect('/admin/view-orders');
+    req.flash("error", "Unexpected Error");
+    return res.redirect("/admin/view-orders");
   }
 });
 
