@@ -61,7 +61,7 @@ router.get("/", async (req, res) => {
     const validProducts =
       wishlist?.products.filter((product) => product.productId) || [];
 
-    res.render("user/user-wishlist", { products: validProducts, userId });
+    res.render("user/user-wishlist", { products: validProducts, userId,categories: req.categories });
   } catch (error) {
     console.error("Error fetching wishlist:", error);
     req.flash("error", "Error fetching wishlist");

@@ -15,7 +15,7 @@ const cartController = require("./controllers/user/cartController");
 const wishlistController = require("./controllers/user/wishlistController");
 const authMiddleware = require("./middlewares/authMiddleware");
 const cartAndWishlistMiddleware = require("./middlewares/cartAndWishlistMiddleware");
-
+const fetchCategoryMiddleware = require("./middlewares/fetchCategory");
 
 const app = express();
 
@@ -37,16 +37,6 @@ app.use((req, res, next) => {
 });
 app.use(cookieParser());
 
-app.use(authMiddleware.setLoginStatus);
-app.use(cartAndWishlistMiddleware.fetchCartForUser);
-app.use(cartAndWishlistMiddleware.fetchWishlistForUser);
-
-
-mongoose
-  .connect(config.database.uri, config.database.options)
-  .then(() => console.log("MongoDB Connected"))
-  .catch((err) => console.error("MongoDB connection error:", err));
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -54,6 +44,21 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/static", express.static(path.join(__dirname, "public")));
 
 app.set("view engine", "ejs");
+
+app.use("/admin", adminController);
+
+app.use("/admin/coupon", couponController);
+
+app.use(authMiddleware.setLoginStatus);
+app.use(cartAndWishlistMiddleware.fetchCartForUser);
+app.use(cartAndWishlistMiddleware.fetchWishlistForUser);
+app.use(fetchCategoryMiddleware);
+
+mongoose
+.connect(config.database.uri, config.database.options)
+.then(() => console.log("MongoDB Connected"))
+.catch((err) => console.error("MongoDB connection error:", err));
+
 
 app.use("/", accountController);
 
@@ -64,11 +69,6 @@ app.use("/cart", cartController);
 app.use("/wishlist", wishlistController);
 
 app.use("/product", productController);
-
-app.use("/admin", adminController);
-
-app.use("/admin/coupon", couponController);
-
 
 app.use((req, res, next) => {
   res.status(404).render("404");

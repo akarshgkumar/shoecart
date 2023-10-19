@@ -190,7 +190,7 @@ router.get("/logout", (req, res) => {
 });
 
 router.get("/home", (req, res) => {
-  res.render("user/home");
+  res.render("user/home", {categories: req.categories});
 });
 
 router.post("/login", async (req, res) => {

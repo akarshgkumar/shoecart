@@ -128,7 +128,7 @@ router.get("/", async (req, res) => {
       selectedSize: product.size,
     }));
 
-    res.render("user/shop-cart", { products: populatedProducts, userId });
+    res.render("user/shop-cart", { products: populatedProducts, userId, categories: req.categories });
   } catch (error) {
     console.error("Error fetching cart:", error);
     req.flash("error", "Internal server error");

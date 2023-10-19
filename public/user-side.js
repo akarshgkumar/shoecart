@@ -126,6 +126,13 @@ function showSuccess(message) {
   }, 2000);
 }
 
+function navigateToCategory(selectElement) {
+  const selectedURL = selectElement.value;
+  if (selectedURL) {
+      window.location.href = selectedURL;
+  }
+}
+
 $(function () {
   if (typeof successMessage !== "undefined") {
     showSuccess(successMessage);
