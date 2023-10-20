@@ -82,8 +82,7 @@
                         </div>
                         <div class="card mt-30">
                           <div class="card-header">
-                            <h5 class="mb-0"><i
-                              class="fi-rs-shopping-bag mr-10"></i>Wallet</h5>
+                            <h5 class="mb-0"><i class="fi-rs-shopping-bag mr-10"></i>Wallet</h5>
                           </div>
                           <div class="card-body">
                             <p>Wallet Balance : <span class="ml-5 text-brand">₹<%= walletBalance %></span></p>
@@ -92,56 +91,57 @@
                       </div>
                       <div class="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
                         <div class="card">
-                            <div class="card-header">
-                                <h5 class="mb-0">Your Orders</h5>
+                          <div class="card-header">
+                            <h5 class="mb-0">Your Orders</h5>
+                          </div>
+                          <div class="card-body">
+                            <div class="table-responsive">
+                              <% if(orders.length> 0) { %>
+                                <table class="table">
+                                  <thead>
+                                    <tr>
+                                      <th>Order</th>
+                                      <th>Date</th>
+                                      <th>Status</th>
+                                      <th>Total</th>
+                                      <th>Items</th>
+                                      <th>View</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <% orders.forEach(order=> { %>
+                                      <tr>
+                                        <td>
+                                          <%= order.id %>
+                                        </td>
+                                        <td>
+                                          <%= order.date %>
+                                        </td>
+                                        <td>
+                                          <%= order.status %>
+                                        </td>
+                                        <td>
+                                          <span class="text-brand fw-600">
+                                            <%= order.total %>
+                                          </span>
+                                        </td>
+                                        <td>
+                                          <%= order.items %>
+                                        </td>
+                                        <td><a href="/order/view-single-order/<%= order.fullId %>"
+                                            class="text-body view-text-order">View</a></td>
+                                      </tr>
+                                      <% }); %>
+                                  </tbody>
+                                </table>
+                                <% } else { %>
+                                  <p>No orders yet.</p>
+                                  <% } %>
                             </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <% if(orders.length > 0) { %>
-                                        <table class="table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Order</th>
-                                                    <th>Date</th>
-                                                    <th>Status</th>
-                                                    <th>Total</th>
-                                                    <th>Items</th>
-                                                    <th>View</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <% orders.forEach(order=> { %>
-                                                    <tr>
-                                                        <td>
-                                                            <%= order.id %>
-                                                        </td>
-                                                        <td>
-                                                            <%= order.date %>
-                                                        </td>
-                                                        <td>
-                                                            <%= order.status %>
-                                                        </td>
-                                                        <td>
-                                                            <span class="text-brand fw-600">
-                                                                <%= order.total %>
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            <%= order.items %>
-                                                        </td>
-                                                        <td><a href="/order/view-single-order/<%= order.fullId %>" class="text-body view-text-order">View</a></td>
-                                                    </tr>
-                                                <% }); %>
-                                            </tbody>
-                                        </table>
-                                    <% } else { %>
-                                        <p>No orders yet.</p>
-                                    <% } %>
-                                </div>
-                            </div>
+                          </div>
                         </div>
-                    </div>
-                    
+                      </div>
+
                       <div class="tab-pane fade" id="address" role="tabpanel" aria-labelledby="address-tab">
                         <% if(addresses && addresses.length> 0) { %>
                           <% addresses.forEach(address=> { %>
@@ -349,7 +349,8 @@
                                 <input type="hidden" name="userId" value="<%= userId %>">
                                 <div class="col-md-12">
                                   <button type="submit" class="btn btn-fill-out submit">Confirm</button>
-                                  <a class="forgot-password-link-account" href="/check-email/true?email=<%= encodeURIComponent(email) %>">Forgot Password?</a>
+                                  <a class="forgot-password-link-account"
+                                    href="/check-email/true?email=<%= encodeURIComponent(email) %>">Forgot Password?</a>
                                 </div>
                               </form>
                             </div>
@@ -365,6 +366,8 @@
         </section>
       </main>
       <%- include('partials/user-footer') %>
+        <%- include('../partials/preloader') %>
 
-        </body>
-  </html>
+          </body>
+
+          </html>

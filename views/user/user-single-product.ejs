@@ -103,7 +103,10 @@
     </section>
   </main>
   <%- include('partials/user-footer') %>
-    <script defer src="/static/cart.js"></script>
-    <script defer src="/static/wishlist.js"></script>
-    </body>
-  </html>
+    <%- include('../partials/preloader') %>
+
+      <script defer src="/static/cart.js"></script>
+      <script defer src="/static/wishlist.js"></script>
+      </body>
+
+      </html>

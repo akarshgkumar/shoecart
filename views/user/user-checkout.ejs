@@ -189,7 +189,9 @@
                       <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="walletPayment" id="walletPayment">
                         <input type="hidden" name="walletBalance" value="<%= walletBalance %>">
-                        <label class="form-check-label" for="walletPayment"><span style="color: black; margin-right: 5px;">Use Wallet</span> (Wallet Balance : ₹<%= walletBalance %>)</label>
+                        <label class="form-check-label" for="walletPayment"><span
+                            style="color: black; margin-right: 5px;">Use Wallet</span> (Wallet Balance : ₹<%=
+                            walletBalance %>)</label>
                       </div>
                     </div>
                   </div>
@@ -209,7 +211,8 @@
           </div>
         </section>
       </main>
+      <%- include('../partials/preloader') %>
 
-      </body>
+        </body>
 
-      </html>
+        </html>
