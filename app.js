@@ -9,6 +9,7 @@ const session = require("express-session");
 const accountController = require("./controllers/user/accountController");
 const adminController = require("./controllers/admin/adminController");
 const couponController = require("./controllers/admin/couponController");
+const bannerController = require("./controllers/admin/bannerController");
 const productController = require("./controllers/user/productController");
 const orderController = require("./controllers/user/orderController");
 const cartController = require("./controllers/user/cartController");
@@ -48,6 +49,9 @@ app.set("view engine", "ejs");
 app.use("/admin", adminController);
 
 app.use("/admin/coupon", couponController);
+
+app.use("/admin/banner", bannerController);
+
 
 app.use(authMiddleware.setLoginStatus);
 app.use(authMiddleware.fetchUserFromToken);

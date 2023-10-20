@@ -6,10 +6,11 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const sgMail = require("@sendgrid/mail");
 const User = require("../../models/User");
 const Order = require("../../models/Order");
-const noCache = require('../../middlewares/noCache');
-const redirectIfLoggedIn = require('../../middlewares/user/redirectIfLoggedIn');
-const generateOTP = require("../../utils/generateOTP")
-
+const Banner = require("../../models/Banner");
+const Product = require("../../models/Product");
+const noCache = require("../../middlewares/noCache");
+const redirectIfLoggedIn = require("../../middlewares/user/redirectIfLoggedIn");
+const generateOTP = require("../../utils/generateOTP");
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -99,7 +100,7 @@ router.get("/account", async (req, res) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     const userId = decoded.userId;
     const user = await User.findOne({ _id: userId });
-    console.log("user name :",user.name)
+    console.log("user name :", user.name);
 
     if (!user) {
       return res.status(404).send("User not found");
@@ -119,9 +120,7 @@ router.get("/account", async (req, res) => {
         0
       );
       return {
-        id:
-          "#" +
-          order.shortId,
+        id: "#" + order.shortId,
         date: order.createdAt.toDateString(),
         status: order.status,
         total: `₹${totalAmount.toFixed(2)}`,
@@ -142,7 +141,10 @@ router.get("/account", async (req, res) => {
       error: req.query.error,
     };
 
-    res.render("user/user-account", {...userData, categories: req.categories});
+    res.render("user/user-account", {
+      ...userData,
+      categories: req.categories,
+    });
   } catch (error) {
     console.error(error);
     req.flash("error", "Internal server error");
@@ -191,8 +193,56 @@ router.get("/logout", (req, res) => {
   res.redirect("/login");
 });
 
-router.get("/home", (req, res) => {
-  res.render("user/home", {categories: req.categories});
+router.get("/home", async (req, res) => {
+  try {
+    const firstBanner = await Banner.findOne({ name: "Main Image" });
+    const secondBanner = await Banner.findOne({ name: "Secondary Image" });
+    const thirdBanner = await Banner.findOne({ name: "Promotional Image" });
+
+    const randomProducts = await Product.aggregate([
+      {
+        $match: {
+          isDeleted: false,
+          brand: { $exists: true, $ne: null },
+          category: { $exists: true, $ne: null },
+        },
+      },
+      { $sample: { size: 8 } },
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "category",
+        },
+      },
+      { $unwind: "$category" },
+    ]);
+
+    const filter = {
+      isDeleted: false,
+      brand: { $exists: true, $ne: null },
+      category: { $exists: true, $ne: null },
+    };
+
+    const latestProducts = await Product.find(filter)
+      .sort({ createdAt: -1 })
+      .limit(8)
+      .populate("category");
+
+    res.render("user/home", {
+      categories: req.categories,
+      firstBanner,
+      secondBanner,
+      thirdBanner,
+      randomProducts,
+      latestProducts,
+    });
+  } catch (error) {
+    console.log(error);
+    req.flash("error", "Internal server error");
+    res.redirect("back");
+  }
 });
 
 router.post("/login", async (req, res) => {
@@ -524,8 +574,6 @@ router.post("/update-address/:addressId", async (req, res) => {
   res.redirect("/account");
 });
 
-
-
 router.post("/remove-address/:addressId", async (req, res) => {
   try {
     const addressId = req.params.addressId;
@@ -598,6 +646,5 @@ router.post("/set-default-address", async (req, res) => {
     res.redirect("/account");
   }
 });
-
 
 module.exports = router;

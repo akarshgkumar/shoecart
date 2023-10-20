@@ -5,7 +5,7 @@ const Product = require("../../models/Product");
 router.get("/view-full-products", async (req, res) => {
   const options = {
     page: parseInt(req.query.page) || 1,
-    limit: 10,
+    limit: 9,
     populate: ["category", "brand"],
     customLabels: {
       docs: "products",

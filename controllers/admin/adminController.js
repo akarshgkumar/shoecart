@@ -10,23 +10,9 @@ const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const Admin = require("../../models/Admin");
 const JWT_SECRET = process.env.JWT_SECRET;
-const cloudinary = require("cloudinary").v2;
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-const multer = require("multer");
 const { customAlphabet } = require("nanoid");
 const nanoid = customAlphabet("1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ", 6);
-
-cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.CLOUD_API_KEY,
-  api_secret: process.env.CLOUD_API_SECRET,
-});
-
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  folder: "shoecart",
-});
-const parser = multer({ storage: storage });
+const parser = require('../../config/cloudinaryConfig');
 
 function authenticateAdmin(req, res, next) {
   const token = req.cookies.adminJwt;
@@ -90,7 +76,7 @@ router.get("/logout", (req, res) => {
 router.get("/view-products", async (req, res) => {
   const options = {
     page: parseInt(req.query.page) || 1,
-    limit: 10,
+    limit: 8,
     populate: ["category", "brand"],
     customLabels: {
       docs: "products",

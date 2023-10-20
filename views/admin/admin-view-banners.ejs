@@ -1,0 +1,39 @@
+<%- include('partials/header') %>
+  <%- include('partials/aside-nav') %>
+    <main class="main-wrap">
+      <%- include('partials/admin-header') %>
+        <section class="content-main">
+          <div class="content-header">
+            <div>
+              <h2 class="content-title card-title">All Banners</h2>
+              <p>Edit And Update Banners Here (3 Banners Max).</p>
+            </div>
+          </div>
+          <div class="row">
+            <% banners.forEach(banner=> { %>
+              <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="card card-banner-grid position-relative">
+                  <a href="#" class="img-wrap">
+                    <img src="<%= banner.imageUrl %>" alt="banner" onerror="this.onerror=null; this.src='/static/images/admin-banner-fallback.png';">
+                  </a>
+                  <div class="info-wrap mb-20 mt-10">
+                    <div class="dropdown float-end">
+                      <a href="/admin/banner/edit-banner/<%= banner._id %>" class="btn btn-sm btn-brand rounded mr-20">
+                        <i class="material-icons md-edit mr-5"></i>Edit
+                      </a>
+                    </div>
+                    <a href="/admin/banner/edit-banner/<%= banner._id %>" class="title capitalize ml-10"
+                      style="color: #000; font-size: 15px;">
+                      <%= banner.name %>
+                    </a>
+                  </div>
+                </div>
+              </div>
+              <% }) %>
+          </div>
+
+        </section>
+    </main>
+    </body>
+
+    </html>

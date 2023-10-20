@@ -38,7 +38,7 @@
           </header>
           <div class="row">
             <% products.filter(product=> !product.isDeleted).forEach(product => { %>
-              <div class="col-xl-3 col-lg-4 col-md-6">
+              <div class="col-xl-3 col-lg-4 col-md-6 mb-10">
                 <div class="card card-product-grid position-relative">
                   <a href="/admin/add-stock/<%= product._id %>"><button id="add-stock-btn"
                       class="btn btn-sm btn-primary position-absolute top-0 end-0 m-2">Add Stock</button></a>
@@ -56,7 +56,7 @@
                       </a>
                     </div>
                     <a href="/admin/edit-product/<%= product._id %>" class="title capitalize">
-                      <%= product.name %>
+                      <%= product.name.slice(0, 20) %>...
                     </a>
                     <div class="price mt-1">₹<%= product.price %>
                     </div>
@@ -72,19 +72,17 @@
                             </span>
                           </div>
                           <% } %>
-                            <% if (product.stock) { %>
                               <div class="brand mt-1 mb-2">Stock: <span class="text-brand capitalize">
                                   <%= product.stock %>
                                 </span>
                               </div>
-                              <% } %>
                   </div>
                 </div>
               </div>
               <% }) %>
           </div>
           <!--pagination-->
-          <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
+          <div class="pagination-area mb-sm-5 mb-lg-0">
             <nav aria-label="Page navigation example">
               <ul class="pagination justify-content-start">
                 <% for (let i=1; i <=pages; i++) { %>
