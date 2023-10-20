@@ -230,6 +230,11 @@ router.get("/home", async (req, res) => {
       .limit(8)
       .populate("category");
 
+      const mostSoldProducts = await Product.find(filter)
+      .sort({ totalSoldItems: -1 })
+      .limit(8)
+      .populate("category");
+
     res.render("user/home", {
       categories: req.categories,
       firstBanner,
@@ -237,6 +242,7 @@ router.get("/home", async (req, res) => {
       thirdBanner,
       randomProducts,
       latestProducts,
+      mostSoldProducts
     });
   } catch (error) {
     console.log(error);

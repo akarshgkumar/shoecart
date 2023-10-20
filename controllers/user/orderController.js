@@ -101,6 +101,7 @@ router.post("/cancel-order", async (req, res) => {
       const product = await Product.findById(orderedProduct.product);
       console.log(product);
       product.stock += orderedProduct.quantity;
+      product.totalSoldItems -= orderedProduct.quantity;
       await product.save();
     }
     req.flash("success", "Order cancelled successfully");
@@ -355,6 +356,7 @@ router.post("/place-order", async (req, res) => {
     for (let cartProduct of cart.products) {
       const product = await Product.findById(cartProduct.productId);
       product.stock -= cartProduct.quantity;
+      product.totalSoldItems += cartProduct.quantity;
       await product.save();
     }
     console.log("after saving product");
@@ -488,6 +490,7 @@ router.post("/validate-order", async (req, res) => {
     for (let cartProduct of cart.products) {
       const product = await Product.findById(cartProduct.productId);
       product.stock -= cartProduct.quantity;
+      product.totalSoldItems += cartProduct.quantity;
       await product.save();
     }
 
@@ -554,6 +557,14 @@ router.post("/return-reason", async (req, res) => {
           product.stock += orderedProduct.quantity;
           await product.save();
         }
+      }
+    }
+
+    for (let orderedProduct of order.products) {
+      const product = await Product.findById(orderedProduct.product);
+      if (product) {
+        product.totalSoldItems -= orderedProduct.quantity;
+        await product.save();
       }
     }
 

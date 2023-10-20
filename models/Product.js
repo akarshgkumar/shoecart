@@ -27,6 +27,10 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    totalSoldItems: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

@@ -28,6 +28,13 @@ function authenticateAdmin(req, res, next) {
   });
 }
 
+function capitalizeWords(str) {
+  return str
+    .split(" ")
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
 router.get("/", async (req, res) => {
   const adminToken = req.cookies.adminJwt;
 
@@ -315,7 +322,7 @@ router.post("/edit-category/:categoryId", async (req, res) => {
     }
 
     const updatedcategoryData = {
-      name: req.body.category_name,
+      name: capitalizeWords(req.body.category_name),
     };
 
     await Category.findByIdAndUpdate(categoryId, updatedcategoryData);
@@ -332,7 +339,8 @@ router.post("/edit-brand/:brandId", async (req, res) => {
   if (!brand) {
     return res.status(404).send("Brand not found");
   }
-  brand.name = req.body.brand_name || brand.name;
+  const brandName = req.body.brand_name || brand.name;
+  brand.name = capitalizeWords(brandName);
   await brand.save();
   res.redirect("/admin/view-brands");
 });
@@ -392,7 +400,7 @@ router.get("/add-brands", (req, res) => {
 router.post("/add-category", async (req, res) => {
   try {
     const newCategory = new Category({
-      name: req.body.category_name,
+      name: capitalizeWords(req.body.category_name),
     });
     await newCategory.save();
     res.redirect("/admin/view-category");
@@ -408,7 +416,7 @@ router.post("/add-category", async (req, res) => {
 router.post("/add-brands", async (req, res) => {
   try {
     const newBrand = new Brand({
-      name: req.body.brand_name,
+      name: capitalizeWords(req.body.brand_name),
     });
     await newBrand.save();
     res.redirect("/admin/view-brands");
@@ -676,6 +684,7 @@ router.post("/edit-order/:id", async (req, res) => {
       for (let orderedProduct of order.products) {
         const product = await Product.findById(orderedProduct.product);
         product.stock += orderedProduct.quantity;
+        product.totalSoldItems -= orderedProduct.quantity;
         await product.save();
       }
     }

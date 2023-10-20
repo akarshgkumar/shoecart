@@ -481,7 +481,7 @@ $(function () {
         required: true,
         noSpaceStartEnd: true,
         noSpaceMinLength: 3,
-        maxlength: 10,
+        maxlength: 15,
       },
     },
     messages: {
@@ -537,7 +537,7 @@ $(function () {
         required: true,
         noSpaceStartEnd: true,
         noSpaceMinLength: 3,
-        maxlength: 10,
+        maxlength: 15,
       },
     },
     messages: {
