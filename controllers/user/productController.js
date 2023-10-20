@@ -58,7 +58,7 @@ router.get("/filter-products/category/:categoryId", async (req, res) => {
 
   const options = {
     page: parseInt(req.query.page) || 1,
-    limit: 10,
+    limit: 9,
     populate: ["category", "brand"],
     customLabels: {
       docs: "products",
@@ -73,6 +73,12 @@ router.get("/filter-products/category/:categoryId", async (req, res) => {
       brand: { $exists: true, $ne: null },
     };
     const result = await Product.paginate(filter, options);
+
+    if(!result.productCount){
+      req.flash("error", "No products on this category");
+      res.redirect("back");
+    }
+
     const categories = req.categories;
     const latestProducts = await Product.find(filter)
       .sort({ createdAt: -1 })

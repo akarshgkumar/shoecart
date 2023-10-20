@@ -92,8 +92,9 @@
                                                     <%= product.brand.name %>
                                                 </a>
                                             </div>
-                                            <h2><a href="shop-product-right.html" class="uppercase">
-                                                    <%= product.name %>
+                                            <h2><a href="/product/view-single-product/<%= product._id %>"
+                                                    class="uppercase">
+                                                    <%= product.name.slice(0,56) %>...
                                                 </a></h2>
                                             <div class="product-price">
                                                 <span>₹<%= product.price %> </span>
@@ -112,7 +113,7 @@
                                 <% }); %>
                         </div>
                         <!--pagination-->
-                        <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
+                        <div class="pagination-area mt-15 pb-20 mb-sm-5 mb-lg-0">
                             <nav aria-label="Page navigation example">
                                 <ul class="pagination justify-content-start">
                                     <% for (let i=1; i <=pages; i++) { %>
@@ -214,7 +215,7 @@
                                     </div>
                                     <div class="content pt-10">
                                         <h5><a href="/product/view-single-product/<%= product._id %>">
-                                                <%= product.name %>
+                                                <%= product.name.slice(0,56) %>...
                                             </a></h5>
                                         <p class="price mb-0 mt-5">₹<%= product.price %>
                                         </p>
