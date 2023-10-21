@@ -5016,7 +5016,7 @@ body.dark .dropdown-menu .dropdown-item.text-danger {
       -webkit-transform 0.2s ease-in-out;
   }
   .navbar-aside .aside-top .logo {
-    height: 40px;
+    height: 20px;
   }
   .navbar-aside.show {
     visibility: visible;

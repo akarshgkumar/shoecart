@@ -17,11 +17,51 @@ function updateTotalAndSubtotal() {
   $(".cart_total_amount strong span").text(`₹ ${total.toFixed(2)}`);
 }
 
+function removeFromCart(buttonElement) {
+  const productId = $(buttonElement).data("product-id");
+
+  $.ajax({
+    type: "POST",
+    url: "/cart/remove-from-cart",
+    contentType: "application/json",
+    data: JSON.stringify({ productId }),
+    success: function (data) {
+      if (data.success) {
+        $(buttonElement).closest("tr").remove();
+        $("#cart-count").text(data.cartItems);
+        updateTotalAndSubtotal();
+        showSuccess("Product removed from cart");
+      } else {
+        showAlert("Failed to remove product from cart!");
+      }
+    },
+    error: function (error) {
+      console.error("Error removing product to cart:", error);
+      showAlert("Unexpected error occurred");
+    },
+  });
+}
+
 $(function () {
   $("#proceedToCheckoutBtn").click(function (event) {
     event.preventDefault();
 
     const userId = $("#hiddenUserId").val();
+
+    let canProceedToCheckout = true;
+
+    $("select[name='product_size'] option:selected").each(function () {
+      const selectedValue = $(this).val();
+      console.log(selectedValue);
+      if (selectedValue === "") {
+          canProceedToCheckout = false;
+          return false;
+      }
+  });
+    if (!canProceedToCheckout) {
+      showAlert("Please select a valid size for all products.");
+      return;
+    }
     $.ajax({
       url: "/order/validate-cart",
       method: "POST",
@@ -39,10 +79,19 @@ $(function () {
         console.error("An error occurred:", err);
       },
     });
+    console.log(canProceedToCheckout)
   });
+
   $(".removeFromCartButton").on("click", function () {
-    removeFromCart(this);
+    $("#confirmRemoveModal").modal("show");
+    const removeFromCartBtn = this;
+
+    $("#confirmRemoveBtn").on("click", function () {
+      removeFromCart(removeFromCartBtn);
+      $("#confirmRemoveModal").modal("hide");
+    });
   });
+
   $(".cart-qty-up, .cart-qty-down").on("click", function () {
     let $qtyContainer = $(this).closest(".detail-qty");
     let $qtyVal = $qtyContainer.find(".qty-val");
@@ -106,31 +155,6 @@ function addToCart(btn, defaultSize) {
     },
     error: function (error) {
       console.error("Error adding product to cart:", error);
-      showAlert("Unexpected error occurred");
-    },
-  });
-}
-
-function removeFromCart(buttonElement) {
-  const productId = $(buttonElement).data("product-id");
-
-  $.ajax({
-    type: "POST",
-    url: "/cart/remove-from-cart",
-    contentType: "application/json",
-    data: JSON.stringify({ productId }),
-    success: function (data) {
-      if (data.success) {
-        $(buttonElement).closest("tr").remove();
-        $("#cart-count").text(data.cartItems);
-        updateTotalAndSubtotal();
-        showSuccess("Product removed from cart");
-      } else {
-        showAlert("Failed to remove product from cart!");
-      }
-    },
-    error: function (error) {
-      console.error("Error removing product to cart:", error);
       showAlert("Unexpected error occurred");
     },
   });

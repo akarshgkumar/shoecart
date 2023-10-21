@@ -39,17 +39,23 @@
                         </td>
                         <td class="price" data-title="Price"><span>₹ <%= product.price.toFixed(2) %></span></td>
                         <td class="text-center" data-title="Size">
-                          <select name="size" class="form-select product-size" data-product-id="<%= product._id %>">
-                            <option value="<%= product.selectedSize %>">
-                              <%= product.selectedSize %>
-                            </option>
-                            <% product.sizes.forEach(size=> {
-                              if(size !== product.selectedSize) { %>
-                              <option value="<%= size %>">
-                                <%= size %>
+                          <select name="product_size">
+                            <% if (product.sizes.includes(product.selectedSize)) { %>
+                              <option value="<%= product.selectedSize %>">
+                                <%= product.selectedSize %>
                               </option>
-                              <% } }) %>
+                            <% } else { %>
+                              <option value="" disabled selected>Select Size</option>
+                            <% } %>
+                            <% product.sizes.forEach(size => {
+                              if (size !== product.selectedSize) { %>
+                                <option value="<%= size %>">
+                                  <%= size %>
+                                </option>
+                              <% }
+                            }) %>
                           </select>
+                          
                         </td>
                         <td class="text-center" data-title="Stock">
                           <div class="detail-qty border radius m-auto" data-product-id="<%= product._id %>">
@@ -140,6 +146,24 @@
   </main>
   <%- include('partials/user-footer') %>
     <%- include('../partials/preloader') %>
+      <div class="modal fade" id="confirmRemoveModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Confirm Removal</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              Are you sure you want to remove this item from your cart?
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+              <button type="button" class="btn btn-primary" id="confirmRemoveBtn">Yes</button>
+            </div>
+          </div>
+        </div>
+      </div>
       <script defer src="/static/cart.js"></script>
       </body>
 

@@ -1,6 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Spartan:wght@300;400;500;600;700&display=swap");
-@import url(vendors/normalize.css);
 @import url(vendors/evara-font.css);
 @import url(vendors/uicons-regular-straight.css);
 /*import plugins*/
@@ -7538,14 +7537,13 @@ span.fi-rs-apps {
 
 .slider-nav-thumbnails div {
   display: flex;
-  width: 1000px;
+  width: inherit;
   justify-content: space-between;
 }
 
 @media (max-width: 1000px) {
   .slider-nav-thumbnails div {
-    display: inline-block;
-    width: 600px;
+    width: inherit;
   }
 }
 
@@ -10623,4 +10621,8 @@ input.form-control {
   -moz-appearance: checkbox !important;
   appearance: checkbox !important;
   margin-top: 5px;
+}
+
+.modal {
+  z-index: 100000;
 }

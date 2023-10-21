@@ -126,10 +126,11 @@
             </li>
             <li class="nav-item" role="presentation">
               <button class="nav-link" id="nav-tab-three" data-bs-toggle="tab" data-bs-target="#tab-three" type="button"
-                role="tab" aria-controls="tab-three" aria-selected="false">New added</button>
+                role="tab" aria-controls="tab-three" aria-selected="false">New Added</button>
             </li>
           </ul>
-          <a href="/product/view-full-products" class="view-more d-none d-md-flex">View More<i class="fi-rs-angle-double-small-right"></i></a>
+          <a href="/product/view-full-products" class="view-more d-none d-md-flex">View More<i
+              class="fi-rs-angle-double-small-right"></i></a>
         </div>
         <!--End nav-tabs-->
         <div class="tab-content wow fadeIn animated" id="myTabContent">
@@ -322,9 +323,10 @@
             <% categories.forEach(category=> { %>
               <div class="card-1">
                 <figure class=" img-hover-scale overflow-hidden">
-                  <a href="javascript:void(0)"><img src="/static/images/shop/category-thumb-1.jpg" alt=""></a>
+                  <a href="/product/filter-products/category/<%= category._id %>"><img
+                      src="/static/images/shop/category-thumb-1.jpg" alt=""></a>
                 </figure>
-                <h5><a href="javascript:void(0)">
+                <h5><a href="/product/filter-products/category/<%= category._id %>">
                     <%= category.name %>
                   </a></h5>
               </div>
@@ -344,7 +346,7 @@
                 <div class="product-img-action-wrap">
                   <div class="product-img product-img-zoom">
                     <a href="/product/view-full-products">
-                      <img class="default-img" src="<%= product.mainImage %>" alt="">
+                        <img class="default-img" src="<%= product.mainImage %>" alt="">
                       <img class="hover-img" src="<%= product.images[0] %>" alt="">
                     </a>
                   </div>

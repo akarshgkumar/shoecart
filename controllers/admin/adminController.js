@@ -12,7 +12,7 @@ const Admin = require("../../models/Admin");
 const JWT_SECRET = process.env.JWT_SECRET;
 const { customAlphabet } = require("nanoid");
 const nanoid = customAlphabet("1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ", 6);
-const parser = require('../../config/cloudinaryConfig');
+const parser = require("../../config/cloudinaryConfig");
 
 function authenticateAdmin(req, res, next) {
   const token = req.cookies.adminJwt;
@@ -31,7 +31,7 @@ function authenticateAdmin(req, res, next) {
 function capitalizeWords(str) {
   return str
     .split(" ")
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 }
 
@@ -154,7 +154,13 @@ router.post(
         return res.status(404).send("Product not found");
       }
 
-      const sizes = req.body.product_sizes || [];
+      console.log(req.body.product_sizes);
+      let sizes = req.body.product_sizes || [];
+      console.log("Sizes before :", sizes);
+      if (!Array.isArray(sizes)) {
+        sizes = [sizes];
+      }
+      console.log("Sizes after :", sizes);
       const numericSizes = sizes.map(Number);
       const updatedProductData = {
         name: req.body.product_name,
@@ -263,12 +269,19 @@ router.post(
       let imageUrls = req.files.image
         ? req.files.image.map((file) => file.path)
         : [];
-
+      console.log(req.body.product_sizes);
+      let sizes = req.body.product_sizes || [];
+      console.log("Sizes before :", sizes);
+      if (!Array.isArray(sizes)) {
+        sizes = [sizes];
+      }
+      console.log("Sizes after :", sizes);
+      const numericSizes = sizes.map(Number);
       const product = new Product({
         shortId: uniqueShortId,
         name: req.body.product_name,
         color: req.body.product_color,
-        size: req.body.product_size,
+        sizes: numericSizes,
         category: new mongoose.Types.ObjectId(req.body.product_category),
         brand: new mongoose.Types.ObjectId(req.body.product_brand),
         description: req.body.description,

@@ -19,7 +19,9 @@
                 <div class="col-md-6 col-sm-12 col-xs-12">
                   <div class="detail-gallery">
                     <figure class="border-radius-10 mb-2">
-                      <img src="<%= product.mainImage %>" alt="product image">
+                      <div id="zoom-img-container" style="width: 500px; height: 500px;">
+                        <img src="<%= product.mainImage %>" alt="product image">
+                      </div>
                     </figure>
                     <div class="slider-nav-thumbnails pl-15 pr-15">
                       <% product.images.forEach(image=> { %>
@@ -107,6 +109,8 @@
 
       <script defer src="/static/cart.js"></script>
       <script defer src="/static/wishlist.js"></script>
+      <script defer src="https://cdn.jsdelivr.net/npm/js-image-zoom@0.7.0/js-image-zoom.min.js"></script>
+      <script defer src="/static/js/user/zoom.js"></script>
       </body>
 
       </html>

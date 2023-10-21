@@ -68,6 +68,7 @@ router.post("/remove-from-cart", async (req, res) => {
 
     const cart = await Cart.findOne({ userId });
     if (!cart) {
+      console.log('no cart found');
       return res.json({ success: false, message: "No cart found" });
     }
 

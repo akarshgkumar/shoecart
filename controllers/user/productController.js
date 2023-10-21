@@ -76,7 +76,7 @@ router.get("/filter-products/category/:categoryId", async (req, res) => {
 
     if(!result.productCount){
       req.flash("error", "No products on this category");
-      res.redirect("back");
+      return res.redirect("back");
     }
 
     const categories = req.categories;
