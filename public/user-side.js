@@ -904,17 +904,17 @@ $(function () {
   /*----------------------------
       Category toggle function
   ------------------------------*/
-  var searchToggle = $(".categori-button-active");
-  searchToggle.on("click", function (e) {
-    e.preventDefault();
-    if ($(this).hasClass("open")) {
-      $(this).removeClass("open");
-      $(this).siblings(".categori-dropdown-active-large").removeClass("open");
-    } else {
-      $(this).addClass("open");
-      $(this).siblings(".categori-dropdown-active-large").addClass("open");
-    }
-  });
+  // var searchToggle = $(".categori-button-active");
+  // searchToggle.on("click", function (e) {
+  //   e.preventDefault();
+  //   if ($(this).hasClass("open")) {
+  //     $(this).removeClass("open");
+  //     $(this).siblings(".categori-dropdown-active-large").removeClass("open");
+  //   } else {
+  //     $(this).addClass("open");
+  //     $(this).siblings(".categori-dropdown-active-large").addClass("open");
+  //   }
+  // });
 
   /*---------------------
       Price range

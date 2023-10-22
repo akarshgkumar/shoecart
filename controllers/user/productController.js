@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Product = require("../../models/Product");
+const Brand = require("../../models/Brand");
 
 router.get("/view-full-products", async (req, res) => {
   const options = {
@@ -21,6 +22,7 @@ router.get("/view-full-products", async (req, res) => {
     };
     const result = await Product.paginate(filter, options);
     const categories = req.categories;
+    const brands = await Brand.find({isDeleted: false});
     const latestProducts = await Product.find(filter)
       .sort({ createdAt: -1 })
       .limit(3)
@@ -31,8 +33,9 @@ router.get("/view-full-products", async (req, res) => {
       productCount: result.productCount,
       current: result.page,
       pages: result.totalPages,
-      categories: categories,
-      latestProducts: latestProducts,
+      categories,
+      latestProducts,
+      brands,
     });
   } catch (err) {
     console.error("Error fetching products:", err);
@@ -70,7 +73,6 @@ router.get("/filter-products/category/:categoryId", async (req, res) => {
     const filter = {
       category: categoryId,
       isDeleted: false,
-      brand: { $exists: true, $ne: null },
     };
     const result = await Product.paginate(filter, options);
 
@@ -80,6 +82,7 @@ router.get("/filter-products/category/:categoryId", async (req, res) => {
     }
 
     const categories = req.categories;
+    const brands = await Brand.find({isDeleted: false});
     const latestProducts = await Product.find(filter)
       .sort({ createdAt: -1 })
       .limit(3)
@@ -91,11 +94,60 @@ router.get("/filter-products/category/:categoryId", async (req, res) => {
       productCount: result.productCount,
       current: result.page,
       pages: result.totalPages,
-      categories: categories,
-      latestProducts: latestProducts,
+      categories,
+      latestProducts,
+      brands,
     });
   } catch (err) {
     console.error("Error fetching products by category:", err);
+    req.flash("error", "Error fetching products");
+    res.redirect("/home");
+  }
+});
+
+router.get("/filter-products/brand/:brandId", async (req, res) => {
+  const brandId = req.params.brandId;
+
+  const options = {
+    page: parseInt(req.query.page) || 1,
+    limit: 9,
+    populate: ["category", "brand"],
+    customLabels: {
+      docs: "products",
+      totalDocs: "productCount",
+    },
+  };
+
+  try {
+    const filter = {
+      brand: brandId,
+      isDeleted: false,
+    };
+    const result = await Product.paginate(filter, options);
+
+    if(!result.productCount){
+      req.flash("error", "No products on this brand");
+      return res.redirect("back");
+    }
+
+    const categories = req.categories;
+    const brands = await Brand.find({isDeleted: false});
+    const latestProducts = await Product.find(filter)
+      .sort({ createdAt: -1 })
+      .limit(3)
+      .populate(["category", "brand"]);
+
+    res.render("user/user-view-full-products", {
+      products: result.products,
+      productCount: result.productCount,
+      current: result.page,
+      pages: result.totalPages,
+      categories,
+      latestProducts,
+      brands,
+    });
+  } catch (err) {
+    console.error("Error fetching products by brand:", err);
     req.flash("error", "Error fetching products");
     res.redirect("/home");
   }

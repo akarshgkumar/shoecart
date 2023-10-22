@@ -242,7 +242,7 @@ router.get("/home", async (req, res) => {
       thirdBanner,
       randomProducts,
       latestProducts,
-      mostSoldProducts
+      mostSoldProducts,
     });
   } catch (error) {
     console.log(error);
