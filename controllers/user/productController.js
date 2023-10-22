@@ -22,7 +22,7 @@ router.get("/view-full-products", async (req, res) => {
     };
     const result = await Product.paginate(filter, options);
     const categories = req.categories;
-    const brands = await Brand.find({isDeleted: false});
+    const brands = await Brand.find();
     const latestProducts = await Product.find(filter)
       .sort({ createdAt: -1 })
       .limit(3)
@@ -72,7 +72,6 @@ router.get("/filter-products/category/:categoryId", async (req, res) => {
   try {
     const filter = {
       category: categoryId,
-      isDeleted: false,
     };
     const result = await Product.paginate(filter, options);
 
@@ -82,7 +81,7 @@ router.get("/filter-products/category/:categoryId", async (req, res) => {
     }
 
     const categories = req.categories;
-    const brands = await Brand.find({isDeleted: false});
+    const brands = await Brand.find();
     const latestProducts = await Product.find(filter)
       .sort({ createdAt: -1 })
       .limit(3)
@@ -121,7 +120,6 @@ router.get("/filter-products/brand/:brandId", async (req, res) => {
   try {
     const filter = {
       brand: brandId,
-      isDeleted: false,
     };
     const result = await Product.paginate(filter, options);
 
@@ -131,7 +129,7 @@ router.get("/filter-products/brand/:brandId", async (req, res) => {
     }
 
     const categories = req.categories;
-    const brands = await Brand.find({isDeleted: false});
+    const brands = await Brand.find();
     const latestProducts = await Product.find(filter)
       .sort({ createdAt: -1 })
       .limit(3)

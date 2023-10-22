@@ -93,7 +93,6 @@ router.get("/view-products", async (req, res) => {
 
   try {
     const filter = {
-      isDeleted: false,
       brand: { $exists: true, $ne: null },
       category: { $exists: true, $ne: null },
     };
@@ -129,8 +128,8 @@ router.get("/view-single-order/:orderId", async (req, res) => {
 router.get("/edit-product/:productId", async (req, res) => {
   const productId = req.params.productId;
   const product = await Product.findOne({ _id: productId });
-  const category = await Category.find({ isDeleted: false });
-  const brands = await Brand.find({ isDeleted: false });
+  const category = await Category.find();
+  const brands = await Brand.find();
   if (product) {
     res.render("admin/admin-edit-product", { product, category, brands });
   } else {
@@ -207,8 +206,13 @@ router.post(
   }
 );
 
-router.get("/delete-product/:productId", async (req, res) => {
+router.get("/hide-product/:productId", async (req, res) => {
   await Product.findByIdAndUpdate(req.params.productId, { isDeleted: true });
+  res.redirect("/admin/view-products");
+});
+
+router.get("/show-product/:productId", async (req, res) => {
+  await Product.findByIdAndUpdate(req.params.productId, { isDeleted: false });
   res.redirect("/admin/view-products");
 });
 
@@ -216,14 +220,13 @@ router.get("/search-product", async (req, res) => {
   const searchTerm = req.query.q;
   const products = await Product.find({
     name: new RegExp(searchTerm, "i"),
-    isDeleted: false,
   });
   res.render("admin/admin-view-products", { products });
 });
 
 router.get("/add-product", async (req, res) => {
-  const category = await Category.find({ isDeleted: false });
-  const brands = await Brand.find({ isDeleted: false });
+  const category = await Category.find();
+  const brands = await Brand.find();
   res.render("admin/admin-add-product", { category, brands });
 });
 
@@ -412,10 +415,8 @@ router.get("/view-brands", async (req, res) => {
     limit: 10,
   };
 
-  const filter = { isDeleted: false };
-
   try {
-    const result = await Brand.paginate(filter, options);
+    const result = await Brand.paginate({}, options);
     res.render("admin/admin-view-brands", {
       brands: result.docs,
       brandCount: result.totalDocs,
@@ -434,10 +435,8 @@ router.get("/view-category", async (req, res) => {
     limit: 10,
   };
 
-  const filter = { isDeleted: false };
-
   try {
-    const result = await Category.paginate(filter, options);
+    const result = await Category.paginate({}, options);
     res.render("admin/admin-view-category", {
       category: result.docs,
       categoryCount: result.totalDocs,
@@ -553,18 +552,6 @@ router.post("/add-stock/:productId", async (req, res) => {
   } catch (err) {
     console.error("Error while updating stock:", err);
     res.status(500).send("Server error");
-  }
-});
-
-router.get("/delete-brand/:brandsId", async (req, res) => {
-  try {
-    const brandId = req.params.brandsId;
-    await Product.updateMany({ brand: brandId }, { $set: { brand: null } });
-    await Brand.findByIdAndUpdate(brandId, { $set: { isDeleted: true } });
-    res.redirect("/admin/view-brands");
-  } catch (err) {
-    console.error("Error while deleting brands:", err);
-    res.status(500).send("Error occurred while deleting the brands.");
   }
 });
 

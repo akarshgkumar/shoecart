@@ -2,7 +2,7 @@ const Category = require('../models/Category');
 
 const fetchCategories = async (req, res, next) => {
     try {
-        const categories = await Category.find({ isDeleted: false });
+        const categories = await Category.find();
         req.categories = categories;  
         next();
     } catch (error) {

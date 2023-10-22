@@ -94,6 +94,7 @@ router.post("/cancel-order", async (req, res) => {
     }
 
     order.status = "Cancelled";
+    order.cancelledDate = new Date();
     await order.save();
 
     for (let orderedProduct of order.products) {
@@ -531,26 +532,29 @@ router.post("/return-reason", async (req, res) => {
     console.log(userId);
     console.log("on return reason route");
     const sanitizedAdditionalInfo = validator.escape(additionalInfo);
-    const sanitizedReason = validator.escape(reason);
-    
+    console.log("after validator");
+    console.log("after reason");
     const validReasons = ["size", "damaged", "color"];
-    
-    if (!validReasons.includes(sanitizedReason)) {
+
+    if (!validReasons.includes(reason)) {
+      console.log("reason not provided");
       req.flash("error", "Please select a valid return reason");
-      return res.redirect(`/view-single-order/${orderId}`);
+      console.log('after req flash')
+      return res.redirect(`/order/view-single-order/${orderId}`);
     }
-    
+
     const order = await Order.findById(orderId);
     if (!order) {
-      return res.status(404).send({ error: "Order not found" });
+      req.flash("error", "Order cannot found !");
+      return res.redirect(`/order/view-single-order/${orderId}`);
     }
     await User.findByIdAndUpdate(userId, {
       $inc: { "wallet.balance": order.totalAfterDiscount },
     });
-    
+
     order.returnMsg = sanitizedAdditionalInfo;
 
-    if (sanitizedReason !== "damaged") {
+    if (reason !== "damaged") {
       for (let orderedProduct of order.products) {
         const product = await Product.findById(orderedProduct.product);
         if (product) {

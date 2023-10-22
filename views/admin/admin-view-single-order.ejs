@@ -18,21 +18,25 @@
             <p style="color: #E23D28; margin-left: 5px;">Order Returned At <%= new
                 Date(order.returnDate).toLocaleDateString() %>
             </p>
-            <% } else if (order.status !=="Delivered" ) { %>
-              <p>Estimated delivery:
-                <span style="color: #00563B; margin-left: 5px;">
-                  <%= order.deliveryDate.toLocaleString('en-US', { year: 'numeric' , month: 'long' , day: 'numeric' })
-                    %>
-                </span>
+            <% } else if(order.status==="Cancelled" ) { %>
+              <p style="color: #E23D28; margin-left: 5px;">Order Cancelled At <%= new
+                  Date(order.cancelledDate).toLocaleDateString() %>
               </p>
-              <% } else { %>
-                <p>Delivered date:
+              <% } else if (order.status !=="Delivered" ) { %>
+                <p>Estimated delivery:
                   <span style="color: #00563B; margin-left: 5px;">
                     <%= order.deliveryDate.toLocaleString('en-US', { year: 'numeric' , month: 'long' , day: 'numeric' })
                       %>
                   </span>
                 </p>
-                <% } %>
+                <% } else { %>
+                  <p>Delivered date:
+                    <span style="color: #00563B; margin-left: 5px;">
+                      <%= order.deliveryDate.toLocaleString('en-US', { year: 'numeric' , month: 'long' , day: 'numeric'
+                        }) %>
+                    </span>
+                  </p>
+                  <% } %>
         </div>
       </div>
 

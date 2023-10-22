@@ -367,6 +367,22 @@
       </main>
       <%- include('partials/user-footer') %>
         <%- include('../partials/preloader') %>
+          <script>
+            document.addEventListener('DOMContentLoaded', function () {
+              if (window.location.hash) {
+                activateTab(window.location.hash);
+              }
+
+              window.addEventListener('hashchange', function () {
+                activateTab(window.location.hash);
+              });
+            });
+
+            function activateTab(tabId) {
+              var tab = new bootstrap.Tab(document.querySelector(tabId + '-tab'));
+              tab.show();
+            }
+          </script>
 
           </body>
 

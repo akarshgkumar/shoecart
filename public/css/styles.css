@@ -1,5 +1,6 @@
 @import url(vendors/material-icon-round.css);
-@import url(vendors/normalize.css);
+@import url(vendors/evara-font.css);
+@import url(vendors/uicons-regular-straight.css);
 @import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Spartan:wght@300;400;500;600;700&display=swap");
 * {
@@ -28,8 +29,8 @@ html {
 }
 
 .alert-light-blue {
-  color: #1F305E;
-  background-color: #89CFF0;
+  color: #1f305e;
+  background-color: #89cff0;
   border-color: #fedcb9;
 }
 
@@ -41,13 +42,13 @@ html {
 
 .alert-info {
   color: #ffffff;
-  background-color: #1F305E;
+  background-color: #1f305e;
   border-color: #fedcb9;
 }
 
 .alert-success {
   color: #ffffff;
-  background-color: #8DB600;
+  background-color: #8db600;
   border-color: #fedcb9;
 }
 
@@ -5129,4 +5130,3 @@ body.dark .dropdown-menu .dropdown-item.text-danger {
     display: none;
   }
 }
-

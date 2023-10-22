@@ -8,10 +8,6 @@ const categorySchema = new mongoose.Schema(
         unique: true
       },
       imageUrl : String,
-      isDeleted: {
-        type: Boolean,
-        default: false,
-      },
     },
     {
       timestamps: true,
