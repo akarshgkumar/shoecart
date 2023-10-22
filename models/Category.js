@@ -7,6 +7,7 @@ const categorySchema = new mongoose.Schema(
         type: String,
         unique: true
       },
+      imageUrl : String,
       isDeleted: {
         type: Boolean,
         default: false,

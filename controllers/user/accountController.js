@@ -228,7 +228,7 @@ router.get("/home", async (req, res) => {
     const latestProducts = await Product.find(filter)
       .sort({ createdAt: -1 })
       .limit(8)
-      .populate("category");
+      .populate(["category","brand"]);
 
       const mostSoldProducts = await Product.find(filter)
       .sort({ totalSoldItems: -1 })

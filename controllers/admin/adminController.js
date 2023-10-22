@@ -321,7 +321,18 @@ router.get("/edit-category/:categoryId", async (req, res) => {
   if (category) {
     res.render("admin/admin-edit-category", { category });
   } else {
-    res.send("Invalid category");
+    req.flash("error", "Invalid category");
+    res.redirect("back");
+  }
+});
+
+router.get("/edit-category-image/:categoryId", async (req, res) => {
+  const category = await Category.findById(req.params.categoryId);
+  if (category) {
+    res.render("admin/admin-category-image-edit", { category });
+  } else {
+    req.flash("error", "Invalid category");
+    res.redirect("back");
   }
 });
 
@@ -346,6 +357,43 @@ router.post("/edit-category/:categoryId", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+router.post(
+  "/edit-category-image/:categoryId",
+  parser.single("category_img"),
+  async (req, res) => {
+    const categoryId = req.params.categoryId;
+
+    try {
+      const category = await Category.findById(categoryId);
+
+      if (!category) {
+        return res.status(404).send("Category not found");
+      }
+
+      let imageUrl = category.imageUrl;
+      console.log("before :", imageUrl);
+      console.log(req.file);
+
+      if (req.file) {
+        imageUrl = req.file.path;
+      }
+      console.log("after :", imageUrl);
+
+      const updatedCategoryData = {
+        imageUrl: imageUrl,
+      };
+      console.log("after updating :", imageUrl);
+
+      await Category.findByIdAndUpdate(categoryId, updatedCategoryData);
+
+      res.redirect("/admin/view-category");
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Internal Server Error");
+    }
+  }
+);
 
 router.post("/edit-brand/:brandId", async (req, res) => {
   const brand = await Brand.findById(req.params.brandId);
@@ -410,21 +458,35 @@ router.get("/add-brands", (req, res) => {
   res.render("admin/admin-add-brands");
 });
 
-router.post("/add-category", async (req, res) => {
-  try {
-    const newCategory = new Category({
-      name: capitalizeWords(req.body.category_name),
-    });
-    await newCategory.save();
-    res.redirect("/admin/view-category");
-  } catch (err) {
-    if (err.code === 11000) {
-      return res.status(400).send("Category name already exists");
+router.post(
+  "/add-category",
+  parser.single("category_img"),
+  async (req, res) => {
+    try {
+      const name = req.body.category_name;
+
+      let imageUrl = "";
+      console.log("before :", imageUrl);
+      console.log(req.file);
+      if (req.file) {
+        imageUrl = req.file.path;
+      }
+      console.log("after :", imageUrl);
+
+      const newCategory = new Category({ name, imageUrl });
+      console.log("after updating :", imageUrl);
+
+      await newCategory.save();
+
+      req.flash("success", "Category added successfully");
+      res.redirect("/admin/view-category");
+    } catch (err) {
+      console.error(err);
+      req.flash("error", "Internal server error");
+      res.redirect("/admin/add-category");
     }
-    console.error("Error while adding category:", err);
-    res.end("error", err);
   }
-});
+);
 
 router.post("/add-brands", async (req, res) => {
   try {
@@ -468,21 +530,6 @@ router.get("/check-brand/:name", async (req, res) => {
     }
   } catch (error) {
     return res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-router.get("/delete-category/:categoryId", async (req, res) => {
-  try {
-    const categoryId = req.params.categoryId;
-    await Product.updateMany(
-      { category: categoryId },
-      { $set: { category: null } }
-    );
-    await Category.findByIdAndUpdate(categoryId, { $set: { isDeleted: true } });
-    res.redirect("/admin/view-category");
-  } catch (err) {
-    console.error("Error while deleting category:", err);
-    res.status(500).send("Error occurred while deleting the category.");
   }
 });
 

@@ -3,7 +3,7 @@
     <main class="main-wrap">
       <%- include('partials/admin-header') %>
         <section class="content-main">
-          <form class="category-form" action="/admin/add-category" method="POST">
+          <form class="category-form" action="/admin/add-category" method="POST" enctype="multipart/form-data">
             <div class="row">
               <div class="col-9">
                 <div class="content-header">
@@ -18,14 +18,19 @@
                   <div class="card-body">
                     <div class="mb-4">
                       <label for="category_name" class="form-label">Category Name : </label>
-                      <input type="text" placeholder="Type here" class="form-control" id="category_name" name="category_name">
+                      <input type="text" placeholder="Type here" class="form-control" id="category_name"
+                        name="category_name">
                       <span class="error-span"></span>
+                    </div>
+                    <div class="mb-4">
+                      <label for="category_img" class="form-label">Category Image : </label>
+                      <input class="form-control" type="file" name="category_img">
                     </div>
                   </div>
                 </div>
-              </div>
           </form>
         </section>
     </main>
     </body>
-  </html>
+
+    </html>
