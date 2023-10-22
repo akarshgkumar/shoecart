@@ -29,6 +29,7 @@ function removeFromCart(buttonElement) {
       if (data.success) {
         $(buttonElement).closest("tr").remove();
         $("#cart-count").text(data.cartItems);
+        $("#cart-count-mobile").text(data.cartItems);
         updateTotalAndSubtotal();
         showSuccess("Product removed from cart");
       } else {
@@ -119,6 +120,7 @@ $(function () {
           showAlert("Failed to update product quantity!");
         } else {
           $("#cart-count").text(data.cartItems);
+          $("#cart-count-mobile").text(data.cartItems);
           updateTotalAndSubtotal();
         }
       },
@@ -147,6 +149,7 @@ function addToCart(btn, defaultSize) {
     success: function (data) {
       if (data.success) {
         $("#cart-count").text(data.cartItems);
+        $("#cart-count-mobile").text(data.cartItems);
         updateTotalAndSubtotal();
         showSuccess("Product added to cart");
       } else {

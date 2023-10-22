@@ -10,6 +10,7 @@ function addToWishlist(buttonElement) {
       if (data.success) {
         showSuccess('Product added to wishlist');
         $("#wishlist-count").text(data.wishlistItems);
+        $("#wishlist-count-mobile").text(data.wishlistItems);
       } else if (data.alreadyExists) {
         showAlert('Item already exists in wishlist!');
       } else {
@@ -62,6 +63,7 @@ function removeFromWishlist(buttonElement) {
         showSuccess('Product removed from wishlist');
         $(buttonElement).closest("tr").remove();
         $("#wishlist-count").text(data.wishlistItems);
+        $("#wishlist-count-mobile").text(data.wishlistItems);
       } else {
         showAlert('Failed to remove product from wishlist!');
       }
@@ -80,6 +82,7 @@ function clearWishlist() {
       if (data.success) {
         showSuccess('Wishlist cleared');
         $("#wishlist-count").text('0');
+        $("#wishlist-count-mobile").text('0');
       } else {
         showAlert('Failed to clear wishlist!');
       }
