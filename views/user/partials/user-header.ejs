@@ -55,7 +55,7 @@
             <div class="header-right">
               <div class="search-style-2">
                 <form action="/product/search-products" method="get">
-                  <select class="select-active" onchange="navigateToCategory(this)">
+                  <select class="select-active" onchange="navigateWithDropDown(this)">
                     <option value="/product/view-full-products" <%=typeof selectedCategoryId !='undefined' &&
                       !selectedCategoryId ? 'selected' : '' %>>
                       All Categories

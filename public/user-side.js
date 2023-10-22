@@ -126,7 +126,7 @@ function showSuccess(message) {
   }, 2000);
 }
 
-function navigateToCategory(selectElement) {
+function navigateWithDropDown(selectElement) {
   const selectedURL = selectElement.value;
   if (selectedURL) {
     window.location.href = selectedURL;

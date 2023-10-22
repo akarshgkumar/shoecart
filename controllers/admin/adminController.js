@@ -209,13 +209,58 @@ router.post(
 );
 
 router.get("/hide-product/:productId", async (req, res) => {
-  await Product.findByIdAndUpdate(req.params.productId, { isDeleted: true });
-  res.redirect("/admin/view-products");
+  try {
+    const product = await Product.findById(req.params.productId);
+
+    if (!product) {
+      req.flash("error", "Product not found.");
+      return res.redirect("/admin/view-products");
+    }
+
+    await Product.findByIdAndUpdate(req.params.productId, { isDeleted: true });
+    await Category.updateOne({ _id: product.category }, { $inc: { productCount: -1 } });
+    await Brand.updateOne({ _id: product.brand }, { $inc: { productCount: -1 } });
+
+    const referrer = req.header("Referer");
+    if (referrer) {
+      return res.redirect("back");
+    } else {
+      return res.redirect("/admin/view-products");
+    }
+
+  } catch (err) {
+    console.error("Error:", err);
+    req.flash("error", "Internal Server Error");
+    return res.redirect("/admin/view-products");
+  }
 });
 
+
 router.get("/show-product/:productId", async (req, res) => {
-  await Product.findByIdAndUpdate(req.params.productId, { isDeleted: false });
-  res.redirect("/admin/view-products");
+ try {
+    const product = await Product.findById(req.params.productId);
+
+    if (!product) {
+      req.flash("error", "Product not found.");
+      return res.redirect("/admin/view-products");
+    }
+
+    await Product.findByIdAndUpdate(req.params.productId, { isDeleted: false });
+    await Category.updateOne({ _id: product.category }, { $inc: { productCount: 1 } });
+    await Brand.updateOne({ _id: product.brand }, { $inc: { productCount: 1 } });
+
+    const referrer = req.header("Referer");
+    if (referrer) {
+      return res.redirect("back");
+    } else {
+      return res.redirect("/admin/view-products");
+    }
+    
+  } catch (err) {
+    console.error("Error:", err);
+    req.flash("error", "Internal Server Error");
+    return res.redirect("/admin/view-products");
+  }
 });
 
 router.get("/search-product", async (req, res) => {
@@ -282,13 +327,15 @@ router.post(
       }
       console.log("Sizes after :", sizes);
       const numericSizes = sizes.map(Number);
+      const categoryId = req.body.product_category;
+      const brandId = req.body.product_brand;
       const product = new Product({
         shortId: uniqueShortId,
         name: req.body.product_name,
         color: req.body.product_color,
         sizes: numericSizes,
-        category: new mongoose.Types.ObjectId(req.body.product_category),
-        brand: new mongoose.Types.ObjectId(req.body.product_brand),
+        category: new mongoose.Types.ObjectId(categoryId),
+        brand: new mongoose.Types.ObjectId(brandId),
         description: req.body.description,
         stock: req.body.stock,
         price: req.body.price,
@@ -298,7 +345,11 @@ router.post(
             : undefined,
         images: imageUrls,
       });
-
+      await Category.updateOne(
+        { _id: categoryId },
+        { $inc: { productCount: 1 } }
+      );
+      await Brand.updateOne({ _id: brandId }, { $inc: { productCount: 1 } });
       const result = await product.save();
       console.log("result :", result);
       req.flash("success", "Product added successfully");
@@ -854,8 +905,8 @@ router.get("/filter-products/status/:status", async (req, res) => {
     },
   };
   const status = req.params.status;
-  const isDeletedStatus = (status === "true");
-  console.log(isDeletedStatus)
+  const isDeletedStatus = status === "true";
+  console.log(isDeletedStatus);
   try {
     const filter = {
       brand: { $exists: true, $ne: null },

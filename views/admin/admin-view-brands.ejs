@@ -24,7 +24,7 @@
               </div>
             </header>
             <div class="card-body">
-              <% brands.forEach(brand => { %>
+              <% brands.forEach(brand=> { %>
                 <article class="itemlist">
                   <div class="row align-items-center">
                     <div class="col col-check flex-grow-0">
@@ -38,7 +38,12 @@
                         </div>
                       </a>
                     </div>
-                    <div class="col-lg-2 col-sm-2 col-4 col-price"> <span>37 items</span> </div>
+                    <div class="col-lg-2 col-sm-2 col-4 col-price">
+                      <span style="word-spacing: 2px;">
+                        <%= brand.productCount %>
+                          <%= (brand.productCount===1) ? 'Item' : 'Items' %>
+                      </span>
+                    </div>
                     <div class="col-lg-2 col-sm-2 col-4 col-status">
                     </div>
                     <div class="col-lg-1 col-sm-2 col-4 col-date">
@@ -69,8 +74,7 @@
                     </a></li>
                   <% } %>
                     <% if(current < pages) { %>
-                      <li class="page-item"><a class="page-link"
-                          href="/admin/view-brands?page=<%= current + 1 %>"><i
+                      <li class="page-item"><a class="page-link" href="/admin/view-brands?page=<%= current + 1 %>"><i
                             class="fi-rs-angle-double-small-right"></i></a></li>
                       <% } %>
               </ul>
@@ -78,5 +82,6 @@
           </div>
         </section>
     </main>
-  </body>
-  </html>
+    </body>
+
+    </html>

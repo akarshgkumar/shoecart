@@ -7,6 +7,10 @@ const brandSchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
+    productCount: {
+      type: Number,
+      default: 0
+    }
   },
   {
     timestamps: true,

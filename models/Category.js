@@ -8,6 +8,10 @@ const categorySchema = new mongoose.Schema(
         unique: true
       },
       imageUrl : String,
+      productCount: {
+        type: Number,
+        default: 0
+      }
     },
     {
       timestamps: true,
