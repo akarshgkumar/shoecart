@@ -97,8 +97,10 @@ router.get("/view-products", async (req, res) => {
       category: { $exists: true, $ne: null },
     };
     const result = await Product.paginate(filter, options);
+    const categories = req.categories;
 
     res.render("admin/admin-view-products", {
+      categories,
       products: result.products,
       productCount: result.productCount,
       current: result.page,
@@ -107,7 +109,7 @@ router.get("/view-products", async (req, res) => {
   } catch (err) {
     console.error("Error fetching products:", err);
     req.flash("error", "Error fetching products");
-    res.redirect("/admin-home");
+    res.redirect("back");
   }
 });
 
@@ -425,7 +427,7 @@ router.get("/view-brands", async (req, res) => {
     });
   } catch (err) {
     console.error("Error fetching brands:", err);
-    res.redirect("/admin-home");
+    res.redirect("back");
   }
 });
 
@@ -445,7 +447,7 @@ router.get("/view-category", async (req, res) => {
     });
   } catch (err) {
     console.error("Error fetching categories:", err);
-    res.redirect("/admin-home");
+    res.redirect("back");
   }
 });
 
@@ -602,7 +604,7 @@ router.get("/view-users", async (req, res) => {
     });
   } catch (err) {
     console.error("Error fetching users:", err);
-    res.redirect("/admin-home");
+    res.redirect("back");
   }
 });
 
@@ -797,6 +799,84 @@ router.get("/search-order-email", async (req, res) => {
     console.error("Search error:", error);
     req.flash("error", "Unexpected Error");
     return res.redirect("/admin/view-orders");
+  }
+});
+
+router.get("/filter-products/category/:categoryId", async (req, res) => {
+  const categoryId = req.params.categoryId;
+
+  const options = {
+    page: parseInt(req.query.page) || 1,
+    limit: 9,
+    populate: ["category", "brand"],
+    customLabels: {
+      docs: "products",
+      totalDocs: "productCount",
+    },
+  };
+
+  try {
+    const filter = {
+      category: categoryId,
+    };
+    const result = await Product.paginate(filter, options);
+
+    if (!result.productCount) {
+      req.flash("error", "No products on this category");
+      return res.redirect("back");
+    }
+
+    const categories = req.categories;
+
+    res.render("admin/admin-view-products", {
+      selectedCategoryId: categoryId,
+      products: result.products,
+      productCount: result.productCount,
+      current: result.page,
+      pages: result.totalPages,
+      categories,
+    });
+  } catch (err) {
+    console.error("Error fetching products by category:", err);
+    req.flash("error", "Error fetching products");
+    res.redirect("back");
+  }
+});
+
+router.get("/filter-products/status/:status", async (req, res) => {
+  const options = {
+    page: parseInt(req.query.page) || 1,
+    limit: 8,
+    populate: ["category", "brand"],
+    customLabels: {
+      docs: "products",
+      totalDocs: "productCount",
+    },
+  };
+  const status = req.params.status;
+  const isDeletedStatus = (status === "true");
+  console.log(isDeletedStatus)
+  try {
+    const filter = {
+      brand: { $exists: true, $ne: null },
+      category: { $exists: true, $ne: null },
+      isDeleted: isDeletedStatus,
+    };
+    const result = await Product.paginate(filter, options);
+    const categories = req.categories;
+
+    res.render("admin/admin-view-products", {
+      categories,
+      products: result.products,
+      productCount: result.productCount,
+      current: result.page,
+      pages: result.totalPages,
+      selectedProductFilter: status,
+    });
+  } catch (err) {
+    console.error("Error fetching products:", err);
+    req.flash("error", "Error fetching products");
+    res.redirect("back");
   }
 });
 

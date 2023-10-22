@@ -530,17 +530,12 @@ router.post("/return-reason", async (req, res) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     const userId = decoded.userId;
     console.log(userId);
-    console.log("on return reason route");
     const sanitizedAdditionalInfo = validator.escape(additionalInfo);
-    console.log("after validator");
-    console.log("after reason");
     const validReasons = ["size", "damaged", "color"];
 
     if (!validReasons.includes(reason)) {
-      console.log("reason not provided");
       req.flash("error", "Please select a valid return reason");
-      console.log('after req flash')
-      return res.redirect(`/order/view-single-order/${orderId}`);
+      return res.redirect(`/order/return-reason/${orderId}`);
     }
 
     const order = await Order.findById(orderId);
@@ -553,6 +548,7 @@ router.post("/return-reason", async (req, res) => {
     });
 
     order.returnMsg = sanitizedAdditionalInfo;
+    console.log(sanitizedAdditionalInfo)
 
     if (reason !== "damaged") {
       for (let orderedProduct of order.products) {

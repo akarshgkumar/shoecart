@@ -41,10 +41,17 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+mongoose
+.connect(config.database.uri, config.database.options)
+.then(() => console.log("MongoDB Connected"))
+.catch((err) => console.error("MongoDB connection error:", err));
+
 
 app.use("/static", express.static(path.join(__dirname, "public")));
 
 app.set("view engine", "ejs");
+
+app.use(fetchCategoryMiddleware);
 
 app.use("/admin", adminController);
 
@@ -57,13 +64,6 @@ app.use(authMiddleware.setLoginStatus);
 app.use(authMiddleware.fetchUserFromToken);
 app.use(cartAndWishlistMiddleware.fetchCartForUser);
 app.use(cartAndWishlistMiddleware.fetchWishlistForUser);
-app.use(fetchCategoryMiddleware);
-
-mongoose
-.connect(config.database.uri, config.database.options)
-.then(() => console.log("MongoDB Connected"))
-.catch((err) => console.error("MongoDB connection error:", err));
-
 
 app.use("/", accountController);
 

@@ -72,6 +72,7 @@ router.get("/filter-products/category/:categoryId", async (req, res) => {
   try {
     const filter = {
       category: categoryId,
+      isDeleted: false,
     };
     const result = await Product.paginate(filter, options);
 
@@ -119,6 +120,7 @@ router.get("/filter-products/brand/:brandId", async (req, res) => {
 
   try {
     const filter = {
+      isDeleted: false,
       brand: brandId,
     };
     const result = await Product.paginate(filter, options);

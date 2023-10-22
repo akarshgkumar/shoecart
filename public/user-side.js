@@ -232,15 +232,15 @@ $(function () {
       additionalInfo: {
         required: true,
         minlength: 5,
-        maxlength: 100,
+        maxlength: 200,
       },
     },
     messages: {
       reason: "Please select a reason for return.",
       additionalInfo: {
         required: "Please provide additional message.",
-        minlength: "Enter at least 5 characters.",
-        maxlength: "Enter no more than 100 characters.",
+        minlength: "Enter at least {0} characters.",
+        maxlength: "Enter no more than {0} characters.",
       },
     },
     submitHandler: function (form) {

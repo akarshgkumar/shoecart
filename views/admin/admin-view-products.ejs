@@ -20,18 +20,38 @@
                 </form>
               </div>
               <div class="col-lg-2 col-6 col-md-3">
-                <select class="form-select">
-                  <option>All category</option>
-                  <option>Electronics</option>
-                  <option>Clothings</option>
-                  <option>Something else</option>
+                <select class="form-select" onchange="navigateWithDropDown(this)">
+                  <option value="/admin/view-products" <%=typeof selectedCategoryId !='undefined' &&
+                    !selectedCategoryId ? 'selected' : '' %>>
+                    All Categories
+                  </option>
+
+                  <% categories.forEach(category=> { %>
+                    <option class="category-list-dropdown"
+                      value="/admin/filter-products/category/<%= category._id %>" <%=typeof selectedCategoryId
+                      !=='undefined' && selectedCategoryId==category._id ? 'selected' : '' %>>
+                      <%= category.name %>
+                    </option>
+                    <% }); %>
                 </select>
               </div>
               <div class="col-lg-2 col-6 col-md-3">
-                <select class="form-select">
-                  <option>Latest added</option>
-                  <option>Cheap first</option>
-                  <option>Most viewed</option>
+                <select class="form-select" onchange="navigateWithDropDown(this)">
+                  <option value="/admin/view-products" <%=typeof selectedProductFilter !='undefined' &&
+                    !selectedProductFilter ? 'selected' : '' %>>
+                    All Products
+                  </option>
+
+                    <option class="category-list-dropdown"
+                      value="/admin/filter-products/status/false" <%=typeof selectedProductFilter
+                      !=='undefined' && selectedProductFilter=='false' ? 'selected' : '' %>>
+                     Live Products
+                    </option>
+                    <option class="category-list-dropdown"
+                      value="/admin/filter-products/status/true" <%=typeof selectedProductFilter
+                      !=='undefined' && selectedProductFilter=='true' ? 'selected' : '' %>>
+                     Deleted Products
+                    </option>
                 </select>
               </div>
             </div>

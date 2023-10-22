@@ -112,6 +112,7 @@ const orderSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Decimal128,
       default: 0,
     },
+    returnMsg: String,
   },
   {
     timestamps: true,
