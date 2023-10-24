@@ -194,3 +194,5 @@ router.get("/search-order-email", async (req, res) => {
     res.redirect("/admin/view-orders");
   }
 });
+
+module.exports = router;

@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const Product = require("../../models/Product");
+const Category = require("../../models/Category");
+const Brand = require("../../models/Brand");
 const parser = require("../../config/cloudinaryConfig");
 const { customAlphabet } = require("nanoid");
 const nanoid = customAlphabet("1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ", 6);
@@ -419,3 +421,5 @@ router.get("/filter-products/status/:status", async (req, res) => {
     res.redirect("back");
   }
 });
+
+module.exports = router;

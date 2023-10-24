@@ -75,11 +75,12 @@ userRouter.use("/cart", cartController);
 userRouter.use("/wishlist", wishlistController);
 userRouter.use("/product", productController);
 
+adminRouter.use("/", adminAccountController);
+
 // Admin-specific middleware
 adminRouter.use(authenticateAdmin);
 
 // Admin routes
-adminRouter.use("/", adminAccountController);
 adminRouter.use("/", adminProductController);
 adminRouter.use("/", adminCategoryController);
 adminRouter.use("/", adminBrandController);

@@ -190,3 +190,5 @@ router.get("/search-category", async (req, res) => {
     res.redirect("/admin/view-category");
   }
 });
+
+module.exports = router;

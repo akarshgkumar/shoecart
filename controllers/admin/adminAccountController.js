@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const Admin = require("../../models/Admin");
 const JWT_SECRET = process.env.JWT_SECRET;
+const authenticateAdmin = require("../../middlewares/admin/authenticateAdmin");
 
 router.get("/", async (req, res) => {
   const adminToken = req.cookies.adminJwt;
@@ -38,6 +39,8 @@ router.post("/", async (req, res) => {
     });
   }
 });
+
+router.use(authenticateAdmin);
 
 router.get("/dashboard", (req, res) => {
   res.render("admin/admin-dashboard");

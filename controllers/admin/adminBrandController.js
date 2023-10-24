@@ -112,3 +112,5 @@ router.get("/search-brands", async (req, res) => {
     res.redirect("back");
   }
 });
+
+module.exports = router;

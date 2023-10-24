@@ -109,3 +109,5 @@ router.get("/block-user/:userId", async (req, res) => {
     res.status(500).send("Server Error");
   }
 });
+
+module.exports = router;
