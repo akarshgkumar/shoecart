@@ -8,10 +8,8 @@ router.get("/view-coupons", async (req, res) => {
     limit: 10,
   };
 
-  const filter = { isDeleted: false };
-
   try {
-    const result = await Coupon.paginate(filter, options);
+    const result = await Coupon.paginate({}, options);
     res.render("admin/admin-view-coupons", {
       coupons: result.docs,
       couponCount: result.totalDocs,
@@ -84,7 +82,19 @@ router.get("/check-coupon/:code", async (req, res) => {
   }
 });
 
-router.get("/delete-coupon/:couponId", async (req, res) => {
+router.get("/show-coupon/:couponId", async (req, res) => {
+  try {
+    const couponId = req.params.couponId;
+    await Coupon.findByIdAndUpdate(couponId, { $set: { isDeleted: false } });
+    res.redirect("back");
+  } catch (err) {
+    console.error("Error while deleting coupons:", err);
+    req.flash("error", "Unexpected error occurred, try again later!");
+    res.redirect("back");
+  }
+});
+
+router.get("/hide-coupon/:couponId", async (req, res) => {
   try {
     const couponId = req.params.couponId;
     await Coupon.findByIdAndUpdate(couponId, { $set: { isDeleted: true } });
@@ -99,17 +109,27 @@ router.get("/delete-coupon/:couponId", async (req, res) => {
 router.get("/search-coupon", async (req, res) => {
   try {
     const query = req.query.q;
-    const coupons = await Coupon.find({
+    const options = {
+      page: parseInt(req.query.page) || 1,
+      limit: 10,
+    };
+    const filter = {
       code: new RegExp(query, "i"),
-      isDeleted: false,
-    });
+    };
 
-    if (coupons.length > 0) {
-      return res.render("admin/admin-view-coupons", { coupons });
-    } else {
-      req.flash("error", "No coupon found with that code");
+    const result = await Coupon.paginate(filter, options);
+
+    if (result.docs.length === 0) {
+      req.flash("error", "No coupons found for the given code.");
       return res.redirect("/admin/coupon/view-coupons");
     }
+
+    res.render("admin/admin-view-coupons", {
+      coupons: result.docs,
+      couponCount: result.totalDocs,
+      current: result.page,
+      pages: result.totalPages,
+    });
   } catch (err) {
     console.error("An error occurred:", err);
     res.status(500).send("Internal Server Error");

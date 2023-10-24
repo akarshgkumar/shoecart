@@ -2,7 +2,7 @@ const Category = require('../models/Category');
 
 const fetchCategories = async (req, res, next) => {
     try {
-        const categories = await Category.find();
+        const categories = await Category.find().sort({productCount: -1});
         req.categories = categories;  
         next();
     } catch (error) {

@@ -173,7 +173,7 @@ router.get("/search-products", async (req, res) => {
       category: { $exists: true, $ne: null },
     };
     const result = await Product.paginate(filter, options);
-
+    const brands = await Brand.find();
     if (result.productCount === 0) {
       req.flash("error", "No products found for the provided search term.");
       return res.redirect("back");
@@ -192,6 +192,7 @@ router.get("/search-products", async (req, res) => {
       pages: result.totalPages,
       categories: categories,
       latestProducts: latestProducts,
+      brands: brands,
     });
   } catch (err) {
     console.error("Error searching products:", err);

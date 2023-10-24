@@ -24,7 +24,7 @@
               </div>
             </header>
             <div class="card-body">
-              <% coupons.filter(coupon=> !coupon.isDeleted).forEach(coupon => { %>
+              <% coupons.forEach(coupon => { %>
                 <article class="itemlist">
                   <div class="row align-items-center">
                     <div class="col col-check flex-grow-0">
@@ -53,10 +53,15 @@
                         class="btn btn-sm font-sm rounded btn-brand">
                         <i class="material-icons md-edit"></i> Edit
                       </a>
-                      <a href="/admin/coupon/delete-coupon/<%= coupon._id %>"
-                        class="btn btn-sm font-sm btn-light rounded">
-                        <i class="material-icons md-delete_forever"></i> Delete
-                      </a>
+                      <% if (coupon.isDeleted) { %>
+                        <a style="background-color: #EF9B0F;" href="/admin/coupon/show-coupon/<%= coupon._id %>" class="btn btn-sm btn-brand rounded">
+                          <i class="material-icons md-visibility mr-5"></i>Show
+                        </a>
+                        <% } else { %>
+                          <a style="background-color: #960018" href="/admin/coupon/hide-coupon/<%= coupon._id %>" class="btn btn-sm btn-brand rounded">
+                            <i class="material-icons md-visibility_off mr-5"></i>Hide
+                          </a>
+                          <% } %>
                     </div>
                   </div>
                 </article>

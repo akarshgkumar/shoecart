@@ -3,7 +3,8 @@
     <main class="main-wrap">
       <%- include('partials/admin-header') %>
         <section class="content-main">
-          <form  class="banner-form" action="/admin/banner/edit-banner/<%= bannerId %>" method="POST" enctype="multipart/form-data">
+          <form class="banner-form" action="/admin/banner/edit-banner/<%= banner._id %>" method="POST"
+            enctype="multipart/form-data">
             <div class="row">
               <div class="col-9">
                 <div class="content-header">
@@ -17,9 +18,32 @@
                 <div class="card mb-4">
                   <div class="card-body">
                     <div class="mb-4">
+                      <label for="sub_heading" class="form-label">Sub Heading : </label>
+                      <input type="text" placeholder="Type here" class="form-control" id="sub_heading"
+                        value="<%= banner.subHeading %>" name="sub_heading">
+                      <span class="error-span"></span>
+                    </div>
+                    <div class="mb-4">
+                      <label for="main_heading" class="form-label">Main Heading : </label>
+                      <input type="text" placeholder="Type here" class="form-control" id="main_heading"
+                        value="<%= banner.mainHeading %>" name="main_heading">
+                      <span class="error-span"></span>
+                    </div>
+                    <div class="mb-4">
+                      <label for="highlighted_heading" class="form-label">Highlighted Heading : </label>
+                      <input type="text" placeholder="Type here" class="form-control" id="highlighted_heading"
+                        value="<%= banner.highlightedHeading %>" name="highlighted_heading">
+                      <span class="error-span"></span>
+                    </div>
+                    <div class="mb-4">
+                      <label for="small_description" class="form-label">Small Description : </label>
+                      <input type="text" placeholder="Type here" class="form-control" id="small_description"
+                        value="<%= banner.description %>" name="small_description">
+                      <span class="error-span"></span>
+                    </div>
+                    <div class="mb-4">
                       <label for="banner_img" class="form-label">Banner Image : </label>
                       <input class="form-control" type="file" name="banner_img">
-                      <span class="error-span"></span>
                     </div>
                   </div>
                 </div>
@@ -28,4 +52,5 @@
         </section>
     </main>
     </body>
-  </html>
+
+    </html>

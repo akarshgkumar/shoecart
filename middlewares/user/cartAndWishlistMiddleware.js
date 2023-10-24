@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
-const Cart = require("../models/Cart");
-const Wishlist = require("../models/Wishlist");
+const Cart = require("../../models/Cart");
+const Wishlist = require("../../models/Wishlist");
 
 
 async function fetchCartForUser(req, res, next) {

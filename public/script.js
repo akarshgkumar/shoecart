@@ -140,6 +140,33 @@ $(function () {
     errorMessage = undefined;
   }
 
+  $(".banner-form").validate({
+    onkeyup: function (element) {
+      $(element).valid();
+    },
+    rules: {
+      sub_heading: {
+        noSpaceMinLength: 4,
+        maxlength: 20,
+      },
+      main_heading: {
+        noSpaceMinLength: 6,
+        maxlength: 18,
+      },
+      highlighted_heading: {
+        noSpaceMinLength: 6,
+        maxlength: 15,
+      },
+      small_description: {
+        noSpaceMinLength: 4,
+        maxlength: 40,
+      },
+    },
+    errorPlacement: function (error, element) {
+      element.next(".error-span").html(error.text());
+    },
+  });
+
   $(".coupon-form").validate({
     rules: {
       coupon_code: {
@@ -176,7 +203,9 @@ $(function () {
       $.get(`/admin/coupon/check-coupon/${couponCode}`)
         .done(function (response) {
           if (response.exists) {
-            $("#coupon_code").next(".error-span").text("Coupon code already exists");
+            $("#coupon_code")
+              .next(".error-span")
+              .text("Coupon code already exists");
             couponCodeInput.focus();
           } else {
             $("#coupon_code").next(".error-span").text("");
@@ -624,7 +653,9 @@ $(function () {
       $.get(`/admin/coupon/check-coupon/${couponCode}`)
         .done(function (response) {
           if (response.exists) {
-            $("#coupon_code").next(".error-span").text("Coupon name already exists");
+            $("#coupon_code")
+              .next(".error-span")
+              .text("Coupon name already exists");
           } else {
             $("#coupon_code").next(".error-span").text("");
           }

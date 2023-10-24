@@ -6,8 +6,8 @@ const bannerSchema = new mongoose.Schema(
     name: String,
     subHeading: String,
     mainHeading: String,
-    HighlightedHeading: String,
-    smallDescription: String,
+    highlightedHeading: String,
+    description: String,
   },
   {
     timestamps: true,

@@ -404,6 +404,12 @@ label.error {
   color: #c51e3a !important;
 }
 
+.available-balance {
+  font-size: 14px;
+  margin-left: 5px;
+  font-weight: 400;
+}
+
 #anchor-button {
   border: none !important;
   outline: none !important;
@@ -7550,7 +7556,7 @@ span.fi-rs-apps {
 #removeCoupon {
   float: right;
   margin-right: 20px;
-  color: #B31B1B;
+  color: #b31b1b;
   text-decoration: underline;
   cursor: pointer;
 }

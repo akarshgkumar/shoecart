@@ -155,7 +155,8 @@
                                     class="font-xl text-brand fw-900">₹<%= totalPrice.toFixed(2) %></span></td>
                               </tr>
                               <input type="hidden" name="totalAmount" value="<%= totalPrice.toFixed(2) %>">
-                              <input type="hidden" name="totalAfterDiscount" value="<%= totalPrice.toFixed(2) %>">
+                              <input type="hidden" id="totalAfterDiscount" name="totalAfterDiscount"
+                                value="<%= totalPrice.toFixed(2) %>">
                       </tbody>
                     </table>
                   </div>
@@ -168,19 +169,17 @@
                       <div class="custome-radio">
                         <input class="form-check-input" type="radio" name="payment_option" id="razorpay_radio_btn"
                           value="Razor Pay" required>
-                        <label class="form-check-label" for="razorpay_radio_btn" data-bs-toggle="collapse"
-                          data-target="#razorpay" aria-controls="razorpay">Pay Now</label>
+                        <label class="form-check-label" for="razorpay_radio_btn">Pay Now</label>
                       </div>
                       <div class="custome-radio">
                         <input class="form-check-input" type="radio" name="payment_option" id="cod_radio_btn"
                           value="Cash On Delivery" required>
-                        <label class="form-check-label" for="cod_radio_btn" data-bs-toggle="collapse" data-target="#cod"
-                          aria-controls="cod">Cash On Delivery</label>
+                        <label class="form-check-label" for="cod_radio_btn">Cash On Delivery</label>
                       </div>
                       <hr>
                       <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="walletPayment" id="walletPayment">
-                        <input type="hidden" name="walletBalance" value="<%= walletBalance %>">
+                        <input type="hidden" id="walletBalanceInput" name="walletBalance" value="<%= walletBalance %>">
                         <label class="form-check-label" for="walletPayment"><span
                             style="color: black; margin-right: 5px;">Use Wallet</span> (Wallet Balance : ₹<%=
                             walletBalance %>)</label>

@@ -214,6 +214,11 @@ router.post("/place-order", async (req, res) => {
   } = req.body;
 
   let { payment_option } = req.body;
+  console.log(payment_option)
+  if(!payment_option) {
+    req.flash("error", "Please select a payment method");
+    return res.redirect("/order/checkout");
+  }
 
   if (
     !name ||
@@ -590,9 +595,9 @@ router.get("/success/:orderId", (req, res) => {
 router.post("/apply-coupon", async (req, res) => {
   const { couponCode } = req.body;
 
-  const coupon = await Coupon.findOne({ code: couponCode });
+  const coupon = await Coupon.findOne({ code: couponCode, isDeleted: false });
   if (!coupon) {
-    return res.json({ error: "Invalid coupon code." });
+    return res.json({ error: "Invalid or expired coupon code." });
   }
 
   return res.json({ discountPercentage: coupon.discountPercentage });

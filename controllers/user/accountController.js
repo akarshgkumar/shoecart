@@ -8,7 +8,7 @@ const User = require("../../models/User");
 const Order = require("../../models/Order");
 const Banner = require("../../models/Banner");
 const Product = require("../../models/Product");
-const noCache = require("../../middlewares/noCache");
+const noCache = require("../../middlewares/user/noCache");
 const redirectIfLoggedIn = require("../../middlewares/user/redirectIfLoggedIn");
 const generateOTP = require("../../utils/generateOTP");
 

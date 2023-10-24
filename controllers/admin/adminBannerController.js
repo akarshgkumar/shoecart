@@ -9,7 +9,8 @@ router.get("/view-banners", async (req, res) => {
 });
 
 router.get("/edit-banner/:bannerId", async (req, res) => {
-  res.render("admin/admin-edit-banner", { bannerId: req.params.bannerId });
+  const banner = await Banner.findOne({_id: req.params.bannerId})
+  res.render("admin/admin-edit-banner", { banner });
 });
 
 router.post(

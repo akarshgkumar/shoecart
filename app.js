@@ -7,16 +7,22 @@ const config = require("./config/default");
 const flash = require("connect-flash");
 const session = require("express-session");
 const accountController = require("./controllers/user/accountController");
-const adminController = require("./controllers/admin/adminController");
-const couponController = require("./controllers/admin/couponController");
-const bannerController = require("./controllers/admin/bannerController");
 const productController = require("./controllers/user/productController");
 const orderController = require("./controllers/user/orderController");
 const cartController = require("./controllers/user/cartController");
 const wishlistController = require("./controllers/user/wishlistController");
-const authMiddleware = require("./middlewares/authMiddleware");
-const cartAndWishlistMiddleware = require("./middlewares/cartAndWishlistMiddleware");
+const authMiddleware = require("./middlewares/user/authMiddleware");
+const cartAndWishlistMiddleware = require("./middlewares/user/cartAndWishlistMiddleware");
+const adminAccountController = require("./controllers/admin/adminAccountController");
+const adminProductController = require("./controllers/admin/adminProductController");
+const adminBrandController = require("./controllers/admin/adminBrandController");
+const adminCategoryController = require("./controllers/admin/adminCategoryController");
+const adminOrderController = require("./controllers/admin/adminOrderController");
+const adminUserController = require("./controllers/admin/adminUserController");
+const adminBannerController = require("./controllers/admin/adminBannerController");
+const adminCouponController = require("./controllers/admin/adminCouponController");
 const fetchCategoryMiddleware = require("./middlewares/fetchCategory");
+const authenticateAdmin = require("./middlewares/admin/authenticateAdmin");
 
 const app = express();
 
@@ -36,16 +42,16 @@ app.use((req, res, next) => {
   res.locals.error_messages = req.flash("error");
   next();
 });
+
 app.use(cookieParser());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 mongoose
-.connect(config.database.uri, config.database.options)
-.then(() => console.log("MongoDB Connected"))
-.catch((err) => console.error("MongoDB connection error:", err));
-
+  .connect(config.database.uri, config.database.options)
+  .then(() => console.log("MongoDB Connected"))
+  .catch((err) => console.error("MongoDB connection error:", err));
 
 app.use("/static", express.static(path.join(__dirname, "public")));
 
@@ -53,27 +59,37 @@ app.set("view engine", "ejs");
 
 app.use(fetchCategoryMiddleware);
 
-app.use("/admin", adminController);
+const userRouter = express.Router();
+const adminRouter = express.Router();
 
-app.use("/admin/coupon", couponController);
+// User-specific middleware
+userRouter.use(authMiddleware.setLoginStatus);
+userRouter.use(authMiddleware.fetchUserFromToken);
+userRouter.use(cartAndWishlistMiddleware.fetchCartForUser);
+userRouter.use(cartAndWishlistMiddleware.fetchWishlistForUser);
 
-app.use("/admin/banner", bannerController);
+// User routes
+userRouter.use("/", accountController);
+userRouter.use("/order", orderController);
+userRouter.use("/cart", cartController);
+userRouter.use("/wishlist", wishlistController);
+userRouter.use("/product", productController);
 
+// Admin-specific middleware
+adminRouter.use(authenticateAdmin);
 
-app.use(authMiddleware.setLoginStatus);
-app.use(authMiddleware.fetchUserFromToken);
-app.use(cartAndWishlistMiddleware.fetchCartForUser);
-app.use(cartAndWishlistMiddleware.fetchWishlistForUser);
+// Admin routes
+adminRouter.use("/", adminAccountController);
+adminRouter.use("/", adminProductController);
+adminRouter.use("/", adminCategoryController);
+adminRouter.use("/", adminBrandController);
+adminRouter.use("/", adminOrderController);
+adminRouter.use("/", adminUserController);
+adminRouter.use("/coupon", adminCouponController);
+adminRouter.use("/banner", adminBannerController);
 
-app.use("/", accountController);
-
-app.use("/order", orderController);
-
-app.use("/cart", cartController);
-
-app.use("/wishlist", wishlistController);
-
-app.use("/product", productController);
+app.use("/", userRouter);
+app.use("/admin", adminRouter);
 
 app.use((req, res, next) => {
   res.status(404).render("404");
