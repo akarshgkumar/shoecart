@@ -57,6 +57,26 @@ function updateTotalAfterDiscount() {
   }
 }
 
+function walletBalanceCheck() {
+  const walletBalance = parseFloat(
+    document.getElementById("walletBalanceInput").value
+  );
+  const totalDiscountAmount = parseFloat(
+    document.getElementById("totalAfterDiscount").value
+  );
+
+  const walletPaymentDiv = document.querySelector("#wallet-balance-radio");
+  const useWalletDiv = document.querySelector("#wallet-balance-checkbox");
+
+  if (walletBalance > totalDiscountAmount) {
+    walletPaymentDiv.style.display = "block";
+    useWalletDiv.style.display = "none";
+  } else {
+    walletPaymentDiv.style.display = "none";
+    useWalletDiv.style.display = "block";
+  }
+}
+
 function showAlert(message) {
   const alertDiv = document.createElement("div");
   alertDiv.className = "alert";
@@ -151,6 +171,10 @@ $(function () {
     console.log(defaultAddress);
   }
 
+  if($('#walletBalanceInput').length > 0) {
+    walletBalanceCheck();
+  }
+
   let originalTotalValue = $('input[name="totalAmount"]').val();
   let originalTotal = parseFloat(originalTotalValue) || 0;
   console.log(originalTotal);
@@ -176,6 +200,7 @@ $(function () {
                 '<span id="removeCoupon">Remove</span>'
             );
             updateTotalAfterDiscount();
+            walletBalanceCheck();
             $("#finalTotal").text("₹" + (originalTotal - discount).toFixed(2));
           }
         }
@@ -189,6 +214,7 @@ $(function () {
       if ($("#couponRow").length) {
         $("#couponRow").hide();
         updateTotalAfterDiscount();
+        walletBalanceCheck();
       }
       discount = 0;
       if ($("#finalTotal").length) {

@@ -32,6 +32,10 @@ function removeFromCart(buttonElement) {
         $("#cart-count-mobile").text(data.cartItems);
         updateTotalAndSubtotal();
         showSuccess("Product removed from cart");
+        if (data.cartItems === 0) {
+          $(".product-exists-div").hide();
+          $("#no-products-div").show();
+        }
       } else {
         showAlert("Failed to remove product from cart!");
       }

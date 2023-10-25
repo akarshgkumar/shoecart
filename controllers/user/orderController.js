@@ -166,13 +166,16 @@ router.post("/validate-cart", async (req, res) => {
     }
 
     let isValid = true;
-
+    let notEnoughProductName;
+    let notEnoughProductStock;
     for (let i = 0; i < validProducts.length; i++) {
       const productInCart = validProducts[i];
       const actualProduct = await Product.findById(productInCart.productId);
 
       if (actualProduct.stock < productInCart.quantity) {
         isValid = false;
+        notEnoughProductName = actualProduct.name;
+        notEnoughProductStock = actualProduct.stock;
         break;
       }
     }
@@ -182,7 +185,10 @@ router.post("/validate-cart", async (req, res) => {
     } else {
       res.json({
         status: "failure",
-        message: "Product quantity exceeds stock",
+        message: `${notEnoughProductName.slice(
+          0,
+          25
+        )}.. has only ${notEnoughProductStock} stocks left`,
       });
     }
   } catch (error) {
@@ -214,8 +220,8 @@ router.post("/place-order", async (req, res) => {
   } = req.body;
 
   let { payment_option } = req.body;
-  console.log(payment_option)
-  if(!payment_option) {
+  console.log("payment option :", payment_option);
+  if (!payment_option) {
     req.flash("error", "Please select a payment method");
     return res.redirect("/order/checkout");
   }
@@ -299,6 +305,9 @@ router.post("/place-order", async (req, res) => {
           order_id: razorOrder.id,
           amount: totalAfterDiscount * 100,
         });
+      } else if (payment_option === "Wallet Payment") {
+        paidAmountOnWallet = parseFloat(totalAfterDiscount);
+        walletBalance = walletBalance - paidAmountOnWallet;
       }
     }
     console.log("before creating short id");
@@ -553,7 +562,7 @@ router.post("/return-reason", async (req, res) => {
     });
 
     order.returnMsg = sanitizedAdditionalInfo;
-    console.log(sanitizedAdditionalInfo)
+    console.log(sanitizedAdditionalInfo);
 
     if (reason !== "damaged") {
       for (let orderedProduct of order.products) {

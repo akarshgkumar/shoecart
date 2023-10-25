@@ -37,6 +37,7 @@ function addToCartOnWishlist(btn, defaultSize) {
     },
     success: function (data) {
       if (data.success) {
+        $(btn).closest("tr").remove();
         $("#cart-count").text(data.cartItems);
         showSuccess("Product added to cart");
       } else {
@@ -52,7 +53,6 @@ function addToCartOnWishlist(btn, defaultSize) {
 
 function removeFromWishlist(buttonElement) {
   const productId = $(buttonElement).data('product-id');
-
   $.ajax({
     type: 'POST',
     url: '/wishlist/remove-from-wishlist',
@@ -64,6 +64,11 @@ function removeFromWishlist(buttonElement) {
         $(buttonElement).closest("tr").remove();
         $("#wishlist-count").text(data.wishlistItems);
         $("#wishlist-count-mobile").text(data.wishlistItems);
+        if (data.wishlistItems === 0) {
+          console.log('here')
+          $(".product-exists-div").hide();
+          $("#no-products-div").show();
+        }
       } else {
         showAlert('Failed to remove product from wishlist!');
       }
