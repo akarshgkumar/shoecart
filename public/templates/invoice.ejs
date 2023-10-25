@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice</title>
+  <style>
+    * {
+
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th,
+    td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    .flex-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  </style>
+</head>
+
+<body style="margin: 60px ; padding: 50px; border: 1px solid rgb(36, 36, 36); border-radius: 5px;">
+  <div class="flex-container">
+    <img src="https://res.cloudinary.com/dsztscm9p/image/upload/v1698242242/shoecart-logo_wezps9.png" width="140"
+      alt="Company Logo">
+    <p><span style="font-weight: bold;">Invoice Date:</span> <% let invoiceDate=new Date(); let
+        formattedInvoiceDate=invoiceDate.toDateString().split(' ').splice(0, 4).join(' '); %>
+          <%= formattedInvoiceDate %></p>
+  </div>
+
+  <h2 style="text-align: center;">Invoice</h2>
+
+  <div>
+    <h3>Order Information</h3>
+    <p style="margin-top: 0px;">Order ID: #<%= order.shortId %>
+    </p>
+    <p>Order Status: <%= order.status %>
+    </p>
+    <p>Order Date:
+      <% let orderDate=new Date(order.createdAt); let
+        formattedOrderDate=orderDate.toDateString().split(' ').splice(0, 4).join(' '); %>
+      <%= formattedOrderDate %></p>
+  </div>
+
+  <div>
+    <h3>Customer Information</h3>
+    <p>Customer Name: <%= order.address.name %>
+    </p>
+    <p>Contact: <%= order.address.phoneNo %>
+    </p>
+    <p>Email: <%= order.address.email %>
+    </p>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Product Name</th>
+        <th>Quantity</th>
+        <th>Size</th>
+        <th>Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (order && order.products && order.products) { %>
+        <% let products=order.products; %>
+          <% products.forEach((product) => { %>
+            <tr>
+              <td>
+                <%= product.name %>
+              </td>
+              <td>
+                <%= product.quantity %>
+              </td>
+              <td>
+                <%= product.size %>
+              </td>
+              <td>
+                <%= product.price %>
+              </td>
+            </tr>
+            <% }); %>
+              <% } %>
+    </tbody>
+  </table>
+
+
+
+  <div>
+    <h3>Shipping Information</h3>
+    <p>Shipping Address: <%= order.address.address %>, <%= order.address.city %>, <%= order.address.state %>, <%=
+              order.address.postalCode %>
+    </p>
+    <% if(order.address.companyName) { %>
+      <p>Company Name: <%= order.address.companyName %>
+      </p>
+      <% } %>
+    <% if(order.address.addressLine1) { %>
+      <p>Address Line 1: <%= order.address.addressLine1 %>
+      </p>
+      <% } %>
+  </div>
+  <div>
+    <h3>Payment Information</h3>
+    <p>Order Total Price: ₹<%= Number(order.totalAfterDiscount.toString()).toFixed(2) %>
+    </p>
+    <p>Used Wallet Amount: ₹<%= Number(order.walletPaidAmount.toString()).toFixed(2) %>
+    </p>
+    <p>Payment Method: ₹<%= order.paymentMethod %>
+    </p>
+    <p><b>Paid Amount: ₹<%= Number(order.totalAmountPaid.toString()).toFixed(2) %>
+    </b></p>
+  </div>
+
+  <p style="text-align: center; line-height: 1.5;">Thank you for choosing ShoeCart!<br> Have a great day</p>
+</body>
+
+</html>

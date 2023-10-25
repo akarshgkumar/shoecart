@@ -1,5 +1,9 @@
 const express = require("express");
 const router = express.Router();
+const path = require("path");
+const fs = require("fs");
+const ejs = require("ejs");
+const puppeteer = require('puppeteer');
 const Razorpay = require("razorpay");
 const Cart = require("../../models/Cart");
 const Product = require("../../models/Product");
@@ -610,6 +614,56 @@ router.post("/apply-coupon", async (req, res) => {
   }
 
   return res.json({ discountPercentage: coupon.discountPercentage });
+});
+
+router.get("/invoices/download", async (req, res) => {
+  try {
+    const id = req.query.orderId;
+    const order = await Order.findById(id).populate("products.product");
+    const templatePath = path.resolve(
+      __dirname,
+      "../../public/templates/invoice.ejs"
+    );
+
+    const template = fs.readFileSync(templatePath, 'utf8');
+    const ejsData = ejs.render(template, { order });
+
+    const browser = await puppeteer.launch({ headless: "new" });
+    const page = await browser.newPage();
+    await page.setContent(ejsData);
+    
+    const invoiceDirectory = path.resolve(__dirname, "../../invoice/");
+    if (!fs.existsSync(invoiceDirectory)) {
+      fs.mkdirSync(invoiceDirectory);
+    }
+    const pdfFilePath = path.resolve(invoiceDirectory, `${order.shortId}.pdf`);
+
+    await page.pdf({
+      path: pdfFilePath,
+      format: 'A3',
+      margin: {
+        top: '10mm',
+        right: '10mm',
+        bottom: '10mm',
+        left: '10mm'
+      }
+    });
+
+    await browser.close();
+
+    res.download(pdfFilePath, `invoice_${order.shortId}.pdf`, (downloadError) => {
+      if (downloadError) {
+        console.error(downloadError);
+        return res.status(500).send(`Download failed: ${downloadError.message}`);
+      }
+
+      fs.unlinkSync(pdfFilePath);
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(`Server Error: ${error.message}`);
+  }
 });
 
 module.exports = router;
