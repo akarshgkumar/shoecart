@@ -3,12 +3,13 @@ const router = express.Router();
 const path = require("path");
 const fs = require("fs");
 const ejs = require("ejs");
-const puppeteer = require('puppeteer');
+const puppeteer = require("puppeteer");
 const Razorpay = require("razorpay");
 const Cart = require("../../models/Cart");
 const Product = require("../../models/Product");
 const User = require("../../models/User");
 const Order = require("../../models/Order");
+const WalletTransaction = require("../../models/WalletTransaction");
 const Coupon = require("../../models/Coupon");
 const crypto = require("crypto");
 const { customAlphabet } = require("nanoid");
@@ -88,9 +89,17 @@ router.post("/cancel-order", async (req, res) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     const userId = decoded.userId;
     console.log(userId);
-    await User.findByIdAndUpdate(userId, {
-      $inc: { "wallet.balance": order.totalAmountPaid },
-    });
+    if (order.totalAmountPaid > 0) {
+      await User.findByIdAndUpdate(userId, {
+        $inc: { "wallet.balance": order.totalAmountPaid },
+      });
+      const newWallet = new WalletTransaction({
+        userId: userId,
+        orderId: orderId,
+        type: 'addition'
+      });
+      await newWallet.save();
+    }
 
     if (!order || order.status == "Cancelled") {
       req.flash("error", "Order not found or already cancelled");
@@ -370,6 +379,8 @@ router.post("/place-order", async (req, res) => {
       deliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     });
 
+    newOrder.totalItems = newOrder.products.reduce((acc, curr) => acc + curr.quantity, 0);
+
     await newOrder.save();
     console.log("after saving order");
     for (let cartProduct of cart.products) {
@@ -379,9 +390,17 @@ router.post("/place-order", async (req, res) => {
       await product.save();
     }
     console.log("after saving product");
-    await User.findByIdAndUpdate(user, {
-      $inc: { "wallet.balance": -paidAmountOnWallet },
-    });
+    if (paidAmountOnWallet > 0) {
+      await User.findByIdAndUpdate(user, {
+        $inc: { "wallet.balance": -paidAmountOnWallet },
+      });
+      const newWallet = new WalletTransaction({
+        userId: user,
+        orderId: newOrder._id,
+        type: 'subtraction'
+      });
+      await newWallet.save();
+    }
     await Cart.deleteOne({ userId: user });
     console.log("after deleting cart");
     req.flash("success", "Order is successful");
@@ -500,11 +519,21 @@ router.post("/validate-order", async (req, res) => {
       isPaid: true,
       deliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     });
-    await newOrder.save();
 
-    await User.findByIdAndUpdate(user, {
-      $inc: { "wallet.balance": -amountPaidThroughWallet },
-    });
+    newOrder.totalItems = newOrder.products.reduce((acc, curr) => acc + curr.quantity, 0);
+
+    await newOrder.save();
+    if (amountPaidThroughWallet > 0) {
+      await User.findByIdAndUpdate(user, {
+        $inc: { "wallet.balance": -amountPaidThroughWallet },
+      });
+      const newWallet = new WalletTransaction({
+        userId: user,
+        orderId: newOrder._id,
+        type: 'subtraction'
+      });
+      await newWallet.save();
+    }
 
     for (let cartProduct of cart.products) {
       const product = await Product.findById(cartProduct.productId);
@@ -564,6 +593,12 @@ router.post("/return-reason", async (req, res) => {
     await User.findByIdAndUpdate(userId, {
       $inc: { "wallet.balance": order.totalAfterDiscount },
     });
+    const newWallet = new WalletTransaction({
+      userId: userId,
+      orderId: orderId,
+      type: 'addition',
+    });
+    await newWallet.save();
 
     order.returnMsg = sanitizedAdditionalInfo;
     console.log(sanitizedAdditionalInfo);
@@ -593,6 +628,7 @@ router.post("/return-reason", async (req, res) => {
     req.flash("success", "Order returned successfully");
     res.redirect(`/order/view-single-order/${orderId}`);
   } catch (error) {
+    console.error(error)
     console.log("on catch");
     req.flash("error", "An error occurred, try again later");
     res.redirect(`/order/view-single-order/${orderId}`);
@@ -625,13 +661,13 @@ router.get("/invoices/download", async (req, res) => {
       "../../public/templates/invoice.ejs"
     );
 
-    const template = fs.readFileSync(templatePath, 'utf8');
+    const template = fs.readFileSync(templatePath, "utf8");
     const ejsData = ejs.render(template, { order });
 
     const browser = await puppeteer.launch({ headless: "new" });
     const page = await browser.newPage();
     await page.setContent(ejsData);
-    
+
     const invoiceDirectory = path.resolve(__dirname, "../../invoice/");
     if (!fs.existsSync(invoiceDirectory)) {
       fs.mkdirSync(invoiceDirectory);
@@ -640,26 +676,31 @@ router.get("/invoices/download", async (req, res) => {
 
     await page.pdf({
       path: pdfFilePath,
-      format: 'A3',
+      format: "A3",
       margin: {
-        top: '10mm',
-        right: '10mm',
-        bottom: '10mm',
-        left: '10mm'
-      }
+        top: "10mm",
+        right: "10mm",
+        bottom: "10mm",
+        left: "10mm",
+      },
     });
 
     await browser.close();
 
-    res.download(pdfFilePath, `invoice_${order.shortId}.pdf`, (downloadError) => {
-      if (downloadError) {
-        console.error(downloadError);
-        return res.status(500).send(`Download failed: ${downloadError.message}`);
+    res.download(
+      pdfFilePath,
+      `invoice_${order.shortId}.pdf`,
+      (downloadError) => {
+        if (downloadError) {
+          console.error(downloadError);
+          return res
+            .status(500)
+            .send(`Download failed: ${downloadError.message}`);
+        }
+
+        fs.unlinkSync(pdfFilePath);
       }
-
-      fs.unlinkSync(pdfFilePath);
-    });
-
+    );
   } catch (error) {
     console.error(error);
     res.status(500).send(`Server Error: ${error.message}`);

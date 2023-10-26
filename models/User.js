@@ -54,7 +54,7 @@ const userSchema = new mongoose.Schema(
       balance: {
         type: mongoose.Schema.Types.Decimal128,
         default: 0
-      }
+      },
     },
   },
   {

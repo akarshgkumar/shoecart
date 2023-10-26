@@ -8,6 +8,7 @@ const User = require("../../models/User");
 const Order = require("../../models/Order");
 const Banner = require("../../models/Banner");
 const Product = require("../../models/Product");
+const WalletTransaction = require("../../models/WalletTransaction");
 const noCache = require("../../middlewares/user/noCache");
 const redirectIfLoggedIn = require("../../middlewares/user/redirectIfLoggedIn");
 const generateOTP = require("../../utils/generateOTP");
@@ -110,32 +111,21 @@ router.get("/account", async (req, res) => {
       "products.product"
     );
 
-    const orders = order.map((order) => {
-      const totalItems = order.products.reduce(
-        (acc, curr) => acc + curr.quantity,
-        0
-      );
-      const totalAmount = order.products.reduce(
-        (acc, curr) => acc + curr.price * curr.quantity,
-        0
-      );
-      return {
-        id: "#" + order.shortId,
-        date: order.createdAt.toDateString(),
-        status: order.status,
-        total: `₹${totalAmount.toFixed(2)}`,
-        items: `${totalItems} item${totalItems > 1 ? "s" : ""}`,
-        fullId: order._id,
-      };
-    });
+    const walletTransactions = await WalletTransaction.find({ userId: userId }).populate(
+      "orderId"
+    );
+    const validWalletTransactions = walletTransactions.filter(transaction => transaction.orderId !== null);
+
+    console.log(validWalletTransactions)
 
     const userData = {
       userId: user._id,
       username: user.name,
       email: user.email,
       phoneNo: user.phoneNo,
-      orders: orders,
+      orders: order,
       addresses: user.addresses,
+      walletTransactions: validWalletTransactions,
       walletBalance: user.wallet?.balance,
       message: req.query.message,
       error: req.query.error,

@@ -113,6 +113,10 @@ const orderSchema = new mongoose.Schema(
       default: 0,
     },
     returnMsg: String,
+    totalItems: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

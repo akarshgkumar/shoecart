@@ -27,6 +27,11 @@
                               class="fi-rs-settings-sliders mr-10"></i>Dashboard</a>
                         </li>
                         <li class="nav-item">
+                          <a class="nav-link" id="wallet-tab" data-bs-toggle="tab" href="#wallet-history" role="tab"
+                            aria-controls="wallet" aria-selected="false"><i class="fi-rs-money mr-10"></i>Wallet
+                            History</a>
+                        </li>
+                        <li class="nav-item">
                           <a class="nav-link" id="orders-tab" data-bs-toggle="tab" href="#orders" role="tab"
                             aria-controls="orders" aria-selected="false"><i
                               class="fi-rs-shopping-bag mr-10"></i>Orders</a>
@@ -38,7 +43,7 @@
                         </li>
                         <li class="nav-item">
                           <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#add-address" role="tab"
-                            aria-controls="address" aria-selected="true"><i class="fi-rs-marker mr-10"></i>Add
+                            aria-controls="address" aria-selected="true"><i class="fi-rs-add mr-10"></i>Add
                             Address</a>
                         </li>
                         <li class="nav-item">
@@ -50,14 +55,14 @@
                         <li class="nav-item">
                           <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab" href="#edit-account-detail"
                             role="tab" aria-controls="account-detail" aria-selected="true"><i
-                              class="fi-rs-user mr-10"></i>Edit Account
+                              class="fi-rs-edit mr-10"></i>Edit Account
                             Details
                           </a>
                         </li>
                         <li class="nav-item">
                           <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab" href="#change-password"
                             role="tab" aria-controls="account-detail" aria-selected="true"><i
-                              class="fi-rs-user mr-10"></i>Change
+                              class="fi-rs-lock mr-10"></i>Change
                             Password
                           </a>
                         </li>
@@ -89,6 +94,74 @@
                           </div>
                         </div>
                       </div>
+                      <div class="tab-pane fade" id="wallet-history" role="tabpanel" aria-labelledby="dashboard-tab">
+                        <div class="card mt-10">
+                          <div class="card-header">
+                            <h5 class="mb-0"><i class="fi-rs-shopping-bag mr-10"></i>Wallet</h5>
+                          </div>
+                          <div class="card-body">
+                            <p>Wallet Balance : <span class="ml-5 text-brand">₹<%= walletBalance %></span></p>
+                          </div>
+                          <div class="card">
+                            <div class="card-header">
+                              <h5 class="mb-0">Wallet History</h5>
+                            </div>
+                            <div class="card-body">
+                              <div class="table-responsive">
+                                <% if(walletTransactions.length> 0) { %>
+                                  <table class="table">
+                                    <thead>
+                                      <tr>
+                                        <th>Order</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Amount</th>
+                                        <th>Items</th>
+                                        <th>Action</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <% walletTransactions.forEach(walletTransaction=> { %>
+                                        <tr>
+                                          <td>
+                                            #<%= walletTransaction.orderId.shortId %>
+                                          </td>
+                                          <td>
+                                            <%= walletTransaction.orderId.createdAt.toDateString() %>
+                                          </td>
+                                          <td>
+                                            <%= walletTransaction.orderId.status %>
+                                          </td>
+                                          <td>
+                                            <% if(walletTransaction.type === "addition") { %>
+                                              <span class="text-brand fw-600 ml-5">
+                                                + <%= walletTransaction.orderId.totalAmountPaid %>
+                                              </span>
+                                              <% } else { %>
+                                                <span class="text-danger fw-600 ml-5">
+                                                  - <%= walletTransaction.orderId.totalAmountPaid %>
+                                                </span>
+                                              <% } %>
+
+                                          </td>
+                                          <td>
+                                            <%= walletTransaction.orderId.totalItems %>item<%=
+                                                walletTransaction.orderId.totalItems> 1 ? "s" : "" %>
+                                          </td>
+                                          <td><a href="/order/view-single-order/<%= walletTransaction.orderId._id %>"
+                                              class="text-body view-text-order">Detail</a></td>
+                                        </tr>
+                                        <% }); %>
+                                    </tbody>
+                                  </table>
+                                  <% } else { %>
+                                    <p>No wallet transactions yet.</p>
+                                    <% } %>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                       <div class="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
                         <div class="card">
                           <div class="card-header">
@@ -112,23 +185,23 @@
                                     <% orders.forEach(order=> { %>
                                       <tr>
                                         <td>
-                                          <%= order.id %>
+                                          #<%= order.shortId %>
                                         </td>
                                         <td>
-                                          <%= order.date %>
+                                          <%= order.createdAt.toDateString() %>
                                         </td>
                                         <td>
                                           <%= order.status %>
                                         </td>
                                         <td>
                                           <span class="text-brand fw-600">
-                                            <%= order.total %>
+                                            ₹<%= order.totalAfterDiscount %>
                                           </span>
                                         </td>
                                         <td>
-                                          <%= order.items %>
+                                          <%= order.totalItems %> item<%= order.totalItems> 1 ? "s" : "" %>
                                         </td>
-                                        <td><a href="/order/view-single-order/<%= order.fullId %>"
+                                        <td><a href="/order/view-single-order/<%= order._id %>"
                                             class="text-body view-text-order">View</a></td>
                                       </tr>
                                       <% }); %>
@@ -179,7 +252,8 @@
                                         Select :
                                         <input class="form-check-input p-0 custom-radio-input"
                                           id="address-select-<%= address._id %>" type="radio" name="address-select" <%
-                                          if(address.default) { %> checked <% } %> data-address-id="<%= address._id %>"
+                                          if(address.default) { %> checked <% } %> data-address-id="<%= address._id %>
+                                            "
                                             style="width: 1.3em; height: 1.3em; margin-left: 5px;">
                                       </label>
                                     </div>
@@ -350,7 +424,8 @@
                                 <div class="col-md-12">
                                   <button type="submit" class="btn btn-fill-out submit">Confirm</button>
                                   <a class="forgot-password-link-account"
-                                    href="/check-email/true?email=<%= encodeURIComponent(email) %>">Forgot Password?</a>
+                                    href="/check-email/true?email=<%= encodeURIComponent(email) %>">Forgot
+                                    Password?</a>
                                 </div>
                               </form>
                             </div>
