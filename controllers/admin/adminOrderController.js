@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const Order = require("../../models/Order");
+const Product = require("../../models/Product");
+const formatDate = require("../../utils/formatDate");
 
 router.get("/view-orders", async (req, res) => {
   const options = {
@@ -81,8 +83,9 @@ router.post("/edit-order/:id", async (req, res) => {
       deliveryDate: delivery_date,
       status: status,
     };
-
-    if (status === "Cancelled" || status === "Returned") {
+    if (status === "Delivered") {
+      updateFields.totalAmountPaid = order.totalAfterDiscount;
+    } else if (status === "Cancelled" || status === "Returned") {
       updateFields[`${status.toLowerCase()}Date`] = new Date();
 
       for (let orderedProduct of order.products) {
@@ -130,7 +133,7 @@ router.get("/search-orders", async (req, res) => {
     let query = {};
 
     if (searchQuery) {
-      query.shortId = new RegExp(searchQuery, 'i'); 
+      query.shortId = new RegExp(searchQuery, "i");
     }
 
     const result = await Order.paginate(query, options);
@@ -146,7 +149,6 @@ router.get("/search-orders", async (req, res) => {
       current: result.page,
       pages: result.totalPages,
     });
-
   } catch (error) {
     console.error("Search error:", error);
     req.flash("error", "Unexpected Error");
@@ -171,7 +173,7 @@ router.get("/search-order-email", async (req, res) => {
     let query = {};
 
     if (emailQuery) {
-      query['address.email'] = new RegExp(emailQuery, 'i');
+      query["address.email"] = new RegExp(emailQuery, "i");
     }
 
     const result = await Order.paginate(query, options);
@@ -187,7 +189,6 @@ router.get("/search-order-email", async (req, res) => {
       current: result.page,
       pages: result.totalPages,
     });
-
   } catch (error) {
     console.error("Search error:", error);
     req.flash("error", "Unexpected Error");

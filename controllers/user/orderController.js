@@ -566,7 +566,6 @@ router.get("/return-reason/:orderId", async (req, res) => {
 
 router.post("/return-reason", async (req, res) => {
   let orderId;
-  console.log("on first");
   try {
     let { reason, additionalInfo } = req.body;
     orderId = req.body.orderId;
