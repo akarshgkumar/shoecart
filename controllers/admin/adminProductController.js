@@ -78,6 +78,9 @@ router.post(
           req.files.mainImage && req.files.mainImage[0]
             ? req.files.mainImage[0].path
             : product.mainImage,
+        discountPercentage: req.body.discount_percentage
+          ? req.body.discount_percentage
+          : 0,
       };
 
       const newImageUrls = req.files.image
@@ -290,6 +293,9 @@ router.post(
             ? req.files.mainImage[0].path
             : undefined,
         images: imageUrls,
+        discountPercentage: req.body.discount_percentage
+          ? req.body.discount_percentage
+          : 0,
       });
       await Category.updateOne(
         { _id: categoryId },

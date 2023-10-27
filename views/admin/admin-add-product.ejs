@@ -3,7 +3,7 @@
     <main class="main-wrap">
       <%- include('partials/admin-header') %>
         <section class="content-main">
-          <form class="product-form" action="/admin/add-product" method="POST" enctype="multipart/form-data">
+          <form class="add-product-form" action="/admin/add-product" method="POST" enctype="multipart/form-data">
             <div class="row">
               <div class="col-9">
                 <div class="content-header">
@@ -101,6 +101,10 @@
                       <label class="form-label">Stock</label>
                       <input type="number" placeholder="Type here" class="form-control" name="stock">
                     </div>
+                    <div class="mb-4">
+                      <label class="form-label">Discount Percentage</label>
+                      <input type="number" placeholder="Type here" class="form-control" name="discount_percentage">
+                    </div>
                     <hr>
                     <h5 class="mb-3">Categories</h5>
                     <% category.forEach(category=> { %>
@@ -120,4 +124,5 @@
         </section>
     </main>
     </body>
-  </html>
+
+    </html>

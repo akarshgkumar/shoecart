@@ -40,12 +40,17 @@ $.validator.addMethod(
 );
 
 $.validator.addMethod(
-  "between0And100",
+  "between0And30",
   function (value, element) {
-    return value >= 0 && value <= 100;
+    return value >= 0 && value <= 30;
   },
-  "Please enter a value between 0 and 100."
+  "Please enter a value between 0 and 30."
 );
+
+$.validator.addMethod("integer", function(value, element) {
+  return this.optional(element) || /^\d+$/.test(value);
+}, "Please enter a non-negative integer value.");
+
 
 $.validator.addMethod(
   "allCaps",
@@ -141,7 +146,10 @@ $(function () {
   }
 
   $(".banner-form").validate({
-    onkeyup: function (element) {
+    onkeyup: function(element) {
+      $(element).valid();
+    },
+    onfocusout: function(element) {
       $(element).valid();
     },
     rules: {
@@ -168,6 +176,12 @@ $(function () {
   });
 
   $(".coupon-form").validate({
+    onkeyup: function(element) {
+      $(element).valid();
+    },
+    onfocusout: function(element) {
+      $(element).valid();
+    },
     rules: {
       coupon_code: {
         required: true,
@@ -179,7 +193,7 @@ $(function () {
       discount_percentage: {
         required: true,
         number: true,
-        between0And100: true,
+        between0And30: true,
       },
     },
     messages: {
@@ -193,7 +207,7 @@ $(function () {
       discount_percentage: {
         required: "Please enter the discount percentage.",
         number: "Please enter a valid number.",
-        between0And100: "Please enter a value between 0 and 100.",
+        between0And30: "Please enter a value between 0 and 30.",
       },
     },
     submitHandler: function (form) {
@@ -220,6 +234,12 @@ $(function () {
   });
 
   $(".admin-edit-order-form").validate({
+    onkeyup: function(element) {
+      $(element).valid();
+    },
+    onfocusout: function(element) {
+      $(element).valid();
+    },
     rules: {
       order_name: {
         required: true,
@@ -260,6 +280,12 @@ $(function () {
     },
   });
   $(".stock-form").validate({
+    onkeyup: function(element) {
+      $(element).valid();
+    },
+    onfocusout: function(element) {
+      $(element).valid();
+    },
     rules: {
       stock_no: {
         required: true,
@@ -278,6 +304,12 @@ $(function () {
     },
   });
   $(".edit-product-form").validate({
+    onkeyup: function(element) {
+      $(element).valid();
+    },
+    onfocusout: function(element) {
+      $(element).valid();
+    },
     rules: {
       product_name: {
         required: true,
@@ -312,6 +344,10 @@ $(function () {
       product_sizes: {
         required: true,
       },
+      discount_percentage: {
+        integer: true,
+        between0And30: true,
+      },
     },
     messages: {
       product_name: {
@@ -332,7 +368,13 @@ $(function () {
       }
     },
   });
-  $(".product-form").validate({
+  $(".add-product-form").validate({
+    onkeyup: function(element) {
+      $(element).valid();
+    },
+    onfocusout: function(element) {
+      $(element).valid();
+    },
     rules: {
       product_name: {
         required: true,
@@ -375,6 +417,10 @@ $(function () {
       product_sizes: {
         required: true,
       },
+      discount_percentage: {
+        integer: true,
+        between0And30: true,
+      },
     },
     messages: {
       product_name: {
@@ -397,6 +443,12 @@ $(function () {
   });
 
   $(".signup-form").validate({
+    onkeyup: function(element) {
+      $(element).valid();
+    },
+    onfocusout: function(element) {
+      $(element).valid();
+    },
     rules: {
       name: {
         required: true,
@@ -442,6 +494,12 @@ $(function () {
   });
 
   $(".login-form").validate({
+    onkeyup: function(element) {
+      $(element).valid();
+    },
+    onfocusout: function(element) {
+      $(element).valid();
+    },
     rules: {
       email: {
         required: true,
@@ -477,6 +535,12 @@ $(function () {
     },
   });
   $(".admin-login-form").validate({
+    onkeyup: function(element) {
+      $(element).valid();
+    },
+    onfocusout: function(element) {
+      $(element).valid();
+    },
     rules: {
       userName: {
         required: true,
@@ -512,6 +576,12 @@ $(function () {
   });
 
   $(".category-form").validate({
+    onkeyup: function(element) {
+      $(element).valid();
+    },
+    onfocusout: function(element) {
+      $(element).valid();
+    },
     rules: {
       category_name: {
         required: true,
@@ -553,6 +623,12 @@ $(function () {
   });
 
   $(".email-login-form").validate({
+    onkeyup: function(element) {
+      $(element).valid();
+    },
+    onfocusout: function(element) {
+      $(element).valid();
+    },
     rules: {
       email: {
         required: true,
@@ -568,6 +644,12 @@ $(function () {
   });
 
   $(".brand-form").validate({
+    onkeyup: function(element) {
+      $(element).valid();
+    },
+    onfocusout: function(element) {
+      $(element).valid();
+    },
     rules: {
       brand_name: {
         required: true,

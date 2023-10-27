@@ -128,6 +128,11 @@
                       <input type="number" placeholder="Type here" class="form-control" name="stock"
                         value="<%= product.stock %>">
                     </div>
+                    <div class="mb-4">
+                      <label class="form-label">Discount Percentage</label>
+                      <input type="number" placeholder="Type here" class="form-control" name="discount_percentage"
+                        value="<%= product.discountPercentage %>">
+                    </div>
                     <hr>
                     <h5 class="mb-3">Categories</h5>
                     <% category.forEach(category=> { %>

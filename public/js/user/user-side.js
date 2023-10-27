@@ -251,6 +251,12 @@ $(function () {
   });
 
   $(".return-reason-form").validate({
+    onkeyup: function(element) {
+      $(element).valid();
+    },
+    onfocusout: function(element) {
+      $(element).valid();
+    },
     rules: {
       reason: {
         required: true,
@@ -275,6 +281,12 @@ $(function () {
   });
 
   $(".checkout-form").validate({
+    onkeyup: function(element) {
+      $(element).valid();
+    },
+    onfocusout: function(element) {
+      $(element).valid();
+    },
     rules: {
       name: {
         required: true,
@@ -473,6 +485,12 @@ $(function () {
     });
   });
   $(".add-address-form").validate({
+    onkeyup: function(element) {
+      $(element).valid();
+    },
+    onfocusout: function(element) {
+      $(element).valid();
+    },
     rules: {
       name: {
         required: true,
@@ -541,6 +559,12 @@ $(function () {
   });
 
   $(".edit-account-form").validate({
+    onkeyup: function(element) {
+      $(element).valid();
+    },
+    onfocusout: function(element) {
+      $(element).valid();
+    },
     rules: {
       email: {
         required: true,
@@ -566,6 +590,12 @@ $(function () {
     },
   });
   $(".change-password-form").validate({
+    onkeyup: function(element) {
+      $(element).valid();
+    },
+    onfocusout: function(element) {
+      $(element).valid();
+    },
     rules: {
       oldPassword: {
         required: true,
