@@ -22,6 +22,12 @@
                         value="<%= category.name %>" name="category_name">
                       <span class="error-span"></span>
                     </div>
+                    <div class="mb-4">
+                      <label for="discount_percentage" class="form-label">Discount Percentage : </label>
+                      <input type="text" placeholder="Type here" class="form-control" id="discount_percentage"
+                        value="<%= category.discountPercentage %>" name="discount_percentage">
+                    </div>
+                    <input type="hidden" name="editCategoryHiddenInput" id="hidden_input_category_name" value="<%= category.name %>">
                   </div>
                 </div>
               </div>

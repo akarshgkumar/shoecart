@@ -3,6 +3,10 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const Admin = require("../../models/Admin");
+const Order = require("../../models/Order");
+const Product = require("../../models/Product");
+const User = require("../../models/User");
+const Category = require("../../models/Category");
 const JWT_SECRET = process.env.JWT_SECRET;
 const authenticateAdmin = require("../../middlewares/admin/authenticateAdmin");
 
@@ -10,14 +14,9 @@ router.get("/", async (req, res) => {
   const adminToken = req.cookies.adminJwt;
 
   if (adminToken) {
-    try {
-      jwt.verify(adminToken, JWT_SECRET);
-      res.redirect("/admin/dashboard");
-    } catch (err) {
-      res.render("admin/admin-login");
-    }
+    res.redirect("/admin/dashboard")
   } else {
-    res.render("admin/admin-login");
+    res.redirect("/admin/admin-login");
   }
 });
 

@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Category = require("../../models/Category");
+const Product = require("../../models/Product");
 const capitalizeWords = require("../../middlewares/admin/capitalizeWords");
 const parser = require("../../config/cloudinaryConfig");
 
@@ -35,6 +36,9 @@ router.post(
   async (req, res) => {
     try {
       const name = req.body.category_name;
+      const discountPercentage = req.body.discount_percentage
+        ? req.body.discount_percentage
+        : 0;
 
       let imageUrl = "";
       console.log("before :", imageUrl);
@@ -44,7 +48,7 @@ router.post(
       }
       console.log("after :", imageUrl);
 
-      const newCategory = new Category({ name, imageUrl });
+      const newCategory = new Category({ name, imageUrl, discountPercentage });
       console.log("after updating :", imageUrl);
 
       await newCategory.save();
@@ -90,16 +94,41 @@ router.post("/edit-category/:categoryId", async (req, res) => {
     console.log(req.body.category_name);
     const updatedcategoryData = {
       name: capitalizeWords(req.body.category_name),
+      discountPercentage: req.body.discount_percentage
+        ? req.body.discount_percentage
+        : 0,
     };
 
     await Category.findByIdAndUpdate(categoryId, updatedcategoryData);
 
+    const categoryDiscount = updatedcategoryData.discountPercentage;
+    const allProducts = await Product.find({category: categoryId})
+
+    for(const product of allProducts) {
+      product.categoryDiscountPercentage = categoryDiscount;
+
+      if(product.categoryDiscountPercentage > product.individualDiscountPercentage) {
+        product.discountPercentage = product.categoryDiscountPercentage;
+      } else {
+        product.discountPercentage = product.individualDiscountPercentage;
+      }
+
+      const highestDiscountPercentage = product.discountPercentage;
+      const originalPrice = product.price; 
+      const discountAmount = (originalPrice * highestDiscountPercentage) / 100;
+      product.priceAfterDiscount = Math.round(originalPrice - discountAmount);
+
+      await product.save();
+    }
+
+    req.flash("success", "Category updated successfully");
     res.redirect("/admin/view-category");
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal Server Error");
   }
 });
+
 
 router.post(
   "/edit-category-image/:categoryId",
@@ -138,18 +167,25 @@ router.post(
   }
 );
 
-router.get("/check-category/:name", async (req, res) => {
+router.get("/check-category", async (req, res) => {
   try {
-    const category = await Category.findOne({
-      name: { $regex: `^${req.params.name}$`, $options: "i" },
-    });
-    console.log(category);
+    const { categoryName, editCategoryName } = req.query;
+    let category = undefined;
+    if (categoryName === editCategoryName) {
+      category = null;
+    } else {
+      category = await Category.findOne({
+        name: { $regex: `^${categoryName}$`, $options: "i" },
+      });
+    }
+
     if (category) {
       return res.json({ exists: true });
     } else {
       return res.json({ exists: false });
     }
   } catch (error) {
+    console.error(error);
     return res.status(500).json({ error: "Internal server error" });
   }
 });

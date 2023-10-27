@@ -11,7 +11,11 @@ const categorySchema = new mongoose.Schema(
       productCount: {
         type: Number,
         default: 0
-      }
+      },
+      discountPercentage: {
+        type: Number,
+        default: 0,
+      },
     },
     {
       timestamps: true,

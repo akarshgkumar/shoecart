@@ -47,9 +47,13 @@ $.validator.addMethod(
   "Please enter a value between 0 and 30."
 );
 
-$.validator.addMethod("integer", function(value, element) {
-  return this.optional(element) || /^\d+$/.test(value);
-}, "Please enter a non-negative integer value.");
+$.validator.addMethod(
+  "integer",
+  function (value, element) {
+    return this.optional(element) || /^\d+$/.test(value);
+  },
+  "Please enter a non-negative integer value."
+);
 
 $.validator.addMethod(
   "allCaps",
@@ -145,10 +149,10 @@ $(function () {
   }
 
   $(".banner-form").validate({
-    onkeyup: function(element) {
+    onkeyup: function (element) {
       $(element).valid();
     },
-    onfocusout: function(element) {
+    onfocusout: function (element) {
       $(element).valid();
     },
     rules: {
@@ -175,10 +179,10 @@ $(function () {
   });
 
   $(".coupon-form").validate({
-    onkeyup: function(element) {
+    onkeyup: function (element) {
       $(element).valid();
     },
-    onfocusout: function(element) {
+    onfocusout: function (element) {
       $(element).valid();
     },
     rules: {
@@ -233,10 +237,10 @@ $(function () {
   });
 
   $(".admin-edit-order-form").validate({
-    onkeyup: function(element) {
+    onkeyup: function (element) {
       $(element).valid();
     },
-    onfocusout: function(element) {
+    onfocusout: function (element) {
       $(element).valid();
     },
     rules: {
@@ -279,10 +283,10 @@ $(function () {
     },
   });
   $(".stock-form").validate({
-    onkeyup: function(element) {
+    onkeyup: function (element) {
       $(element).valid();
     },
-    onfocusout: function(element) {
+    onfocusout: function (element) {
       $(element).valid();
     },
     rules: {
@@ -303,10 +307,10 @@ $(function () {
     },
   });
   $(".edit-product-form").validate({
-    onkeyup: function(element) {
+    onkeyup: function (element) {
       $(element).valid();
     },
-    onfocusout: function(element) {
+    onfocusout: function (element) {
       $(element).valid();
     },
     rules: {
@@ -368,10 +372,10 @@ $(function () {
     },
   });
   $(".add-product-form").validate({
-    onkeyup: function(element) {
+    onkeyup: function (element) {
       $(element).valid();
     },
-    onfocusout: function(element) {
+    onfocusout: function (element) {
       $(element).valid();
     },
     rules: {
@@ -442,10 +446,10 @@ $(function () {
   });
 
   $(".signup-form").validate({
-    onkeyup: function(element) {
+    onkeyup: function (element) {
       $(element).valid();
     },
-    onfocusout: function(element) {
+    onfocusout: function (element) {
       $(element).valid();
     },
     rules: {
@@ -493,10 +497,10 @@ $(function () {
   });
 
   $(".login-form").validate({
-    onkeyup: function(element) {
+    onkeyup: function (element) {
       $(element).valid();
     },
-    onfocusout: function(element) {
+    onfocusout: function (element) {
       $(element).valid();
     },
     rules: {
@@ -534,10 +538,10 @@ $(function () {
     },
   });
   $(".admin-login-form").validate({
-    onkeyup: function(element) {
+    onkeyup: function (element) {
       $(element).valid();
     },
-    onfocusout: function(element) {
+    onfocusout: function (element) {
       $(element).valid();
     },
     rules: {
@@ -575,10 +579,10 @@ $(function () {
   });
 
   $(".category-form").validate({
-    onkeyup: function(element) {
+    onkeyup: function (element) {
       $(element).valid();
     },
-    onfocusout: function(element) {
+    onfocusout: function (element) {
       $(element).valid();
     },
     rules: {
@@ -588,29 +592,36 @@ $(function () {
         noSpaceMinLength: 3,
         maxlength: 15,
       },
+      discount_percentage: {
+        integer: true,
+        between0And30: true,
+      },
+      category_img: {
+        required: true,
+      },
     },
     messages: {
       category_name: {
         required: "Please enter a category name",
       },
     },
-    errorPlacement: function (error, element) {
-      if (element.next(".error-span").length) {
-        error.appendTo(element.next(".error-span"));
-      } else {
-        error.insertAfter(element);
-      }
-    },
     submitHandler: function (form) {
       const categoryNameInput = $("#category_name");
       const categoryName = categoryNameInput.val();
+      const editCategoryName = $("#hidden_input_category_name").val();
 
-      $.get(`/admin/check-category/${categoryName}`)
+      $.get("/admin/check-category", {
+        categoryName: categoryName,
+        editCategoryName: editCategoryName,
+      })
         .done(function (response) {
+          console.log("check category response");
           if (response.exists) {
+            console.log("category name exists");
             $(".error-span").text("Category name already exists");
             categoryNameInput.focus();
           } else {
+            console.log("category name didn't exists");
             $(".error-span").text("");
             form.submit();
           }
@@ -622,10 +633,10 @@ $(function () {
   });
 
   $(".email-login-form").validate({
-    onkeyup: function(element) {
+    onkeyup: function (element) {
       $(element).valid();
     },
-    onfocusout: function(element) {
+    onfocusout: function (element) {
       $(element).valid();
     },
     rules: {
@@ -643,10 +654,10 @@ $(function () {
   });
 
   $(".brand-form").validate({
-    onkeyup: function(element) {
+    onkeyup: function (element) {
       $(element).valid();
     },
-    onfocusout: function(element) {
+    onfocusout: function (element) {
       $(element).valid();
     },
     rules: {
@@ -748,6 +759,30 @@ $(function () {
     } else {
       $(".error-span").text("");
     }
+  });
+
+  var xValues = ["Italy", "France", "Spain", "USA", "Argentina"];
+  var yValues = [55, 49, 44, 24, 15];
+  var barColors = ["red", "green", "blue", "orange", "brown"];
+
+  new Chart("myChart", {
+    type: "bar",
+    data: {
+      labels: xValues,
+      datasets: [
+        {
+          backgroundColor: barColors,
+          data: yValues,
+        },
+      ],
+    },
+    options: {
+      legend: { display: false },
+      title: {
+        display: true,
+        text: "World Wine Production 2018",
+      },
+    },
   });
 
   const urlParams = new URLSearchParams(window.location.search);
@@ -883,10 +918,5 @@ function toggleConfirmPassword() {
   //Nice select
   if ($(".select-nice").length) {
     $(".select-nice").select2();
-  }
-  // Perfect Scrollbar
-  if ($("#offcanvas_aside").length) {
-    const demo = document.querySelector("#offcanvas_aside");
-    const ps = new PerfectScrollbar(demo);
   }
 })(jQuery);

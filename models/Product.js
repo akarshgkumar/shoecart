@@ -35,6 +35,14 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    individualDiscountPercentage: {
+      type: Number,
+      default: 0
+    },
+    categoryDiscountPercentage: {
+      type: Number,
+      default: 0,
+    },
     priceAfterDiscount: {
       type: Number,
       required: true,

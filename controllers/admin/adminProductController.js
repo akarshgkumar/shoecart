@@ -57,56 +57,59 @@ router.post(
         return res.status(404).send("Product not found");
       }
 
-      console.log(req.body.product_sizes);
       let sizes = req.body.product_sizes || [];
       if (!Array.isArray(sizes)) {
         sizes = [sizes];
       }
 
       const numericSizes = sizes.map(Number);
+      const categoryId = req.body.product_category;
+      const category = await Category.findById(categoryId);
+      const categoryDiscount = category.discountPercentage || 0;
+      const individualDiscountPercentage =
+        parseFloat(req.body.discount_percentage) || 0;
+      const highestDiscountPercentage = Math.max(
+        individualDiscountPercentage,
+        categoryDiscount
+      );
 
-      const discountPercentage = parseFloat(req.body.discount_percentage) || 0;
       const originalPrice = parseFloat(req.body.price);
-      const discountAmount = (originalPrice * discountPercentage) / 100;
+      const discountAmount = (originalPrice * highestDiscountPercentage) / 100;
       const priceAfterDiscount = Math.round(originalPrice - discountAmount);
 
       const updatedProductData = {
         name: req.body.product_name,
         color: req.body.product_color,
         sizes: numericSizes,
-        category: new mongoose.Types.ObjectId(req.body.product_category),
+        category: new mongoose.Types.ObjectId(categoryId),
         brand: new mongoose.Types.ObjectId(req.body.product_brand),
         description: req.body.description,
-        price: req.body.price,
+        price: originalPrice,
         priceAfterDiscount: priceAfterDiscount,
         stock: req.body.stock,
         mainImage:
           req.files.mainImage && req.files.mainImage[0]
             ? req.files.mainImage[0].path
             : product.mainImage,
-        discountPercentage: req.body.discount_percentage
-          ? req.body.discount_percentage
-          : 0,
+        discountPercentage: highestDiscountPercentage,
+        individualDiscountPercentage: individualDiscountPercentage,
+        categoryDiscountPercentage: categoryDiscount,
       };
 
       const newImageUrls = req.files.image
-        ? req.files.image.slice(1).map((file) => file.path)
+        ? req.files.image.map((file) => file.path)
         : [];
+      const retainedImages = product.images.filter(
+        (imagePath, index) => req.body[`deleteImage${index}`] !== "on"
+      );
+      const allImageUrls = [...retainedImages, ...newImageUrls];
 
-      const retainedImages = [];
-      for (let i = 0; i < product.images.length; i++) {
-        const deleteCheckbox = req.body[`deleteImage${i}`];
-        if (deleteCheckbox === "on") {
-          retainedImages.push(product.images[i]);
-        }
-      }
-
-      const allImageUrls = retainedImages.concat(newImageUrls);
       if (allImageUrls.length > 3) {
         req.flash("error", "Only submit 3 sub images");
         return res.redirect(`/admin/edit-product/${productId}`);
       }
-      if (allImageUrls) updatedProductData.images = allImageUrls;
+
+      updatedProductData.images = allImageUrls;
 
       await Product.findByIdAndUpdate(productId, updatedProductData);
       req.flash("success", "Product edited successfully");
@@ -247,23 +250,11 @@ router.post(
 
       do {
         uniqueShortId = nanoid();
-        try {
-          existingProduct = await Product.findOne({ shortId: uniqueShortId });
-        } catch (dbError) {
-          console.error("Error querying the database:", dbError);
-          req.flash(
-            "error",
-            "Failed to check product uniqueness. Please try again."
-          );
-          return res.redirect("/admin/add-product");
-        }
+        existingProduct = await Product.findOne({ shortId: uniqueShortId });
         retryCount++;
       } while (existingProduct && retryCount < retryLimit);
 
       if (retryCount === retryLimit) {
-        console.error(
-          "Reached maximum retry limit when generating a unique shortId."
-        );
         req.flash(
           "error",
           "Failed to generate a unique product ID. Please try again later."
@@ -274,20 +265,23 @@ router.post(
       let imageUrls = req.files.image
         ? req.files.image.map((file) => file.path)
         : [];
-      console.log(req.body.product_sizes);
       let sizes = req.body.product_sizes || [];
-      console.log("Sizes before :", sizes);
       if (!Array.isArray(sizes)) {
         sizes = [sizes];
       }
-
       const numericSizes = sizes.map(Number);
       const categoryId = req.body.product_category;
-      const brandId = req.body.product_brand;
+      const category = await Category.findById(categoryId);
+      const productDiscountPercentage =
+        parseFloat(req.body.discount_percentage) || 0;
+      const categoryDiscount = category.discountPercentage || 0;
+      const highestDiscountPercentage = Math.max(
+        productDiscountPercentage,
+        categoryDiscount
+      );
 
-      const discountPercentage = parseFloat(req.body.discount_percentage) || 0;
       const originalPrice = parseFloat(req.body.price);
-      const discountAmount = (originalPrice * discountPercentage) / 100;
+      const discountAmount = (originalPrice * highestDiscountPercentage) / 100;
       const priceAfterDiscount = Math.round(originalPrice - discountAmount);
 
       const product = new Product({
@@ -296,7 +290,7 @@ router.post(
         color: req.body.product_color,
         sizes: numericSizes,
         category: new mongoose.Types.ObjectId(categoryId),
-        brand: new mongoose.Types.ObjectId(brandId),
+        brand: new mongoose.Types.ObjectId(req.body.product_brand),
         description: req.body.description,
         stock: req.body.stock,
         price: req.body.price,
@@ -306,21 +300,24 @@ router.post(
             ? req.files.mainImage[0].path
             : undefined,
         images: imageUrls,
-        discountPercentage: req.body.discount_percentage
-          ? req.body.discount_percentage
-          : 0,
+        discountPercentage: highestDiscountPercentage,
+        individualDiscountPercentage: productDiscountPercentage,
+        categoryDiscountPercentage: categoryDiscount,
       });
+
       await Category.updateOne(
         { _id: categoryId },
         { $inc: { productCount: 1 } }
       );
-      await Brand.updateOne({ _id: brandId }, { $inc: { productCount: 1 } });
+      await Brand.updateOne(
+        { _id: req.body.product_brand },
+        { $inc: { productCount: 1 } }
+      );
+
       const result = await product.save();
-      console.log("result :", result);
       req.flash("success", "Product added successfully");
       res.redirect("/admin/view-products");
     } catch (err) {
-      console.log("Error while adding product:", err);
       req.flash("error", "Internal server error. Failed to add the product.");
       res.redirect("/admin/add-product");
     }

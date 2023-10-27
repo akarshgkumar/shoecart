@@ -38,7 +38,7 @@
                                 <%= product.name %>
                               </a></h5>
                           </td>
-                          <td class="price" data-title="Price"><span>₹ <%= product.price.toFixed(2) %></span></td>
+                          <td class="price" data-title="Price"><span>₹ <%= product.priceAfterDiscount.toFixed(2) %></span></td>
                           <td class="text-center" data-title="Size">
                             <select name="product_size">
                               <% if (product.sizes.includes(product.selectedSize)) { %>
@@ -60,14 +60,14 @@
                           <td class="text-center" data-title="Stock">
                             <div class="detail-qty border radius m-auto" data-product-id="<%= product._id %>">
                               <a href="#" class="qty-down cart-qty-down"><i class="fi-rs-angle-small-down"></i></a>
-                              <span class="qty-val" data-product-price="<%= product.price %>">
+                              <span class="qty-val" data-product-price="<%= product.priceAfterDiscount %>">
                                 <%= product.quantity %>
                               </span>
                               <a href="#" class="qty-up cart-qty-up"><i class="fi-rs-angle-small-up"></i></a>
                             </div>
                           </td>
                           <td class="text-right product-subtotal" data-title="Cart">
-                            <span>₹ <%= (product.price * product.quantity).toFixed(2) %></span>
+                            <span>₹ <%= (product.priceAfterDiscount * product.quantity).toFixed(2) %></span>
                           </td>
                           <td class="action" data-title="Remove">
                             <button data-product-id="<%= product._id %>" class="text-muted removeFromCartButton">
@@ -109,7 +109,7 @@
                   <% if (products.length> 0) { %>
                     <div class="product-exists-div">
                       <% let cartTotal=0; products.forEach(product=> {
-                        cartTotal += product.price * product.quantity;
+                        cartTotal += product.priceAfterDiscount * product.quantity;
                         }) %>
                         <div class="row mb-50 d-flex justify-content-center">
                           <div class="col-lg-6 col-md-12">

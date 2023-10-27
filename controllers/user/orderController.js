@@ -216,7 +216,6 @@ const calculateAmountAfterWalletUsage = (total, walletBalance) => {
 };
 
 router.post("/place-order", async (req, res) => {
-  console.log("on place order");
   const {
     user,
     name,
@@ -347,7 +346,7 @@ router.post("/place-order", async (req, res) => {
         return {
           product: product._id,
           quantity: cartProduct.quantity,
-          price: product.price,
+          price: product.priceAfterDiscount,
           size: cartProduct.size,
           mainImg: product.mainImage,
           name: product.name,
@@ -480,7 +479,7 @@ router.post("/validate-order", async (req, res) => {
         return {
           product: product._id,
           quantity: cartProduct.quantity,
-          price: product.price,
+          price: product.priceAfterDiscount,
           size: cartProduct.size,
           mainImg: product.mainImage,
           name: product.name,

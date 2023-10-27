@@ -50,6 +50,9 @@
                       </span>
                     </div>
                     <div class="col-lg-2 col-sm-2 col-4 col-status">
+                      <span style="word-spacing: 2px;">
+                       <%= category.discountPercentage %>%
+                      </span>
                     </div>
                     <div class="col-lg-1 col-sm-2 col-4 col-date">
                       <% let date=new Date(category.createdAt); let day=("0" + date.getDate()).slice(-2); let month=("0"
@@ -60,7 +63,7 @@
                     </div>
                     <div class="col-lg-2 col-sm-2 col-4 col-action text-end">
                       <a href="/admin/edit-category/<%= category._id %>" class="btn btn-sm font-sm rounded btn-brand">
-                        <i class="material-icons md-edit"></i> Name
+                        <i class="material-icons md-edit"></i> Edit
                       </a>
                       <a href="/admin/edit-category-image/<%= category._id %>"
                         class="btn btn-sm font-sm btn-light rounded">

@@ -4450,6 +4450,13 @@ body {
   overflow-x: hidden;
 }
 
+#chart-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
 body.offcanvas-active {
   overflow: hidden;
 }
