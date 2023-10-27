@@ -51,7 +51,6 @@ $.validator.addMethod("integer", function(value, element) {
   return this.optional(element) || /^\d+$/.test(value);
 }, "Please enter a non-negative integer value.");
 
-
 $.validator.addMethod(
   "allCaps",
   function (value, element) {

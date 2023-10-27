@@ -21,15 +21,15 @@
               </div>
               <div class="col-lg-2 col-6 col-md-3">
                 <select class="form-select" onchange="navigateWithDropDown(this)">
-                  <option value="/admin/view-products" <%=typeof selectedCategoryId !='undefined' &&
-                    !selectedCategoryId ? 'selected' : '' %>>
+                  <option value="/admin/view-products" <%=typeof selectedCategoryId !='undefined' && !selectedCategoryId
+                    ? 'selected' : '' %>>
                     All Categories
                   </option>
 
                   <% categories.forEach(category=> { %>
-                    <option class="category-list-dropdown"
-                      value="/admin/filter-products/category/<%= category._id %>" <%=typeof selectedCategoryId
-                      !=='undefined' && selectedCategoryId==category._id ? 'selected' : '' %>>
+                    <option class="category-list-dropdown" value="/admin/filter-products/category/<%= category._id %>"
+                      <%=typeof selectedCategoryId !=='undefined' && selectedCategoryId==category._id ? 'selected' : ''
+                      %>>
                       <%= category.name %>
                     </option>
                     <% }); %>
@@ -42,26 +42,24 @@
                     All Products
                   </option>
 
-                    <option class="category-list-dropdown"
-                      value="/admin/filter-products/status/false" <%=typeof selectedProductFilter
-                      !=='undefined' && selectedProductFilter=='false' ? 'selected' : '' %>>
-                     Live Products
-                    </option>
-                    <option class="category-list-dropdown"
-                      value="/admin/filter-products/status/true" <%=typeof selectedProductFilter
-                      !=='undefined' && selectedProductFilter=='true' ? 'selected' : '' %>>
-                     Deleted Products
-                    </option>
+                  <option class="category-list-dropdown" value="/admin/filter-products/status/false" <%=typeof
+                    selectedProductFilter !=='undefined' && selectedProductFilter=='false' ? 'selected' : '' %>>
+                    Live Products
+                  </option>
+                  <option class="category-list-dropdown" value="/admin/filter-products/status/true" <%=typeof
+                    selectedProductFilter !=='undefined' && selectedProductFilter=='true' ? 'selected' : '' %>>
+                    Deleted Products
+                  </option>
                 </select>
               </div>
             </div>
           </header>
           <div class="row">
-            <% products.forEach(product => { %>
+            <% products.forEach(product=> { %>
               <div class="col-xl-3 col-lg-4 col-md-6 mb-10">
                 <div class="card card-product-grid position-relative">
-                  <a href="/admin/add-stock/<%= product._id %>"><button id="add-stock-btn"
-                      class="btn btn-sm btn-primary position-absolute top-0 end-0 m-2">Add Stock</button></a>
+                  <a href="/admin/add-stock/<%= product._id %>"><button
+                      class="add-stock-btn btn btn-sm btn-primary position-absolute top-0 end-0 m-2">Add Stock</button></a>
                   <a href="#" class="img-wrap">
                     <img src="<%= product.mainImage %>" alt="Product">
                   </a>
@@ -71,11 +69,13 @@
                         <i class="material-icons md-edit mr-5"></i>Edit
                       </a>
                       <% if (product.isDeleted) { %>
-                        <a style="background-color: #EF9B0F;" href="/admin/show-product/<%= product._id %>" class="btn btn-sm btn-brand rounded">
+                        <a style="background-color: #EF9B0F;" href="/admin/show-product/<%= product._id %>"
+                          class="btn btn-sm btn-brand rounded">
                           <i class="material-icons md-visibility mr-5"></i>Show
                         </a>
                         <% } else { %>
-                          <a style="background-color: #960018" href="/admin/hide-product/<%= product._id %>" class="btn btn-sm btn-brand rounded">
+                          <a style="background-color: #960018" href="/admin/hide-product/<%= product._id %>"
+                            class="btn btn-sm btn-brand rounded">
                             <i class="material-icons md-visibility_off mr-5"></i>Hide
                           </a>
                           <% } %>

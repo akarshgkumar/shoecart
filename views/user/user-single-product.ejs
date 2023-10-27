@@ -48,7 +48,13 @@
                     </div>
                     <div class="clearfix product-price-cover">
                       <div class="product-price primary-color float-left">
-                        <ins><span class="text-brand">₹<%= product.price %></span></ins>
+                        <% if(product.priceAfterDiscount !== product.price) { %>
+                        <ins><span class="text-brand">₹<%= product.priceAfterDiscount %></span></ins>
+                        <span class="single-product-old-price-text">₹<%= product.price %></span>
+                        <span class="single-product-offer-text">(<%= product.discountPercentage %>% OFF)</span>
+                        <% }else { %>
+                          <ins><span class="text-brand">₹<%= product.priceAfterDiscount %></span></ins>
+                          <% } %>
                       </div>
                     </div>
                     <div class="bt-1 border-color-1 mt-15 mb-15"></div>

@@ -156,10 +156,10 @@ button:hover {
   color: #666666;
 }
 
-#add-stock-btn {
+.add-stock-btn {
   z-index: 1;
   padding: 10px 20px;
-  background-color: #383e50;
+  background-color: #383e50 !important;
 }
 
 .limiter {

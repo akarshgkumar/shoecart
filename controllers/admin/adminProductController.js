@@ -59,12 +59,17 @@ router.post(
 
       console.log(req.body.product_sizes);
       let sizes = req.body.product_sizes || [];
-      console.log("Sizes before :", sizes);
       if (!Array.isArray(sizes)) {
         sizes = [sizes];
       }
-      console.log("Sizes after :", sizes);
+
       const numericSizes = sizes.map(Number);
+
+      const discountPercentage = parseFloat(req.body.discount_percentage) || 0;
+      const originalPrice = parseFloat(req.body.price);
+      const discountAmount = (originalPrice * discountPercentage) / 100;
+      const priceAfterDiscount = Math.round(originalPrice - discountAmount);
+
       const updatedProductData = {
         name: req.body.product_name,
         color: req.body.product_color,
@@ -73,6 +78,7 @@ router.post(
         brand: new mongoose.Types.ObjectId(req.body.product_brand),
         description: req.body.description,
         price: req.body.price,
+        priceAfterDiscount: priceAfterDiscount,
         stock: req.body.stock,
         mainImage:
           req.files.mainImage && req.files.mainImage[0]
@@ -274,10 +280,16 @@ router.post(
       if (!Array.isArray(sizes)) {
         sizes = [sizes];
       }
-      console.log("Sizes after :", sizes);
+
       const numericSizes = sizes.map(Number);
       const categoryId = req.body.product_category;
       const brandId = req.body.product_brand;
+
+      const discountPercentage = parseFloat(req.body.discount_percentage) || 0;
+      const originalPrice = parseFloat(req.body.price);
+      const discountAmount = (originalPrice * discountPercentage) / 100;
+      const priceAfterDiscount = Math.round(originalPrice - discountAmount);
+
       const product = new Product({
         shortId: uniqueShortId,
         name: req.body.product_name,
@@ -288,6 +300,7 @@ router.post(
         description: req.body.description,
         stock: req.body.stock,
         price: req.body.price,
+        priceAfterDiscount: priceAfterDiscount,
         mainImage:
           req.files.mainImage && req.files.mainImage[0]
             ? req.files.mainImage[0].path

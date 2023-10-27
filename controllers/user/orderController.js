@@ -41,7 +41,7 @@ router.get("/checkout", async (req, res) => {
       cart?.products.filter((product) => product.productId) || [];
 
     const populatedProducts = validProducts.map((product) => {
-      const productTotalPrice = product.productId.price * product.quantity;
+      const productTotalPrice = product.productId.priceAfterDiscount * product.quantity;
 
       totalPrice += productTotalPrice;
 
@@ -54,7 +54,7 @@ router.get("/checkout", async (req, res) => {
     });
 
     for (const product of validProducts) {
-      product.price = product.productId.price * product.quantity;
+      product.price = product.productId.priceAfterDiscount * product.quantity;
     }
 
     await cart.save();
