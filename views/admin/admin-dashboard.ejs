@@ -83,6 +83,53 @@
                             <div class="card mb-4">
                                 <article class="card-body">
                                     <h5 class="card-title text-center">Sale Statistics</h5>
+                                    <div class="dropdown ml-20">
+                                        <button class="btn btn-primary dropdown-toggle" type="button"
+                                            id="filterDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Choose Filter
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="filterDropdownButton">
+                                            <li><a class="dropdown-item" href="#" data-value="allTime">All Time</a></li>
+
+                                            <!-- Yearly dropdown -->
+                                            <li>
+                                                <a class="dropdown-item dropdown-toggle" href="#">Yearly <span
+                                                        class="ml-10"
+                                                        style="font-size: 19px; margin-top: -2px;">&raquo;</span></a>
+                                                <ul class="dropdown-menu dropdown-submenu">
+                                                    <% for(let i=startYear; i <=currentYear; i++) { %>
+                                                        <li><a class="dropdown-item" href="#"
+                                                                data-value="year_<%= i %>">
+                                                                <%= i %>
+                                                            </a></li>
+                                                        <% } %>
+                                                </ul>
+                                            </li>
+                                            <!-- Monthly dropdown -->
+                                            <li>
+                                                <a class="dropdown-item dropdown-toggle" href="#">Monthly <span
+                                                        class="ml-10"
+                                                        style="font-size: 19px; margin-top: -2px;">&raquo;</span></a>
+                                                <ul class="dropdown-menu dropdown-submenu">
+                                                    <% const months=['January', 'February' , 'March' , 'April' , 'May'
+                                                        , 'June' , 'July' , 'August' , 'September' , 'October'
+                                                        , 'November' , 'December' ]; %>
+                                                        <% months.forEach((month, index)=> { %>
+                                                            <li><a class="dropdown-item" href="#"
+                                                                    data-value="month_<%= index %>">
+                                                                    <%= month %>
+                                                                </a></li>
+                                                            <% }); %>
+                                                </ul>
+                                            </li>
+
+                                            <li><a class="dropdown-item" href="#" data-value="paymentMethod">Payment
+                                                    Method</a></li>
+                                            <li><a class="dropdown-item" href="#" data-value="category">Category</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+
                                     <div id="chart-container">
                                         <canvas id="myChart" style="width:100%;max-width:900px"></canvas>
                                     </div>
@@ -137,8 +184,13 @@
                 </section>
         </main>
         <script>
-            var orderStatusCounts = JSON.parse('<%- JSON.stringify(orderStatusCounts) %>');
-            console.log("order status counts: ", orderStatusCounts);
+            let yearData = JSON.parse('<%- JSON.stringify(yearData) %>');
+            let monthData = JSON.parse('<%- JSON.stringify(monthData) %>');
+            let categoryData = JSON.parse('<%- JSON.stringify(categoryData) %>');
+            console.log(categoryData);
+            let orderStatuses = JSON.parse('<%- JSON.stringify(orderStatuses) %>');
+            let orderStatusCounts = JSON.parse('<%- JSON.stringify(orderStatusCounts) %>');
+            let paymentMethodCounts = JSON.parse('<%- JSON.stringify(paymentMethodCounts) %>');
         </script>
 
         </body>

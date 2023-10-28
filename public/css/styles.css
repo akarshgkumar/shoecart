@@ -436,6 +436,20 @@ button:hover {
   box-sizing: border-box;
 }
 
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
 html,
 body,
 div,
@@ -5155,3 +5169,29 @@ body.dark .dropdown-menu .dropdown-item.text-danger {
     display: none;
   }
 }
+
+.dropdown-menu li {
+  position: relative !important;
+  }
+  .dropdown-menu .dropdown-submenu {
+  display: none !important;
+  position: absolute !important;
+  left: 100% !important;
+  top: -7px !important;
+  }
+  .dropdown-menu .dropdown-submenu-left {
+  right: 100% !important;
+  left: auto !important;
+  }
+  .dropdown-menu > li:hover > .dropdown-submenu {
+  display: block !important;
+  }
+  
+  .dropdown-hover:hover>.dropdown-menu {
+  display: inline-block !important;
+  }
+  
+  .dropdown-hover>.dropdown-toggle:active {
+  /*Without this, clicking will make it sticky*/
+  pointer-events: none !important;
+  }

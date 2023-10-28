@@ -50,6 +50,68 @@ router.get("/dashboard", async (req, res) => {
   try {
     const orders = await Order.find();
     const orderCount = orders.length;
+    const currentYear = new Date().getFullYear();
+    const startYear = 2023;
+    const yearData = await Order.aggregate([
+      {
+        $group: {
+          _id: {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" },
+          },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const currentDate = new Date();
+    const startOfYear = new Date(currentDate.getFullYear(), 0, 1);
+    const endOfYear = new Date(currentDate.getFullYear(), 11, 31);
+
+    const monthData = await Order.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: startOfYear,
+            $lte: endOfYear,
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            month: { $month: "$createdAt" },
+            status: "$status",
+          },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const categoryData = await Order.aggregate([
+      {
+        $match: {
+          status: { $nin: ["Cancelled", "Returned"] },
+        },
+      },
+      { $unwind: "$products" },
+      {
+        $group: {
+          _id: {
+            category: "$products.category",
+          },
+          count: { $sum: "$products.quantity" },
+        },
+      },
+    ]);
+
+    const paymentMethodCounts = await Order.aggregate([
+      { $group: { _id: "$paymentMethod", count: { $sum: 1 } } },
+      { $sort: { _id: 1 } },
+    ]);
+
+    console.log("month data :", monthData);
+
     const productCount = await Product.countDocuments();
     const userCount = await User.countDocuments({ verified: true });
     const categoryCount = await Category.countDocuments();
@@ -61,27 +123,28 @@ router.get("/dashboard", async (req, res) => {
       return acc + parseFloat(order.totalAmountPaid.toString());
     }, 0);
 
-    const orderStatusCounts = {
-      Processing: 0,
-      Shipped: 0,
-      Delivered: 0,
-      Cancelled: 0,
-      Returned: 0,
-    };
-
-    orders.forEach((order) => {
-      orderStatusCounts[order.status] += 1;
-    });
+    const orderStatuses = (await Order.distinct("status")).sort();
+    const orderStatusCounts = await Order.aggregate([
+      { $group: { _id: "$status", count: { $sum: 1 } } },
+      { $sort: { _id: 1 } },
+    ]);
 
     res.render("admin/admin-dashboard", {
       orders: orders,
       orderCount: orderCount,
-      orderStatusCounts: orderStatusCounts,
+      orderStatuses,
+      orderStatusCounts,
+      monthData,
+      categoryData,
+      paymentMethodCounts,
       productCount: productCount,
       userCount: userCount,
       categoryCount: categoryCount,
       totalRevenue: totalRevenue,
       products: products,
+      yearData: yearData,
+      currentYear: currentYear,
+      startYear: startYear,
     });
   } catch (err) {
     console.error(err);

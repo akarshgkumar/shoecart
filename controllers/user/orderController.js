@@ -41,7 +41,8 @@ router.get("/checkout", async (req, res) => {
       cart?.products.filter((product) => product.productId) || [];
 
     const populatedProducts = validProducts.map((product) => {
-      const productTotalPrice = product.productId.priceAfterDiscount * product.quantity;
+      const productTotalPrice =
+        product.productId.priceAfterDiscount * product.quantity;
 
       totalPrice += productTotalPrice;
 
@@ -96,7 +97,7 @@ router.post("/cancel-order", async (req, res) => {
       const newWallet = new WalletTransaction({
         userId: userId,
         orderId: orderId,
-        type: 'addition'
+        type: "addition",
       });
       await newWallet.save();
     }
@@ -340,9 +341,10 @@ router.post("/place-order", async (req, res) => {
 
     const mappedProducts = await Promise.all(
       cart.products.map(async (cartProduct) => {
-        const product = await Product.findById(cartProduct.productId).populate(
-          "brand"
-        );
+        const product = await Product.findById(cartProduct.productId).populate([
+          "brand",
+          "category",
+        ]);
         return {
           product: product._id,
           quantity: cartProduct.quantity,
@@ -379,7 +381,10 @@ router.post("/place-order", async (req, res) => {
       deliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     });
 
-    newOrder.totalItems = newOrder.products.reduce((acc, curr) => acc + curr.quantity, 0);
+    newOrder.totalItems = newOrder.products.reduce(
+      (acc, curr) => acc + curr.quantity,
+      0
+    );
 
     await newOrder.save();
     console.log("after saving order");
@@ -397,7 +402,7 @@ router.post("/place-order", async (req, res) => {
       const newWallet = new WalletTransaction({
         userId: user,
         orderId: newOrder._id,
-        type: 'subtraction'
+        type: "subtraction",
       });
       await newWallet.save();
     }
@@ -474,9 +479,10 @@ router.post("/validate-order", async (req, res) => {
 
     const mappedProducts = await Promise.all(
       cart.products.map(async (cartProduct) => {
-        const product = await Product.findById(cartProduct.productId).populate(
-          "brand"
-        );
+        const product = await Product.findById(cartProduct.productId).populate([
+          "brand",
+          "category",
+        ]);
         return {
           product: product._id,
           quantity: cartProduct.quantity,
@@ -521,7 +527,10 @@ router.post("/validate-order", async (req, res) => {
       deliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
     });
 
-    newOrder.totalItems = newOrder.products.reduce((acc, curr) => acc + curr.quantity, 0);
+    newOrder.totalItems = newOrder.products.reduce(
+      (acc, curr) => acc + curr.quantity,
+      0
+    );
 
     await newOrder.save();
     if (amountPaidThroughWallet > 0) {
@@ -531,7 +540,7 @@ router.post("/validate-order", async (req, res) => {
       const newWallet = new WalletTransaction({
         userId: user,
         orderId: newOrder._id,
-        type: 'subtraction'
+        type: "subtraction",
       });
       await newWallet.save();
     }
@@ -596,7 +605,7 @@ router.post("/return-reason", async (req, res) => {
     const newWallet = new WalletTransaction({
       userId: userId,
       orderId: orderId,
-      type: 'addition',
+      type: "addition",
     });
     await newWallet.save();
 
@@ -628,7 +637,7 @@ router.post("/return-reason", async (req, res) => {
     req.flash("success", "Order returned successfully");
     res.redirect(`/order/view-single-order/${orderId}`);
   } catch (error) {
-    console.error(error)
+    console.error(error);
     console.log("on catch");
     req.flash("error", "An error occurred, try again later");
     res.redirect(`/order/view-single-order/${orderId}`);

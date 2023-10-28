@@ -761,25 +761,98 @@ $(function () {
     }
   });
 
-  var predefinedStatuses = [
-    "Processing",
-    "Shipped",
-    "Delivered",
-    "Cancelled",
-    "Returned",
-  ];
+  $(".dropdown-menu a.dropdown-item").click(function () {
+    console.log("on filter change");
+    let filterValue = $(this).data('value');
+    if (filterValue === "allTime") {
+      updateChart(xValues, yValues, "All Time Order Status");
+    } else if (filterValue === "paymentMethod") {
+      let labels = paymentMethodCounts.map((e) => e._id);
+      let counts = paymentMethodCounts.map((e) => e.count);
+      updateChart(labels, counts, "Order Counts By Payment Method");
+    } else if (filterValue.startsWith("year_")) {
+      let year = parseInt(filterValue.split("_")[1]);
+      let monthlyCounts = Array(12).fill(0);
+      let labels = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
+      yearData
+        .filter((data) => data._id.year === year)
+        .forEach((data) => {
+          monthlyCounts[data._id.month - 1] = data.count;
+        });
+      updateChart(labels, monthlyCounts, `Orders In ${year}`);
+    } else if (filterValue.startsWith("month_")) {
+      console.log("on month filter");
+      let month = parseInt(filterValue.split("_")[1]) + 1;
+      let labels = [
+        "Processing",
+        "Cancelled",
+        "Delivered",
+        "Shipped",
+        "Returned",
+      ];
+      let months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
+      let currentYear = new Date().getFullYear();
+      let monthlyStatusCounts = new Array(labels.length).fill(0);
 
-  var yValues = predefinedStatuses.map(
-    (status) => orderStatusCounts[status] || 0
-  );
-  console.log(yValues);
+      monthData
+        .filter((data) => data._id.month === month)
+        .forEach((data) => {
+          let index = labels.indexOf(data._id.status);
 
-  var barColors = ["red", "green", "blue", "orange", "brown"];
+          if (index !== -1) {
+            monthlyStatusCounts[index] = data.count;
+          }
+        });
 
-  new Chart("myChart", {
+      console.log(monthlyStatusCounts);
+      updateChart(
+        labels,
+        monthlyStatusCounts,
+        `Orders In ${months[month - 1]} ${currentYear}`
+      );
+    } else if (filterValue === "category") {
+      console.log("on category filter");
+      let labels = categoryData.map((data) => data._id.category);
+      let categorySalesCounts = categoryData.map((data) => data.count);
+
+      updateChart(labels, categorySalesCounts, `Sales Count Of Category`);
+    }
+  });
+
+  let xValues = orderStatuses;
+  let yValues = orderStatusCounts.map((countObj) => countObj.count);
+  let barColors = ["red", "green", "blue", "orange", "brown"];
+
+  let myChart = new Chart("myChart", {
     type: "bar",
     data: {
-      labels: predefinedStatuses,
+      labels: xValues,
       datasets: [
         {
           backgroundColor: barColors,
@@ -788,11 +861,6 @@ $(function () {
       ],
     },
     options: {
-      legend: { display: false },
-      title: {
-        display: true,
-        text: "Order Status Counts",
-      },
       scales: {
         yAxes: [
           {
@@ -803,8 +871,20 @@ $(function () {
           },
         ],
       },
+      legend: { display: false },
+      title: {
+        display: true,
+        text: "All Time Order Statistics",
+      },
     },
   });
+
+  function updateChart(labels, data, titleText) {
+    myChart.data.labels = labels;
+    myChart.data.datasets[0].data = data;
+    myChart.options.title.text = titleText;
+    myChart.update();
+  }
 
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.has("otpExpires")) {
@@ -910,7 +990,7 @@ function toggleConfirmPassword() {
   $("[data-trigger]").on("click", function (e) {
     e.preventDefault();
     e.stopPropagation();
-    var offcanvas_id = $(this).attr("data-trigger");
+    let offcanvas_id = $(this).attr("data-trigger");
     $(offcanvas_id).toggleClass("show");
     $("body").toggleClass("offcanvas-active");
     $(".screen-overlay").toggleClass("show");
