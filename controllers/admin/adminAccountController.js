@@ -14,7 +14,12 @@ router.get("/", async (req, res) => {
   const adminToken = req.cookies.adminJwt;
 
   if (adminToken) {
-    res.redirect("/admin/dashboard")
+    try {
+      jwt.verify(adminToken, JWT_SECRET);
+      res.redirect("/admin/dashboard");
+    } catch (err) {
+      res.render("admin/admin-login");
+    }
   } else {
     res.redirect("/admin/admin-login");
   }
@@ -41,8 +46,47 @@ router.post("/", async (req, res) => {
 
 router.use(authenticateAdmin);
 
-router.get("/dashboard", (req, res) => {
-  res.render("admin/admin-dashboard");
+router.get("/dashboard", async (req, res) => {
+  try {
+    const orders = await Order.find();
+    const orderCount = orders.length;
+    const productCount = await Product.countDocuments();
+    const userCount = await User.countDocuments({ verified: true });
+    const categoryCount = await Category.countDocuments();
+    const products = await Product.find()
+      .populate(["category", "brand"])
+      .sort({ totalSoldItems: -1 })
+      .limit(8);
+    const totalRevenue = orders.reduce((acc, order) => {
+      return acc + parseFloat(order.totalAmountPaid.toString());
+    }, 0);
+
+    const orderStatusCounts = {
+      Processing: 0,
+      Shipped: 0,
+      Delivered: 0,
+      Cancelled: 0,
+      Returned: 0,
+    };
+
+    orders.forEach((order) => {
+      orderStatusCounts[order.status] += 1;
+    });
+
+    res.render("admin/admin-dashboard", {
+      orders: orders,
+      orderCount: orderCount,
+      orderStatusCounts: orderStatusCounts,
+      productCount: productCount,
+      userCount: userCount,
+      categoryCount: categoryCount,
+      totalRevenue: totalRevenue,
+      products: products,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 router.get("/logout", (req, res) => {

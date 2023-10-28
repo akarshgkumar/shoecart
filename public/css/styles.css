@@ -425,9 +425,15 @@ button:hover {
   margin-bottom: 10px;
   margin-top: 5px;
 }
+
 #otp-timer {
   color: #333333;
   font-size: 15px;
+}
+
+.dashboard-product-card {
+  flex: 1;
+  box-sizing: border-box;
 }
 
 html,
@@ -755,6 +761,18 @@ table .form-check {
 
 .bg-primary-light {
   background-color: rgba(8, 129, 120, 0.2) !important;
+}
+
+.bg-success-light {
+  background-color: rgba(0, 181, 23, 0.2) !important;
+}
+
+.bg-warning-light {
+  background-color: rgba(253, 138, 20, 0.2) !important;
+}
+
+.bg-info-light {
+  background-color: rgba(13, 202, 140, 0.2) !important;
 }
 
 .screen-overlay {

@@ -761,14 +761,25 @@ $(function () {
     }
   });
 
-  var xValues = ["Italy", "France", "Spain", "USA", "Argentina"];
-  var yValues = [55, 49, 44, 24, 15];
+  var predefinedStatuses = [
+    "Processing",
+    "Shipped",
+    "Delivered",
+    "Cancelled",
+    "Returned",
+  ];
+
+  var yValues = predefinedStatuses.map(
+    (status) => orderStatusCounts[status] || 0
+  );
+  console.log(yValues);
+
   var barColors = ["red", "green", "blue", "orange", "brown"];
 
   new Chart("myChart", {
     type: "bar",
     data: {
-      labels: xValues,
+      labels: predefinedStatuses,
       datasets: [
         {
           backgroundColor: barColors,
@@ -780,7 +791,17 @@ $(function () {
       legend: { display: false },
       title: {
         display: true,
-        text: "World Wine Production 2018",
+        text: "Order Status Counts",
+      },
+      scales: {
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true,
+              stepSize: 1,
+            },
+          },
+        ],
       },
     },
   });

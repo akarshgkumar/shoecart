@@ -351,6 +351,7 @@ router.post("/place-order", async (req, res) => {
           mainImg: product.mainImage,
           name: product.name,
           brand: product.brand.name,
+          category: product.category.name,
         };
       })
     );
@@ -484,6 +485,7 @@ router.post("/validate-order", async (req, res) => {
           mainImg: product.mainImage,
           name: product.name,
           brand: product.brand.name,
+          category: product.category.name,
         };
       })
     );
