@@ -755,6 +755,12 @@ table .form-check {
   color: #495058 !important;
 }
 
+.dropdown-menu .dropdown-item:active {
+  background-color: #088178 !important; 
+  color: #fff !important; 
+}
+
+
 .shadow {
   -webkit-box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.03);
   box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.03);

@@ -838,7 +838,7 @@ $(function () {
       );
     } else if (filterValue === "category") {
       console.log("on category filter");
-      let labels = categoryData.map((data) => data._id.category);
+      let labels = categoryData.map((data) => data.category);
       let categorySalesCounts = categoryData.map((data) => data.count);
 
       updateChart(labels, categorySalesCounts, `Sales Count Of Category`);
@@ -847,7 +847,6 @@ $(function () {
 
   let xValues = orderStatuses;
   let yValues = orderStatusCounts.map((countObj) => countObj.count);
-  let barColors = ["red", "green", "blue", "orange", "brown"];
 
   let myChart = new Chart("myChart", {
     type: "bar",
@@ -855,7 +854,7 @@ $(function () {
       labels: xValues,
       datasets: [
         {
-          backgroundColor: barColors,
+          backgroundColor: '#08817833',
           data: yValues,
         },
       ],

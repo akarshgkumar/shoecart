@@ -96,14 +96,44 @@ router.get("/dashboard", async (req, res) => {
       },
       { $unwind: "$products" },
       {
+        $lookup: {
+          from: "products",
+          localField: "products.product",
+          foreignField: "_id",
+          as: "productData",
+        },
+      },
+      {
+        $unwind: "$productData",
+      },
+      {
         $group: {
           _id: {
-            category: "$products.category",
+            category: "$productData.category",
           },
           count: { $sum: "$products.quantity" },
         },
       },
+      {
+        $lookup: {
+          from: "categories",
+          localField: "_id.category",
+          foreignField: "_id",
+          as: "categoryData",
+        },
+      },
+      {
+        $unwind: "$categoryData",
+      },
+      {
+        $project: {
+          category: "$categoryData.name",
+          count: 1,
+        },
+      },
     ]);
+    
+    console.log(categoryData)
 
     const paymentMethodCounts = await Order.aggregate([
       { $group: { _id: "$paymentMethod", count: { $sum: 1 } } },
