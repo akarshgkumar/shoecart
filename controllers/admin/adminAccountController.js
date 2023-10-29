@@ -2,11 +2,15 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const puppeteer = require("puppeteer");
+const ejs = require("ejs");
+const path = require("path");
 const Admin = require("../../models/Admin");
 const Order = require("../../models/Order");
 const Product = require("../../models/Product");
 const User = require("../../models/User");
 const Category = require("../../models/Category");
+const SalesReport = require("../../models/SalesReport");
 const JWT_SECRET = process.env.JWT_SECRET;
 const authenticateAdmin = require("../../middlewares/admin/authenticateAdmin");
 
@@ -132,15 +136,11 @@ router.get("/dashboard", async (req, res) => {
         },
       },
     ]);
-    
-    console.log(categoryData)
 
     const paymentMethodCounts = await Order.aggregate([
       { $group: { _id: "$paymentMethod", count: { $sum: 1 } } },
       { $sort: { _id: 1 } },
     ]);
-
-    console.log("month data :", monthData);
 
     const productCount = await Product.countDocuments();
     const userCount = await User.countDocuments({ verified: true });
@@ -149,9 +149,13 @@ router.get("/dashboard", async (req, res) => {
       .populate(["category", "brand"])
       .sort({ totalSoldItems: -1 })
       .limit(8);
-    const totalRevenue = orders.reduce((acc, order) => {
-      return acc + parseFloat(order.totalAmountPaid.toString());
-    }, 0);
+    const totalRevenue = orders
+      .filter(
+        (order) => order.status !== "Returned" && order.status !== "Cancelled"
+      )
+      .reduce((acc, order) => {
+        return acc + parseFloat(order.totalAmountPaid.toString());
+      }, 0);
 
     const orderStatuses = (await Order.distinct("status")).sort();
     const orderStatusCounts = await Order.aggregate([
@@ -179,6 +183,355 @@ router.get("/dashboard", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal Server Error");
+  }
+});
+
+router.post("/sales/report", async (req, res) => {
+  try {
+    const { startDate, endDate } = req.body;
+    const startDateTime = new Date(startDate);
+    const endDateTime = new Date(endDate);
+
+    endDateTime.setHours(23, 59, 59, 999);
+    const orders = await Order.find({
+      createdAt: {
+        $gte: startDateTime,
+        $lte: endDateTime,
+      },
+    });
+
+    const totalOrders = orders.length;
+
+    const totalSales = orders.reduce(
+      (acc, order) => acc + parseFloat(order.totalAmountPaid.toString()),
+      0
+    );
+
+    const successfulOrders = orders.filter(
+      (order) => order.status === "Delivered"
+    );
+    const totalSuccessfulOrders = successfulOrders.length;
+
+    const revenueOrders = orders.filter(
+      (order) => order.status !== "Returned" && order.status !== "Cancelled"
+    );
+    const totalRevenue = revenueOrders.reduce(
+      (acc, order) => acc + parseFloat(order.totalAmountPaid.toString()),
+      0
+    );
+
+    // Product, Category, Brand aggregation
+    const productAggregation = await Order.aggregate([
+      { $unwind: "$products" },
+      {
+        $group: {
+          _id: "$products.product",
+          totalSalesAmount: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $ne: ["$status", "Cancelled"] },
+                    { $ne: ["$status", "Returned"] },
+                  ],
+                },
+                { $multiply: ["$products.price", "$products.quantity"] },
+                0,
+              ],
+            },
+          },
+          unitsSold: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $ne: ["$status", "Cancelled"] },
+                    { $ne: ["$status", "Returned"] },
+                  ],
+                },
+                "$products.quantity",
+                0,
+              ],
+            },
+          },
+          cancelledCount: {
+            $sum: {
+              $cond: [
+                { $eq: ["$status", "Cancelled"] },
+                "$products.quantity",
+                0,
+              ],
+            },
+          },
+          returnedCount: {
+            $sum: {
+              $cond: [
+                { $eq: ["$status", "Returned"] },
+                "$products.quantity",
+                0,
+              ],
+            },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "_id",
+          as: "productData",
+        },
+      },
+      {
+        $unwind: "$productData",
+      },
+      {
+        $project: {
+          name: "$productData.name",
+          totalSalesAmount: 1,
+          unitsSold: 1,
+          cancelledCount: 1,
+          returnedCount: 1,
+        },
+      },
+    ]);
+
+    const categoryAggregation = await Order.aggregate([
+      { $unwind: "$products" },
+      {
+        $group: {
+          _id: "$products.product",
+          totalSalesAmount: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $ne: ["$status", "Cancelled"] },
+                    { $ne: ["$status", "Returned"] },
+                  ],
+                },
+                { $multiply: ["$products.price", "$products.quantity"] },
+                0,
+              ],
+            },
+          },
+          unitsSold: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $ne: ["$status", "Cancelled"] },
+                    { $ne: ["$status", "Returned"] },
+                  ],
+                },
+                "$products.quantity",
+                0,
+              ],
+            },
+          },
+          cancelledCount: {
+            $sum: {
+              $cond: [
+                { $eq: ["$status", "Cancelled"] },
+                "$products.quantity",
+                0,
+              ],
+            },
+          },
+          returnedCount: {
+            $sum: {
+              $cond: [
+                { $eq: ["$status", "Returned"] },
+                "$products.quantity",
+                0,
+              ],
+            },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "_id",
+          as: "productData",
+        },
+      },
+      { $unwind: "$productData" },
+      {
+        $group: {
+          _id: "$productData.category",
+          totalSalesAmount: { $sum: "$totalSalesAmount" },
+          unitsSold: { $sum: "$unitsSold" },
+          cancelledCount: { $sum: "$cancelledCount" },
+          returnedCount: { $sum: "$returnedCount" },
+        },
+      },
+      {
+        $lookup: {
+          from: "categories",
+          localField: "_id",
+          foreignField: "_id",
+          as: "categoryData",
+        },
+      },
+      { $unwind: "$categoryData" },
+      {
+        $project: {
+          name: "$categoryData.name",
+          totalSalesAmount: 1,
+          unitsSold: 1,
+          cancelledCount: 1,
+          returnedCount: 1,
+        },
+      },
+    ]);
+
+    const brandAggregation = await Order.aggregate([
+      { $unwind: "$products" },
+      {
+        $group: {
+          _id: "$products.product",
+          totalSalesAmount: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $ne: ["$status", "Cancelled"] },
+                    { $ne: ["$status", "Returned"] },
+                  ],
+                },
+                { $multiply: ["$products.price", "$products.quantity"] },
+                0,
+              ],
+            },
+          },
+          unitsSold: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $ne: ["$status", "Cancelled"] },
+                    { $ne: ["$status", "Returned"] },
+                  ],
+                },
+                "$products.quantity",
+                0,
+              ],
+            },
+          },
+          cancelledCount: {
+            $sum: {
+              $cond: [
+                { $eq: ["$status", "Cancelled"] },
+                "$products.quantity",
+                0,
+              ],
+            },
+          },
+          returnedCount: {
+            $sum: {
+              $cond: [
+                { $eq: ["$status", "Returned"] },
+                "$products.quantity",
+                0,
+              ],
+            },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "_id",
+          as: "productData",
+        },
+      },
+      { $unwind: "$productData" },
+      {
+        $group: {
+          _id: "$productData.brand",
+          totalSalesAmount: { $sum: "$totalSalesAmount" },
+          unitsSold: { $sum: "$unitsSold" },
+          cancelledCount: { $sum: "$cancelledCount" },
+          returnedCount: { $sum: "$returnedCount" },
+        },
+      },
+      {
+        $lookup: {
+          from: "brands",
+          localField: "_id",
+          foreignField: "_id",
+          as: "brandData",
+        },
+      },
+      { $unwind: "$brandData" },
+      {
+        $project: {
+          name: "$brandData.name",
+          totalSalesAmount: 1,
+          unitsSold: 1,
+          cancelledCount: 1,
+          returnedCount: 1,
+        },
+      },
+    ]);
+
+    const reportData = new SalesReport({
+      date: `${startDate} to ${endDate}`,
+      totalOrders,
+      totalSales,
+      totalSuccessfulOrders,
+      totalRevenue,
+      categories: categoryAggregation,
+      brands: brandAggregation,
+      products: productAggregation,
+    });
+
+    await reportData.save();
+
+    res.render("admin/admin-report-summary", {
+      data: orders,
+      doc: reportData,
+      startDate,
+      endDate,
+    });
+  } catch (error) {
+    console.error(error);
+    req.flash("error", "Sorry, Server Error");
+    res.redirect("back");
+  }
+});
+
+router.get("/download/sales/report/:reportId", async (req, res) => {
+  try {
+    const report = await SalesReport.findById(req.params.reportId);
+    if (!report) {
+      req.flash("error", "Report not found");
+      return res.redirect("/admin/dashboard");
+    }
+
+    const templatePath = path.resolve(
+      __dirname,
+      "../../public/templates/sales-report.ejs"
+    );
+    console.log("template path",templatePath)
+    const content = await ejs.renderFile(templatePath, {
+      doc: report,
+    });
+
+    const browser = await puppeteer.launch({ headless: "new" });
+    const page = await browser.newPage();
+    await page.setContent(content);
+    const pdf = await page.pdf({ format: "A4", printBackground: true });
+    await browser.close();
+    res.contentType("application/pdf");
+    res.send(pdf);
+  } catch (error) {
+    console.error(error);
+    req.flash("error", "Sorry, Server error occurred");
+    res.redirect("back");
   }
 });
 

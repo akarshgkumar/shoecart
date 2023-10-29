@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sales Overview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      padding: 100px;
+      border: 1px solid rgb(100, 99, 99) !important;
+      border-radius: 5px;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      padding: 80px;
+    }
+
+    th,
+    td {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2 style="text-align: center;">Sales Summary</h2>
+  <div class="container mt-5">
+    <div class="header text-center mb-5">
+      <h1>ShoeCart</h1>
+      <!-- Add code here -->
+    </div>
+
+    <!-- Overall sales summary table -->
+    <h3>Overall Sales Summary</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Total Orders</th>
+          <th>Successful Orders</th>
+          <th>Total Sales</th>
+          <th>Total Revenue</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <%= doc.date %>
+          </td>
+          <td>
+            <%= doc.totalOrders %>
+          </td>
+          <td>
+            <%= doc.totalSuccessfulOrders %>
+          </td>
+          <td>
+            <%= doc.totalSales %>
+          </td>
+          <td>
+            <%= doc.totalRevenue %>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Product details table -->
+    <h3>Product Details</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Product Name</th>
+          <th>Total Sales Amount</th>
+          <th>Units Sold</th>
+          <th>Cancelled Products</th>
+          <th>Returned Products</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% doc.products.forEach((product)=> { %>
+          <tr>
+            <td>
+              <%= product.name %>
+            </td>
+            <td>
+              <%= product.totalSalesAmount %>
+            </td>
+            <td>
+              <%= product.unitsSold %>
+            </td>
+            <td>
+              <%= product.cancelledCount %>
+            </td>
+            <td>
+              <%= product.returnedCount %>
+            </td>
+          </tr>
+          <% }); %>
+      </tbody>
+    </table>
+
+    <!-- Category details table -->
+    <h3>Category Details</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Category Name</th>
+          <th>Total Sales Amount</th>
+          <th>Units Sold</th>
+          <th>Cancelled Products</th>
+          <th>Returned Products</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% doc.categories.forEach((category)=> { %>
+          <tr>
+            <td>
+              <%= category.name %>
+            </td>
+            <td>
+              <%= category.totalSalesAmount %>
+            </td>
+            <td>
+              <%= category.unitsSold %>
+            </td>
+            <td>
+              <%= category.cancelledCount %>
+            </td>
+            <td>
+              <%= category.returnedCount %>
+            </td>
+          </tr>
+          <% }); %>
+      </tbody>
+    </table>
+
+    <!-- Brand details table -->
+    <h3>Brand Details</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Brand Name</th>
+          <th>Total Sales Amount</th>
+          <th>Units Sold</th>
+          <th>Cancelled Products</th>
+          <th>Returned Products</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% doc.brands.forEach((brand)=> { %>
+          <tr>
+            <td>
+              <%= brand.name %>
+            </td>
+            <td>
+              <%= brand.totalSalesAmount %>
+            </td>
+            <td>
+              <%= brand.unitsSold %>
+            </td>
+            <td>
+              <%= brand.cancelledCount %>
+            </td>
+            <td>
+              <%= brand.returnedCount %>
+            </td>
+          </tr>
+          <% }); %>
+      </tbody>
+    </table>
+
+</body>
+
+</html>
