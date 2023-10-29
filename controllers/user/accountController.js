@@ -4,6 +4,8 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
 const sgMail = require("@sendgrid/mail");
+const { customAlphabet } = require("nanoid");
+const nanoid = customAlphabet("1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ", 6);
 const User = require("../../models/User");
 const Order = require("../../models/Order");
 const Banner = require("../../models/Banner");
@@ -16,6 +18,7 @@ const generateOTP = require("../../utils/generateOTP");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 router.get("/login", noCache, redirectIfLoggedIn, (req, res) => {
+  console.log("here");
   res.render("user/login");
 });
 
@@ -25,7 +28,6 @@ router.get("/signup", noCache, redirectIfLoggedIn, (req, res) => {
 });
 
 router.post("/verify-otp", async (req, res) => {
-  console.log("hi");
   const { email, otp, forgot } = req.body;
   console.log(forgot);
   console.log(email);
@@ -39,6 +41,24 @@ router.post("/verify-otp", async (req, res) => {
     user.verified = true;
     user.otp = undefined;
     user.otpExpires = undefined;
+
+    let uniqueReferralCode;
+    let existingUser;
+    let attempts = 0;
+    const maxAttempts = 10;
+
+    do {
+      uniqueReferralCode = nanoid();
+      existingUser = await User.findOne({ referralCode: uniqueReferralCode });
+      attempts++;
+      if (attempts >= maxAttempts) {
+        req.flash("error", "Unexpected error occurred, please try again");
+        return res.redirect("/signup");
+      }
+    } while (existingUser);
+
+    user.referralCode = uniqueReferralCode;
+
     await user.save();
 
     const token = jwt.sign(
@@ -111,17 +131,19 @@ router.get("/account", async (req, res) => {
       "products.product"
     );
 
-    const walletTransactions = await WalletTransaction.find({ userId: userId }).populate(
-      "orderId"
+    const walletTransactions = await WalletTransaction.find({
+      userId: userId,
+    }).populate("orderId");
+    const validWalletTransactions = walletTransactions.filter(
+      (transaction) => transaction.orderId !== null
     );
-    const validWalletTransactions = walletTransactions.filter(transaction => transaction.orderId !== null);
-
-    console.log(validWalletTransactions)
 
     const userData = {
       userId: user._id,
       username: user.name,
       email: user.email,
+      referralCode: user.referralCode,
+      referralEarnings: user.referralEarnings,
       phoneNo: user.phoneNo,
       orders: order,
       addresses: user.addresses,
@@ -218,9 +240,9 @@ router.get("/home", async (req, res) => {
     const latestProducts = await Product.find(filter)
       .sort({ createdAt: -1 })
       .limit(8)
-      .populate(["category","brand"]);
+      .populate(["category", "brand"]);
 
-      const mostSoldProducts = await Product.find(filter)
+    const mostSoldProducts = await Product.find(filter)
       .sort({ totalSoldItems: -1 })
       .limit(8)
       .populate("category");
@@ -388,6 +410,21 @@ router.post("/verify-email/:forgot", async (req, res) => {
   }
 });
 
+router.post("/check-referral", async (req, res) => {
+  try {
+    const regex = new RegExp(`^${req.body.referralCode}$`, "i");
+    const user = await User.findOne({ referralCode: regex });
+    if (user) {
+      return res.json({ valid: true });
+    } else {
+      return res.json({ valid: false });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Internal Server Error");
+  }
+});
+
 router.post("/signup", async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
@@ -433,7 +470,20 @@ router.post("/signup", async (req, res) => {
       password: hashedPassword,
       otp,
       otpExpires,
+      wallet: {
+        balance: 0,
+      }
     };
+    const referralCodeUppercase = req.body.referralCode.toUpperCase();
+
+    const referrer = await User.findOne({
+      referralCode: referralCodeUppercase,
+    });
+    if (referrer) {
+      data.referredBy = referrer.referralCode;
+      data.wallet.balance = 250;
+    }
+
     await User.create(data);
     const msg = {
       to: req.body.email,

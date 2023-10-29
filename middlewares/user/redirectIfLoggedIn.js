@@ -14,7 +14,7 @@ async function redirectIfLoggedIn(req, res, next) {
       next();
     }
   } catch (error) {
-    console.error("Error in setLoginStatus middleware:", error);
+    console.error("Error in redirectIfLoggedIn middleware:", error);
     next();
   }
 }

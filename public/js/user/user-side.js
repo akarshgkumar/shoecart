@@ -164,7 +164,6 @@ $(function () {
   }
   const defaultAddressDataElement =
     document.getElementById("defaultAddressData");
-  console.log(defaultAddressDataElement);
   let defaultAddress;
   if (defaultAddressDataElement) {
     defaultAddress = JSON.parse(defaultAddressDataElement.textContent);
@@ -338,7 +337,7 @@ $(function () {
         required: true,
         digits: true,
         minlength: 5,
-        maxlength: 10,
+        maxlength: 6,
       },
       payment_option: {
         required: true,
@@ -379,6 +378,7 @@ $(function () {
         }
       }
       if (paymentOption === "Razor Pay") {
+        console.log("inside razor pay");
         const formData = $(form).serialize();
         const userName = $("input[name='name']").val();
         const userEmail = $("input[name='email']").val();
@@ -407,8 +407,12 @@ $(function () {
                   $("<input type='hidden' name='razorpay_signature' />")
                     .val(response.razorpay_signature)
                     .appendTo(form);
+                    console.log("form action")
+
                   form.action = "/order/validate-order";
+                  console.log("before form submit")
                   form.submit();
+                  console.log("form submitted")
                 },
                 prefill: {
                   name: userName,
@@ -423,6 +427,7 @@ $(function () {
                 },
               };
               var rzp1 = new Razorpay(options);
+              console.log("before razor pay open");
               rzp1.open();
               rzp1.on("payment.failed", function (response) {
                 showAlert(
@@ -542,7 +547,7 @@ $(function () {
         required: true,
         digits: true,
         minlength: 5,
-        maxlength: 10,
+        maxlength: 6,
       },
     },
     messages: {

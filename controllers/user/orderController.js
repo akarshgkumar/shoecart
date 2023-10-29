@@ -387,6 +387,27 @@ router.post("/place-order", async (req, res) => {
     );
 
     await newOrder.save();
+
+    const userOrdersCount = await Order.countDocuments({ user: user });
+    const fetchedUserAgain = await User.findById(user);
+
+    if (fetchedUserAgain.referredBy && userOrdersCount === 1) {
+      await User.findOneAndUpdate(
+        { referralCode: fetchedUserAgain.referredBy },
+        {
+          $inc: {
+            "wallet.balance": 500,
+            referralEarnings: 500,
+          },
+        }
+      );
+      await User.findByIdAndUpdate(fetchedUserAgain._id, {
+        $inc: {
+          "wallet.balance": 250,
+        },
+      });
+    }
+
     console.log("after saving order");
     for (let cartProduct of cart.products) {
       const product = await Product.findById(cartProduct.productId);
@@ -533,6 +554,27 @@ router.post("/validate-order", async (req, res) => {
     );
 
     await newOrder.save();
+
+    const userOrdersCount = await Order.countDocuments({ user: user });
+    const fetchedUserAgain = await User.findById(user);
+
+    if (fetchedUserAgain.referredBy && userOrdersCount === 1) {
+      await User.findOneAndUpdate(
+        { referralCode: fetchedUserAgain.referredBy },
+        {
+          $inc: {
+            "wallet.balance": 500,
+            referralEarnings: 500,
+          },
+        }
+      );
+      await User.findByIdAndUpdate(fetchedUserAgain._id, {
+        $inc: {
+          "wallet.balance": 250,
+        },
+      });
+    }
+
     if (amountPaidThroughWallet > 0) {
       await User.findByIdAndUpdate(user, {
         $inc: { "wallet.balance": -amountPaidThroughWallet },

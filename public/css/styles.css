@@ -225,7 +225,20 @@ button:hover {
 }
 
 .signup-form {
-  margin-top: -15px;
+  margin-top: -40px;
+}
+
+.confirm-password-icon-container {
+  position: relative;
+  display: inline-block;
+}
+
+.confirm-password-icon-container .fa-check-circle {
+  position: relative;
+  font-size: 12px;
+  margin-left: -3px;
+  margin-top: -5px;
+  color: #008000;
 }
 
 .login100-form-title {
@@ -446,7 +459,7 @@ button:hover {
   position: absolute;
   background-color: #f9f9f9;
   min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 1;
 }
 
@@ -756,10 +769,9 @@ table .form-check {
 }
 
 .dropdown-menu .dropdown-item:active {
-  background-color: #088178 !important; 
-  color: #fff !important; 
+  background-color: #088178 !important;
+  color: #fff !important;
 }
-
 
 .shadow {
   -webkit-box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.03);
@@ -5178,26 +5190,26 @@ body.dark .dropdown-menu .dropdown-item.text-danger {
 
 .dropdown-menu li {
   position: relative !important;
-  }
-  .dropdown-menu .dropdown-submenu {
+}
+.dropdown-menu .dropdown-submenu {
   display: none !important;
   position: absolute !important;
   left: 100% !important;
   top: -7px !important;
-  }
-  .dropdown-menu .dropdown-submenu-left {
+}
+.dropdown-menu .dropdown-submenu-left {
   right: 100% !important;
   left: auto !important;
-  }
-  .dropdown-menu > li:hover > .dropdown-submenu {
+}
+.dropdown-menu > li:hover > .dropdown-submenu {
   display: block !important;
-  }
-  
-  .dropdown-hover:hover>.dropdown-menu {
+}
+
+.dropdown-hover:hover > .dropdown-menu {
   display: inline-block !important;
-  }
-  
-  .dropdown-hover>.dropdown-toggle:active {
+}
+
+.dropdown-hover > .dropdown-toggle:active {
   /*Without this, clicking will make it sticky*/
   pointer-events: none !important;
-  }
+}

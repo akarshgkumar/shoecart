@@ -496,6 +496,44 @@ $(function () {
     },
   });
 
+  $("#referralCode").on("keyup", function (event) {
+    let code = $(this).val();
+    console.log("Code:", code);
+
+    if (!code.trim()) {
+      console.log("Empty code detected");
+      $(".referral-check-msg").hide();
+      $(".referral-input-msg").show();
+      return;
+    }
+
+    $.ajax({
+      type: "POST",
+      url: "/check-referral",
+      data: { referralCode: code },
+      success: function (response) {
+        console.log("Response:", response);
+        if (response.valid) {
+          $(".referral-check-msg")
+            .text("Correct Referral Code")
+            .css("color", "#198754")
+            .show();
+          $(".referral-input-msg").hide();
+        } else {
+          console.log("not valid");
+          $(".referral-check-msg")
+            .text("Incorrect Referral Code")
+            .css("color", "#c51e3a")
+            .show();
+          $(".referral-input-msg").hide();
+        }
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.log("Error:", textStatus, errorThrown);
+      },
+    });
+  });
+
   $(".login-form").validate({
     onkeyup: function (element) {
       $(element).valid();
@@ -763,7 +801,7 @@ $(function () {
 
   $(".dropdown-menu a.dropdown-item").click(function () {
     console.log("on filter change");
-    let filterValue = $(this).data('value');
+    let filterValue = $(this).data("value");
     if (filterValue === "allTime") {
       updateChart(xValues, yValues, "All Time Order Status");
     } else if (filterValue === "paymentMethod") {
@@ -845,38 +883,40 @@ $(function () {
     }
   });
 
-  let xValues = orderStatuses;
-  let yValues = orderStatusCounts.map((countObj) => countObj.count);
+  if ($(".admin-dashboard-heading").length > 0) {
+    let xValues = orderStatuses;
+    let yValues = orderStatusCounts.map((countObj) => countObj.count);
 
-  let myChart = new Chart("myChart", {
-    type: "bar",
-    data: {
-      labels: xValues,
-      datasets: [
-        {
-          backgroundColor: '#08817833',
-          data: yValues,
-        },
-      ],
-    },
-    options: {
-      scales: {
-        yAxes: [
+    let myChart = new Chart("myChart", {
+      type: "bar",
+      data: {
+        labels: xValues,
+        datasets: [
           {
-            ticks: {
-              beginAtZero: true,
-              stepSize: 1,
-            },
+            backgroundColor: "#08817833",
+            data: yValues,
           },
         ],
       },
-      legend: { display: false },
-      title: {
-        display: true,
-        text: "All Time Order Statistics",
+      options: {
+        scales: {
+          yAxes: [
+            {
+              ticks: {
+                beginAtZero: true,
+                stepSize: 1,
+              },
+            },
+          ],
+        },
+        legend: { display: false },
+        title: {
+          display: true,
+          text: "All Time Order Statistics",
+        },
       },
-    },
-  });
+    });
+  }
 
   function updateChart(labels, data, titleText) {
     myChart.data.labels = labels;

@@ -7,9 +7,11 @@
       const RAZORPAY_KEY_ID = '<%= RAZORPAY_KEY_ID %>';
     </script>
     <%- include('partials/checkout-header') %>
+    <% if(defaultAddress) { %>
       <div id="defaultAddressData" style="display:none;">
         <%= JSON.stringify(defaultAddress) %>
       </div>
+      <% } %>
 
       <main class="main">
         <div class="page-header breadcrumb-wrap">

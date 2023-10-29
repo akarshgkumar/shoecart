@@ -7,6 +7,7 @@ async function setLoginStatus(req, res, next) {
     const token = req.cookies.jwt;
     if (!token) {
       res.locals.isLoggedIn = false;
+      console.log("here");
       return next();
     }
 
@@ -36,6 +37,7 @@ async function setLoginStatus(req, res, next) {
 
 async function fetchUserFromToken(req, res, next) {
   try {
+    console.log("here")
     const token = req.cookies.jwt;
     if (!token) {
       return next();
@@ -43,11 +45,15 @@ async function fetchUserFromToken(req, res, next) {
 
     const decoded = jwt.verify(token, JWT_SECRET);
     const userEmail = decoded.email;
+    console.log("user email ", userEmail)
 
     const user = await User.findOne({ email: userEmail });
 
     if (!user) {
-      return res.status(404).send("User not found");
+      console.log("no user")
+      req.flash("error", "User not found");
+      res.clearCookie('jwt');
+      return res.redirect("/login");
     }
 
     req.user = user;
