@@ -10,19 +10,24 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@100;300;400;500;700&display=swap"
+    rel="stylesheet">
   <style>
     body {
       padding: 100px;
       border: 1px solid rgb(100, 99, 99) !important;
       border-radius: 5px;
       font-family: 'Roboto', sans-serif;
+      color: #36454F;
     }
 
     table {
       border-collapse: collapse;
       width: 100%;
-
+      margin-bottom: 30px;
       padding: 80px;
     }
 
@@ -34,7 +39,7 @@
     }
 
     th {
-      background-color: #f2f2f2;
+      background-color: #acd4d133;
     }
 
     button {
@@ -52,30 +57,59 @@
     button:hover {
       background-color: #08817833;
     }
+
+    .logo-text {
+      color: #000;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 28px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: normal;
+      letter-spacing: 1.14px;
+    }
+
+    .selected-period-text {
+      font-weight: 400;
+    }
+
+    .selected-period-date {
+      color: #088178;
+    }
+
+    .main-heading {
+      color: #414A4C;
+      font-size: 28px;
+      text-align: center;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
   </style>
 </head>
 
 <body>
 
-  <h2 style="text-align: center;">Sales Summary</h2>
+  <p class="main-heading">Sales Summary</p>
   <div class="container mt-5">
     <div class="header text-center mb-5">
-      <h1>ShoeCart</h1>
-      <h2>Selected Period Sales Report: <span class="text-primary">
-          <%= startDate %>
-        </span> - <span class="text-primary">
-          <%= endDate %>
-        </span></h2>
+      <p class="logo-text"><span style="color: #088178;">Shoe</span>Cart</p>
+      <h2 class="selected-period-text">Selected Period Sales Report: <span class="selected-period-date">
+          <%= doc.date.replace(/(\d{2}-\d{2}-\d{4})-(\d{2}-\d{2}-\d{4})/, "$1 to $2" ) %>
+        </span>
+      </h2>
     </div>
 
     <!-- Overall sales summary table -->
-    <h3>Overall Sales Summary</h3>
+    <h3>Overall Order Summary</h3>
     <table>
       <thead>
         <tr>
           <th>Date</th>
           <th>Total Orders</th>
-          <th>Successful Orders</th>
+          <th>Processing Orders</th>
+          <th>Shipped Orders</th>
+          <th>Delivered Orders</th>
+          <th>Cancelled Orders</th>
+          <th>Returned Orders</th>
           <th>Total Sales</th>
           <th>Total Revenue</th>
         </tr>
@@ -83,19 +117,31 @@
       <tbody>
         <tr>
           <td>
-            <%= doc.date %>
+            <%= doc.date.replace(/(\d{2}-\d{2}-\d{4})-(\d{2}-\d{2}-\d{4})/, "$1 to $2" ) %>
           </td>
           <td>
             <%= doc.totalOrders %>
           </td>
           <td>
-            <%= doc.totalSuccessfulOrders %>
+            <%= doc.totalProcessingOrders %>
           </td>
           <td>
-            <%= doc.totalSales %>
+            <%= doc.totalShippedOrders %>
           </td>
           <td>
-            <%= doc.totalRevenue %>
+            <%= doc.totalDeliveredOrders %>
+          </td>
+          <td>
+            <%= doc.totalCancelledOrders %>
+          </td>
+          <td>
+            <%= doc.totalReturnedOrders %>
+          </td>
+          <td>
+            ₹<%= doc.totalSales %>
+          </td>
+          <td>
+            ₹<%= doc.totalRevenue %>
           </td>
         </tr>
       </tbody>
@@ -107,10 +153,10 @@
       <thead>
         <tr>
           <th>Product Name</th>
-          <th>Total Sales Amount</th>
           <th>Units Sold</th>
           <th>Cancelled Products</th>
           <th>Returned Products</th>
+          <th>Total Sales Amount</th>
         </tr>
       </thead>
       <tbody>
@@ -120,9 +166,6 @@
               <%= product.name %>
             </td>
             <td>
-              <%= product.totalSalesAmount %>
-            </td>
-            <td>
               <%= product.unitsSold %>
             </td>
             <td>
@@ -130,6 +173,9 @@
             </td>
             <td>
               <%= product.returnedCount %>
+            </td>
+            <td>
+              ₹<%= product.totalSalesAmount %>
             </td>
           </tr>
           <% }); %>
@@ -142,10 +188,10 @@
       <thead>
         <tr>
           <th>Category Name</th>
-          <th>Total Sales Amount</th>
           <th>Units Sold</th>
           <th>Cancelled Products</th>
           <th>Returned Products</th>
+          <th>Total Sales Amount</th>
         </tr>
       </thead>
       <tbody>
@@ -155,9 +201,6 @@
               <%= category.name %>
             </td>
             <td>
-              <%= category.totalSalesAmount %>
-            </td>
-            <td>
               <%= category.unitsSold %>
             </td>
             <td>
@@ -165,6 +208,9 @@
             </td>
             <td>
               <%= category.returnedCount %>
+            </td>
+            <td>
+              ₹<%= category.totalSalesAmount %>
             </td>
           </tr>
           <% }); %>
@@ -177,10 +223,10 @@
       <thead>
         <tr>
           <th>Brand Name</th>
-          <th>Total Sales Amount</th>
           <th>Units Sold</th>
           <th>Cancelled Products</th>
           <th>Returned Products</th>
+          <th>Total Sales Amount</th>
         </tr>
       </thead>
       <tbody>
@@ -188,9 +234,6 @@
           <tr>
             <td>
               <%= brand.name %>
-            </td>
-            <td>
-              <%= brand.totalSalesAmount %>
             </td>
             <td>
               <%= brand.unitsSold %>
@@ -201,6 +244,9 @@
             <td>
               <%= brand.returnedCount %>
             </td>
+            <td>
+              ₹<%= brand.totalSalesAmount %>
+            </td>
           </tr>
           <% }); %>
       </tbody>
@@ -208,8 +254,8 @@
     <div class="download-section" style="margin-top: 10px;
       float: right;">
       <p style="margin: 8px; text-align: center;">Download As:</p>
-      <a href="/admin/download/sales/report/<%= doc._id %>"><button type="button">PDF</button></a>
-      <button type="button">Excel</button>
+      <a href="/admin/download/sales/report/pdf/<%= doc._id %>"><button type="button">PDF</button></a>
+      <a href="/admin/download/sales/report/excel/<%= doc._id %>"><button type="button">Excel</button></a>
     </div>
 
 </body>

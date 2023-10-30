@@ -6,7 +6,11 @@ const salesReportsSchema = new mongoose.Schema(
     totalOrders: { type: Number, required: true },
     totalSales: { type: Number, required: true },
     totalRevenue: { type: Number, required: true },
-    totalSuccessfulOrders: { type: Number, required: true },
+    totalDeliveredOrders: { type: Number, required: true },
+    totalCancelledOrders: { type: Number, required: true },
+    totalReturnedOrders: { type: Number, required: true },
+    totalProcessingOrders: { type: Number, required: true },
+    totalShippedOrders: { type: Number, required: true },
     categories: {
       type: [
         {

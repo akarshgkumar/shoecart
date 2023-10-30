@@ -4,12 +4,14 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const puppeteer = require("puppeteer");
 const ejs = require("ejs");
+const fs = require("fs");
 const path = require("path");
 const Admin = require("../../models/Admin");
 const Order = require("../../models/Order");
 const Product = require("../../models/Product");
 const User = require("../../models/User");
 const Category = require("../../models/Category");
+const excel = require("excel4node");
 const SalesReport = require("../../models/SalesReport");
 const JWT_SECRET = process.env.JWT_SECRET;
 const authenticateAdmin = require("../../middlewares/admin/authenticateAdmin");
@@ -207,10 +209,28 @@ router.post("/sales/report", async (req, res) => {
       0
     );
 
-    const successfulOrders = orders.filter(
+    const deliveredOrders = orders.filter(
       (order) => order.status === "Delivered"
     );
-    const totalSuccessfulOrders = successfulOrders.length;
+    const totalDeliveredOrders = deliveredOrders.length;
+
+    const cancelledOrders = orders.filter(
+      (order) => order.status === "Cancelled"
+    );
+    const totalCancelledOrders = cancelledOrders.length;
+
+    const returnedOrders = orders.filter(
+      (order) => order.status === "Returned"
+    );
+    const totalReturnedOrders = returnedOrders.length;
+
+    const processingOrders = orders.filter(
+      (order) => order.status === "Processing"
+    );
+    const totalProcessingOrders = processingOrders.length;
+
+    const shippedOrders = orders.filter((order) => order.status === "Shipped");
+    const totalShippedOrders = shippedOrders.length;
 
     const revenueOrders = orders.filter(
       (order) => order.status !== "Returned" && order.status !== "Cancelled"
@@ -478,11 +498,30 @@ router.post("/sales/report", async (req, res) => {
       },
     ]);
 
+    const formatDate = (date) => {
+      const d = new Date(date);
+      const day = ("0" + d.getDate()).slice(-2);
+      const month = ("0" + (d.getMonth() + 1)).slice(-2);
+      const year = d.getFullYear();
+      return `${day}-${month}-${year}`;
+    };
+
+    let reportDate;
+    if (startDate === endDate) {
+      reportDate = formatDate(startDate);
+    } else {
+      reportDate = `${formatDate(startDate)}-${formatDate(endDate)}`;
+    }
+
     const reportData = new SalesReport({
-      date: `${startDate} to ${endDate}`,
+      date: reportDate,
       totalOrders,
       totalSales,
-      totalSuccessfulOrders,
+      totalDeliveredOrders,
+      totalCancelledOrders,
+      totalProcessingOrders,
+      totalReturnedOrders,
+      totalShippedOrders,
       totalRevenue,
       categories: categoryAggregation,
       brands: brandAggregation,
@@ -500,11 +539,11 @@ router.post("/sales/report", async (req, res) => {
   } catch (error) {
     console.error(error);
     req.flash("error", "Sorry, Server Error");
-    res.redirect("back");
+    res.redirect("/admin/dashboard");
   }
 });
 
-router.get("/download/sales/report/:reportId", async (req, res) => {
+router.get("/download/sales/report/pdf/:reportId", async (req, res) => {
   try {
     const report = await SalesReport.findById(req.params.reportId);
     if (!report) {
@@ -516,7 +555,6 @@ router.get("/download/sales/report/:reportId", async (req, res) => {
       __dirname,
       "../../public/templates/sales-report.ejs"
     );
-    console.log("template path",templatePath)
     const content = await ejs.renderFile(templatePath, {
       doc: report,
     });
@@ -524,13 +562,146 @@ router.get("/download/sales/report/:reportId", async (req, res) => {
     const browser = await puppeteer.launch({ headless: "new" });
     const page = await browser.newPage();
     await page.setContent(content);
-    const pdf = await page.pdf({ format: "A4", printBackground: true });
+
+    const salesReportDirectory = path.resolve(
+      __dirname,
+      "../../sales-reports/"
+    );
+    if (!fs.existsSync(salesReportDirectory)) {
+      fs.mkdirSync(salesReportDirectory);
+    }
+    const pdfFilePath = path.resolve(
+      salesReportDirectory,
+      `${report.date}.pdf`
+    );
+
+    await page.pdf({
+      path: pdfFilePath,
+      format: "A3",
+      margin: {
+        top: "10mm",
+        right: "10mm",
+        bottom: "10mm",
+        left: "10mm",
+      },
+    });
+
     await browser.close();
-    res.contentType("application/pdf");
-    res.send(pdf);
+
+    res.download(
+      pdfFilePath,
+      `sales_report_${report.date}.pdf`,
+      (downloadError) => {
+        if (downloadError) {
+          console.error(downloadError);
+          return res
+            .status(500)
+            .send(`Download failed: ${downloadError.message}`);
+        }
+
+        fs.unlinkSync(pdfFilePath);
+      }
+    );
   } catch (error) {
     console.error(error);
     req.flash("error", "Sorry, Server error occurred");
+    res.redirect("back");
+  }
+});
+
+router.get("/download/sales/report/excel/:reportId", async (req, res) => {
+  try {
+    const doc = await SalesReport.findById(req.params.reportId);
+    const workbook = new excel.Workbook();
+    const options = {
+      sheetProtection: {
+        autoFilter: true,
+        deleteColumns: true,
+        deleteRows: true,
+        formatCells: true,
+        formatColumns: true,
+        formatRows: true,
+        insertColumns: true,
+        insertHyperlinks: true,
+        insertRows: true,
+        objects: true,
+        pivotTables: true,
+        scenarios: true,
+        selectLockedCells: true,
+        selectUnlockedCells: true,
+        sheet: true,
+        sort: true,
+      },
+    };
+    const categoriesSheet = workbook.addWorksheet("Categories");
+    const brandsSheet = workbook.addWorksheet("Brands");
+    const productsSheet = workbook.addWorksheet("Products");
+    const columnHeading = workbook.createStyle({
+      font: {
+        bold: true,
+        size: 12,
+      },
+    });
+    const style = workbook.createStyle({
+      font: {
+        size: 12,
+      },
+    });
+    const generateSheet = (sheet, data) => {
+      let row = 1;
+      sheet.cell(row, 1).string("Name").style(columnHeading);
+      sheet.cell(row, 2).string("Total Sales Amount").style(columnHeading);
+      sheet.cell(row, 3).string("Units Sold").style(columnHeading);
+      sheet.cell(row, 4).string("Cancelled Count").style(columnHeading);
+      sheet.cell(row, 5).string("Returned Count").style(columnHeading);
+      row++;
+      for (const item of data) {
+        sheet.cell(row, 1).string(item.name).style(style);
+        sheet.cell(row, 2).number(item.totalSalesAmount).style(style);
+        sheet.cell(row, 3).number(item.unitsSold).style(style);
+        sheet.cell(row, 4).number(item.cancelledCount).style(style);
+        sheet.cell(row, 5).number(item.returnedCount).style(style);
+        row++;
+      }
+    };
+
+    generateSheet(categoriesSheet, doc.categories);
+    generateSheet(brandsSheet, doc.brands);
+    generateSheet(productsSheet, doc.products);
+
+    const reportsDir = path.join(__dirname, "..", "..", "reports");
+    if (!fs.existsSync(reportsDir)) {
+      fs.mkdirSync(reportsDir);
+    }
+
+    await workbook.write(
+      path.join(reportsDir, `${doc.date}-sales-report.xlsx`)
+    );
+    res.download(
+      path.join(reportsDir, `${doc.date}-sales-report.xlsx`),
+      `${doc.date}-sales-report.xlsx`,
+      (err) => {
+        if (err) {
+          console.error("File download failed:", err);
+          req.flash("error", "File download failed");
+          return res.redirect("back");
+        }
+      }
+    );
+
+    // Listen to the finish event on the response
+    res.on("finish", () => {
+      // Delete the file once the response is finished
+      fs.unlink(
+        path.join(reportsDir, `${doc.date}-sales-report.xlsx`),
+        (err) => {
+          if (err) console.error("Error deleting the file:", err);
+        }
+      );
+    });
+  } catch (error) {
+    console.error("An error occurred:", error);
+    req.flash("error", "Internal server error");
     res.redirect("back");
   }
 });

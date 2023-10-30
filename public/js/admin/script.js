@@ -63,6 +63,16 @@ $.validator.addMethod(
   "Coupon code must be in uppercase."
 );
 
+$.validator.addMethod(
+  "endDateAfterStartDate",
+  function (value, element, params) {
+    const startDate = new Date($(params).val());
+    const endDate = new Date(value);
+    return endDate >= startDate;
+  },
+  "End date should be greater than or equal to start date."
+);
+
 function showAlert(message) {
   const alertDiv = document.createElement("div");
   alertDiv.className = "alert";
@@ -733,6 +743,35 @@ $(function () {
         .fail(function (error) {
           console.error("Error checking brand:", error);
         });
+    },
+  });
+
+  $(".sales-report-form").validate({
+    onkeyup: function (element) {
+      $(element).valid();
+    },
+    onfocusout: function (element) {
+      $(element).valid();
+    },
+    rules: {
+      startDate: {
+        required: true,
+      },
+      endDate: {
+        required: true,
+        endDateAfterStartDate: "#startDate",
+      },
+    },
+    messages: {
+      startDate: {
+        required: "Please select a start date.",
+      },
+      endDate: {
+        required: "Please select an end date.",
+      },
+    },
+    submitHandler: function (form) {
+      form.submit();
     },
   });
 

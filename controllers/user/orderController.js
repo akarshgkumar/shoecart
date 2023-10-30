@@ -9,8 +9,8 @@ const Cart = require("../../models/Cart");
 const Product = require("../../models/Product");
 const User = require("../../models/User");
 const Order = require("../../models/Order");
-const WalletTransaction = require("../../models/WalletTransaction");
 const Coupon = require("../../models/Coupon");
+const WalletTransaction = require("../../models/WalletTransaction");
 const crypto = require("crypto");
 const { customAlphabet } = require("nanoid");
 const nanoid = customAlphabet("1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ", 6);
@@ -62,12 +62,14 @@ router.get("/checkout", async (req, res) => {
 
     const user = await User.findById(userId);
     const defaultAddress = user.addresses.find((address) => address.default);
+    const coupons = await Coupon.find({ isDeleted: false });
 
     res.render("user/user-checkout", {
       products: populatedProducts,
       defaultAddress: defaultAddress,
       userId,
       totalPrice,
+      coupons,
       walletBalance: user.wallet?.balance,
       error,
       RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
