@@ -2109,6 +2109,11 @@ label {
   font-size: 10px;
 }
 
+.coupon-checkout-anchor {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .slider-arrow.slider-arrow-3 .slider-btn {
   width: 30px;
   height: 30px;

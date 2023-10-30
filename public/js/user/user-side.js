@@ -170,7 +170,7 @@ $(function () {
     console.log(defaultAddress);
   }
 
-  if($('#walletBalanceInput').length > 0) {
+  if ($("#walletBalanceInput").length > 0) {
     walletBalanceCheck();
   }
 
@@ -181,33 +181,67 @@ $(function () {
 
   if ($('button[name="applyCoupon"]').length) {
     $('button[name="applyCoupon"]').on("click", function (e) {
-      e.preventDefault();
-      const couponCode = $('input[name="couponCode"]').val();
-
-      $.post("/order/apply-coupon", { couponCode }, function (data) {
-        if (data.error) {
-          showAlert(data.error);
-        } else {
-          showSuccess("Coupon applied successfully!");
-          let discountPercentage = data.discountPercentage;
-          discount = (originalTotal * discountPercentage) / 100;
-          if ($("#couponRow").length) {
-            $("#couponRow").show();
-            $("#couponDiscount").html(
-              "₹" +
-                discount.toFixed(2) +
-                '<span id="removeCoupon">Remove</span>'
-            );
-            updateTotalAfterDiscount();
-            walletBalanceCheck();
-            $("#finalTotal").text("₹" + (originalTotal - discount).toFixed(2));
-          }
-        }
-      });
+      applyCoupon($('input[name="couponCode"]').val());
     });
   }
 
+  $(document).on("click", "table .select-coupon", function (e) {
+    e.preventDefault();
+    const couponCode = $(this).closest("tr").find("td:first").text().trim();
+    applyCoupon(couponCode);
+    $('input[name="couponCode"]').val(couponCode);
+    $(".coupon-table").slideToggle(400);
+    $('#view-coupons-text').text("View My Coupons");
+  });
+
+  function applyCoupon(couponCode) {
+    $.post("/order/apply-coupon", { couponCode }, function (data) {
+      if (data.error) {
+        showAlert(data.error);
+      } else {
+        showSuccess("Coupon applied successfully!");
+        let discountPercentage = data.discountPercentage;
+        discount = (originalTotal * discountPercentage) / 100;
+        if ($("#couponRow").length) {
+          $("#couponRow").show();
+          $("#couponDiscount").html(
+            "₹" + discount.toFixed(2) + '<span id="removeCoupon">Remove</span>'
+          );
+          updateTotalAfterDiscount();
+          walletBalanceCheck();
+          $("#finalTotal").text("₹" + (originalTotal - discount).toFixed(2));
+        }
+      }
+    });
+  }
+
+  // Your existing function for updating total after discount
+  function updateTotalAfterDiscount() {
+    if ($("#couponRow").css("display") !== "none") {
+      let discountAmount = parseFloat(
+        $("#couponDiscount").text().replace("₹", "").trim()
+      );
+      let totalAfterDiscount =
+        parseFloat($("input[name='totalAmount']").val()) - discountAmount;
+      $("input[name='totalAfterDiscount']").val(totalAfterDiscount.toFixed(2));
+    } else {
+      let totalAfterDiscount = parseFloat($("input[name='totalAmount']").val());
+      $("input[name='totalAfterDiscount']").val(totalAfterDiscount.toFixed(2));
+    }
+  }
+
   if ($(".checkout-table").length) {
+    $("#view-coupons-text").click(function () {
+      var that = this;
+      $(".coupon-table").slideToggle(400, function () {
+        if ($(".coupon-table").is(":visible")) {
+          $(that).text("Hide My Coupons");
+        } else {
+          $(that).text("View My Coupons");
+        }
+      });
+    });
+
     $(".checkout-table").on("click", "#removeCoupon", function () {
       console.log("remove coupon clicked");
       if ($("#couponRow").length) {
@@ -250,10 +284,10 @@ $(function () {
   });
 
   $(".return-reason-form").validate({
-    onkeyup: function(element) {
+    onkeyup: function (element) {
       $(element).valid();
     },
-    onfocusout: function(element) {
+    onfocusout: function (element) {
       $(element).valid();
     },
     rules: {
@@ -280,10 +314,10 @@ $(function () {
   });
 
   $(".checkout-form").validate({
-    onkeyup: function(element) {
+    onkeyup: function (element) {
       $(element).valid();
     },
-    onfocusout: function(element) {
+    onfocusout: function (element) {
       $(element).valid();
     },
     rules: {
@@ -407,12 +441,12 @@ $(function () {
                   $("<input type='hidden' name='razorpay_signature' />")
                     .val(response.razorpay_signature)
                     .appendTo(form);
-                    console.log("form action")
+                  console.log("form action");
 
                   form.action = "/order/validate-order";
-                  console.log("before form submit")
+                  console.log("before form submit");
                   form.submit();
-                  console.log("form submitted")
+                  console.log("form submitted");
                 },
                 prefill: {
                   name: userName,
@@ -490,10 +524,10 @@ $(function () {
     });
   });
   $(".add-address-form").validate({
-    onkeyup: function(element) {
+    onkeyup: function (element) {
       $(element).valid();
     },
-    onfocusout: function(element) {
+    onfocusout: function (element) {
       $(element).valid();
     },
     rules: {
@@ -564,10 +598,10 @@ $(function () {
   });
 
   $(".edit-account-form").validate({
-    onkeyup: function(element) {
+    onkeyup: function (element) {
       $(element).valid();
     },
-    onfocusout: function(element) {
+    onfocusout: function (element) {
       $(element).valid();
     },
     rules: {
@@ -595,10 +629,10 @@ $(function () {
     },
   });
   $(".change-password-form").validate({
-    onkeyup: function(element) {
+    onkeyup: function (element) {
       $(element).valid();
     },
-    onfocusout: function(element) {
+    onfocusout: function (element) {
       $(element).valid();
     },
     rules: {

@@ -40,27 +40,44 @@
                     </div>
                     <div class="panel-collapse collapse coupon_form " id="coupon">
                       <div class="panel-body">
-                        <p class="mb-20 font-sm">Available Coupons :
-                          <% coupons.forEach((coupon, index)=> { %>
-                            <span class="ml-5">
-                              <%= coupon.code %><span style="color: #088178;">(<%= coupon.discountPercentage %>%)</span>
-                                <% if (index===coupons.length - 1) { %>
-                                  .
-                                  <% } else { %>
-                                    ,
-                                    <% } %>
-                            </span>
-                            <% }) %>
-                        </p>
                         <p class="mb-30 font-sm">If you have a coupon code, please apply it below.</p>
-                        <form method="post">
                           <div class="form-group">
                             <input type="text" name="couponCode" placeholder="Enter Coupon Code...">
+                            <a class="f-right coupon-checkout-anchor" id="view-coupons-text">View My Coupons</a>
                           </div>
                           <div class="form-group">
                             <button class="btn  btn-md" name="applyCoupon">Apply Coupon</button>
                           </div>
-                        </form>
+                        <div class="coupon-table" style="display:none;">
+                          <table>
+                            <tbody>
+                              <tr>
+                                <th class="text-center">Coupon Code</th>
+                                <th class="text-center">Discount Percentage</th>
+                                <th class="text-center">Action</th>
+                              </tr>
+                              <% if (coupons && coupons.length> 0) { %>
+                                <% coupons.forEach(coupon=> { %>
+                                  <tr>
+                                    <td class="text-center">
+                                      <%= coupon.code %>
+                                    </td>
+                                    <td class="text-center">
+                                      <%= coupon.discountPercentage %>%
+                                    </td>
+                                    <td class="text-center"><a class="coupon-checkout-anchor select-coupon">Select</a></td>
+                                  </tr>
+                                  <% }) %>
+                                    <% } else { %>
+                                      <tr>
+                                        <td colspan="3" class="text-center">
+                                          <p>No coupons available.</p>
+                                        </td>
+                                      </tr>
+                                      <% } %>
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -138,7 +155,8 @@
                               %>
                               <% products.forEach(product=> { %>
                                 <tr>
-                                  <td class="image product-thumbnail"><img src="<%= product.mainImage %>" alt="#"></td>
+                                  <td class="image product-thumbnail"><img src="<%= product.mainImage %>" alt="#">
+                                  </td>
                                   <td>
                                     <h5><a>
                                         <%= product.name %>
