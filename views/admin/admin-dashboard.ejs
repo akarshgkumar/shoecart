@@ -131,6 +131,9 @@
                                             <li><a class="dropdown-item" href="javascript:void(0)"
                                                     data-value="category">Category</a>
                                             </li>
+                                            <li><a class="dropdown-item" href="javascript:void(0)"
+                                                data-value="brand">Brand</a>
+                                        </li>
                                         </ul>
                                     </div>
                                     <div id="chart-container">
@@ -223,7 +226,7 @@
             let yearData = JSON.parse('<%- JSON.stringify(yearData) %>');
             let monthData = JSON.parse('<%- JSON.stringify(monthData) %>');
             let categoryData = JSON.parse('<%- JSON.stringify(categoryData) %>');
-            console.log(categoryData);
+            let brandData = JSON.parse('<%- JSON.stringify(brandData) %>');
             let orderStatuses = JSON.parse('<%- JSON.stringify(orderStatuses) %>');
             let orderStatusCounts = JSON.parse('<%- JSON.stringify(orderStatusCounts) %>');
             let paymentMethodCounts = JSON.parse('<%- JSON.stringify(paymentMethodCounts) %>');

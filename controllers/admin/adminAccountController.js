@@ -139,6 +139,51 @@ router.get("/dashboard", async (req, res) => {
       },
     ]);
 
+    const brandData = await Order.aggregate([
+      {
+        $match: {
+          status: { $nin: ["Cancelled", "Returned"] },
+        },
+      },
+      { $unwind: "$products" },
+      {
+        $lookup: {
+          from: "products",
+          localField: "products.product",
+          foreignField: "_id",
+          as: "productData",
+        },
+      },
+      {
+        $unwind: "$productData",
+      },
+      {
+        $group: {
+          _id: {
+            brand: "$productData.brand",
+          },
+          count: { $sum: "$products.quantity" },
+        },
+      },
+      {
+        $lookup: {
+          from: "brands",
+          localField: "_id.brand",
+          foreignField: "_id",
+          as: "brandData",
+        },
+      },
+      {
+        $unwind: "$brandData",
+      },
+      {
+        $project: {
+          brand: "$brandData.name",
+          count: 1,
+        },
+      },
+    ]);
+
     const paymentMethodCounts = await Order.aggregate([
       { $group: { _id: "$paymentMethod", count: { $sum: 1 } } },
       { $sort: { _id: 1 } },
@@ -172,6 +217,7 @@ router.get("/dashboard", async (req, res) => {
       orderStatusCounts,
       monthData,
       categoryData,
+      brandData,
       paymentMethodCounts,
       productCount: productCount,
       userCount: userCount,
@@ -599,17 +645,18 @@ router.get("/download/sales/report/pdf/:reportId", async (req, res) => {
 
     await browser.close();
 
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=sales_report_${report.date}.pdf`);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=sales_report_${report.date}.pdf`
+    );
     res.end(pdfBuffer);
-
   } catch (error) {
     console.error(error);
     req.flash("error", "Sorry, Server error occurred");
     res.redirect("back");
   }
 });
-
 
 router.get("/download/sales/report/excel/:reportId", async (req, res) => {
   try {

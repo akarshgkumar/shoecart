@@ -921,19 +921,25 @@ $(function () {
         `Orders In ${months[month - 1]} ${currentYear}`
       );
     } else if (filterValue === "category") {
-      console.log("on category filter");
       let labels = categoryData.map((data) => data.category);
       let categorySalesCounts = categoryData.map((data) => data.count);
 
       updateChart(labels, categorySalesCounts, `Sales Count Of Category`);
+    } else if (filterValue === "brand") {
+      let labels = brandData.map((data) => data.brand);
+      let brandSalesCounts = brandData.map((data) => data.count);
+
+      updateChart(labels, brandSalesCounts, `Sales Count Of Brand`);
     }
   });
-
+  let myChart;
+  let xValues;
+  let yValues;
   if ($(".admin-dashboard-heading").length > 0) {
-    let xValues = orderStatuses;
-    let yValues = orderStatusCounts.map((countObj) => countObj.count);
+    xValues = orderStatuses;
+    yValues = orderStatusCounts.map((countObj) => countObj.count);
 
-    let myChart = new Chart("myChart", {
+    myChart = new Chart("myChart", {
       type: "bar",
       data: {
         labels: xValues,
