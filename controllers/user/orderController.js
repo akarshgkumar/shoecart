@@ -709,55 +709,34 @@ router.get("/invoices/download", async (req, res) => {
   try {
     const id = req.query.orderId;
     const order = await Order.findById(id).populate("products.product");
-    const templatePath = path.resolve(
-      __dirname,
-      "../../public/templates/invoice.ejs"
-    );
-
-    const template = fs.readFileSync(templatePath, "utf8");
-    const ejsData = ejs.render(template, { order });
+    const templatePath = path.resolve(__dirname, "../../public/templates/invoice.ejs");
+    
+    const ejsData = await ejs.renderFile(templatePath, { order });
 
     const browser = await puppeteer.launch({ headless: "new" });
     const page = await browser.newPage();
     await page.setContent(ejsData);
-
-    const invoiceDirectory = path.resolve(__dirname, "../../invoice/");
-    if (!fs.existsSync(invoiceDirectory)) {
-      fs.mkdirSync(invoiceDirectory);
-    }
-    const pdfFilePath = path.resolve(invoiceDirectory, `${order.shortId}.pdf`);
-
-    await page.pdf({
-      path: pdfFilePath,
+    
+    const pdfOptions = {
       format: "A3",
       margin: {
         top: "10mm",
         right: "10mm",
         bottom: "10mm",
-        left: "10mm",
-      },
-    });
-
+        left: "10mm"
+      }
+    };
+    const pdfBuffer = await page.pdf(pdfOptions);
     await browser.close();
 
-    res.download(
-      pdfFilePath,
-      `invoice_${order.shortId}.pdf`,
-      (downloadError) => {
-        if (downloadError) {
-          console.error(downloadError);
-          return res
-            .status(500)
-            .send(`Download failed: ${downloadError.message}`);
-        }
-
-        fs.unlinkSync(pdfFilePath);
-      }
-    );
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=invoice_${order.shortId}.pdf`);
+    res.send(pdfBuffer);
   } catch (error) {
     console.error(error);
     res.status(500).send(`Server Error: ${error.message}`);
   }
 });
+
 
 module.exports = router;

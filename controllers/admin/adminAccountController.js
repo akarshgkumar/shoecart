@@ -5,8 +5,6 @@ const bcrypt = require("bcrypt");
 const puppeteer = require("puppeteer");
 const ejs = require("ejs");
 const fs = require("fs");
-const { promisify } = require("util");
-const unlinkAsync = promisify(fs.unlink);
 const path = require("path");
 const Admin = require("../../models/Admin");
 const Order = require("../../models/Order");
@@ -589,20 +587,7 @@ router.get("/download/sales/report/pdf/:reportId", async (req, res) => {
     const page = await browser.newPage();
     await page.setContent(content);
 
-    const salesReportDirectory = path.resolve(
-      __dirname,
-      "../../sales-reports-pdf/"
-    );
-    if (!fs.existsSync(salesReportDirectory)) {
-      fs.mkdirSync(salesReportDirectory);
-    }
-    const pdfFilePath = path.resolve(
-      salesReportDirectory,
-      `${report.date}.pdf`
-    );
-
-    await page.pdf({
-      path: pdfFilePath,
+    const pdfBuffer = await page.pdf({
       format: "A3",
       margin: {
         top: "10mm",
@@ -614,26 +599,17 @@ router.get("/download/sales/report/pdf/:reportId", async (req, res) => {
 
     await browser.close();
 
-    res.download(
-      pdfFilePath,
-      `sales_report_${report.date}.pdf`,
-      (downloadError) => {
-        if (downloadError) {
-          console.error(downloadError);
-          return res
-            .status(500)
-            .send(`Download failed: ${downloadError.message}`);
-        }
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=sales_report_${report.date}.pdf`);
+    res.end(pdfBuffer);
 
-        fs.unlinkSync(pdfFilePath);
-      }
-    );
   } catch (error) {
     console.error(error);
     req.flash("error", "Sorry, Server error occurred");
     res.redirect("back");
   }
 });
+
 
 router.get("/download/sales/report/excel/:reportId", async (req, res) => {
   try {
