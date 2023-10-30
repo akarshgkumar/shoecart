@@ -183,15 +183,20 @@ $(function () {
     $('button[name="applyCoupon"]').on("click", function (e) {
       applyCoupon($('input[name="couponCode"]').val());
     });
+    $('input[name="couponCode"]').on("keypress", function (e) {
+      if (e.which === 13) {
+        applyCoupon($('input[name="couponCode"]').val());
+      }
+    });
   }
 
-  $(document).on("click", "table .select-coupon", function (e) {
+  $(document).on("click", "table .apply-coupon", function (e) {
     e.preventDefault();
     const couponCode = $(this).closest("tr").find("td:first").text().trim();
     applyCoupon(couponCode);
     $('input[name="couponCode"]').val(couponCode);
     $(".coupon-table").slideToggle(400);
-    $('#view-coupons-text').text("View My Coupons");
+    $("#view-coupons-text").text("View My Coupons");
   });
 
   function applyCoupon(couponCode) {
@@ -336,8 +341,8 @@ $(function () {
       phone: {
         required: true,
         digits: true,
-        minlength: 10,
-        maxlength: 15,
+        minlength: 8,
+        maxlength: 10,
       },
       cname: {
         noSpaceStartEnd: true,
@@ -546,8 +551,8 @@ $(function () {
       phoneNo: {
         required: true,
         digits: true,
-        minlength: 10,
-        maxlength: 15,
+        minlength: 8,
+        maxlength: 10,
       },
       companyName: {
         noSpaceStartEnd: true,
@@ -620,7 +625,8 @@ $(function () {
       phoneNo: {
         required: true,
         digits: true,
-        maxlength: 15,
+        minlength: 8,
+        maxlength: 10,
       },
 
       submitHandler: function (form) {

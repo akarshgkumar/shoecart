@@ -62,7 +62,7 @@ router.get("/checkout", async (req, res) => {
 
     const user = await User.findById(userId);
     const defaultAddress = user.addresses.find((address) => address.default);
-    const coupons = await Coupon.find({ isDeleted: false });
+    const coupons = await Coupon.find({ isDeleted: false }).sort({ discountPercentage: -1 });
 
     res.render("user/user-checkout", {
       products: populatedProducts,

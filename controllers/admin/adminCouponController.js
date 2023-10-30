@@ -68,10 +68,15 @@ router.post("/edit-coupon/:couponId", async (req, res) => {
 
 router.get("/check-coupon/:code", async (req, res) => {
   try {
-    const coupon = await Coupon.findOne({
-      code: { $regex: `^${req.params.code}$`, $options: "i" },
-    });
-    console.log(coupon);
+    const { newCouponCode, oldCouponCode } = req.query;
+    let coupon = undefined;
+    if (newCouponCode === oldCouponCode) {
+      coupon = null;
+    } else {
+      coupon = await Coupon.findOne({
+        code: { $regex: `^${req.params.code}$`, $options: "i" },
+      });
+    }
     if (coupon) {
       return res.json({ exists: true });
     } else {

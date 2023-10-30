@@ -27,6 +27,8 @@
                       <input type="number" placeholder="Type here" class="form-control" id="discount_percentage"
                         name="discount_percentage" value="<%= coupon.discountPercentage %>">
                       <span class="error-span"></span>
+                      <input type="hidden" name="oldCouponName" id="hidden_input_coupon_code" value="<%= coupon.code %>">
+
                     </div>
                   </div>
                 </div>

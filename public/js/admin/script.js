@@ -819,7 +819,14 @@ $(function () {
     const couponCode = $(this).val();
 
     if (couponCode.trim()) {
-      $.get(`/admin/coupon/check-coupon/${couponCode}`)
+      const newCouponCodeInput = $("#coupon_code");
+      const newCouponCode = newCouponCodeInput.val();
+      const oldCouponCode = $("#hidden_input_coupon_code").val();
+
+      $.get("/admin/coupon/check-coupon", {
+        newCouponCode: newCouponCode,
+        oldCouponCode: oldCouponCode,
+      })
         .done(function (response) {
           if (response.exists) {
             $("#coupon_code")

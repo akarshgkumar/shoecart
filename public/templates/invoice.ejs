@@ -40,9 +40,8 @@
   <div class="flex-container">
     <img src="https://res.cloudinary.com/dsztscm9p/image/upload/v1698242242/shoecart-logo_wezps9.png" width="140"
       alt="Company Logo">
-    <p><span style="font-weight: bold;">Invoice Date:</span> <% let invoiceDate=new Date(); let
-        formattedInvoiceDate=invoiceDate.toDateString().split(' ').splice(0, 4).join(' '); %>+
-          <%= formattedInvoiceDate %></p>
+    <p><span style="font-weight: bold;">Invoice Date:</span>
+      <% let invoiceDate=new Date(); let formattedInvoiceDate=invoiceDate.toDateString().split(' ').splice(0, 4).join(' '); %><%= formattedInvoiceDate %></p>
   </div>
 
   <h2 style="text-align: center;">Invoice</h2>
@@ -63,7 +62,7 @@
     <h3>Customer Information</h3>
     <p>Customer Name: <%= order.address.name %>
     </p>
-    <p>Contact: <%= order.address.phoneNo %>
+    <p>Phone Number: <%= order.address.phoneNo %>
     </p>
     <p>Email: <%= order.address.email %>
     </p>
@@ -121,9 +120,9 @@
     <h3>Payment Information</h3>
     <p>Order Total Price: ₹<%= Number(order.totalAfterDiscount.toString()).toFixed(2) %>
     </p>
-    <p>Used Wallet Amount: ₹<%= Number(order.walletPaidAmount.toString()).toFixed(2) %>
+    <p>Amount Paid Through Wallet: ₹<%= Number(order.walletPaidAmount.toString()).toFixed(2) %>
     </p>
-    <p>Payment Method: ₹<%= order.paymentMethod %>
+    <p>Payment Method: <%= order.paymentMethod %>
     </p>
     <p><b>Paid Amount: ₹<%= Number(order.totalAmountPaid.toString()).toFixed(2) %>
     </b></p>

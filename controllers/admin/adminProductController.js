@@ -96,23 +96,32 @@ router.post(
         categoryDiscountPercentage: categoryDiscount,
       };
 
+      console.log("req.body :", req.body);
+
       const newImageUrls = req.files.image
         ? req.files.image.map((file) => file.path)
         : [];
+      console.log(newImageUrls);
+      console.log("Product Images:", product.images);
+      product.images.forEach((imagePath, index) => {
+        console.log(`deleteImage${index}:`, req.body[`deleteImage${index}`]);
+      });
       const retainedImages = product.images.filter(
-        (imagePath, index) => req.body[`deleteImage${index}`] !== "on"
+        (imagePath, index) => req.body[`deleteImage${index}`] === "on"
       );
+      console.log(retainedImages);
       const allImageUrls = [...retainedImages, ...newImageUrls];
-
+      console.log(allImageUrls);
       if (allImageUrls.length > 3) {
         req.flash("error", "Only submit 3 sub images");
         return res.redirect(`/admin/edit-product/${productId}`);
       }
 
       updatedProductData.images = allImageUrls;
-
+      console.log("after saving");
       await Product.findByIdAndUpdate(productId, updatedProductData);
       req.flash("success", "Product edited successfully");
+      console.log("before redirecting");
       res.redirect("/admin/view-products");
     } catch (err) {
       console.error(err);

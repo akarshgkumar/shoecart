@@ -5,6 +5,8 @@ const bcrypt = require("bcrypt");
 const puppeteer = require("puppeteer");
 const ejs = require("ejs");
 const fs = require("fs");
+const { promisify } = require("util");
+const unlinkAsync = promisify(fs.unlink);
 const path = require("path");
 const Admin = require("../../models/Admin");
 const Order = require("../../models/Order");
@@ -242,6 +244,14 @@ router.post("/sales/report", async (req, res) => {
 
     // Product, Category, Brand aggregation
     const productAggregation = await Order.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: startDateTime,
+            $lte: endDateTime,
+          },
+        },
+      },
       { $unwind: "$products" },
       {
         $group: {
@@ -317,6 +327,14 @@ router.post("/sales/report", async (req, res) => {
     ]);
 
     const categoryAggregation = await Order.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: startDateTime,
+            $lte: endDateTime,
+          },
+        },
+      },
       { $unwind: "$products" },
       {
         $group: {
@@ -408,6 +426,14 @@ router.post("/sales/report", async (req, res) => {
     ]);
 
     const brandAggregation = await Order.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: startDateTime,
+            $lte: endDateTime,
+          },
+        },
+      },
       { $unwind: "$products" },
       {
         $group: {
@@ -565,7 +591,7 @@ router.get("/download/sales/report/pdf/:reportId", async (req, res) => {
 
     const salesReportDirectory = path.resolve(
       __dirname,
-      "../../sales-reports/"
+      "../../sales-reports-pdf/"
     );
     if (!fs.existsSync(salesReportDirectory)) {
       fs.mkdirSync(salesReportDirectory);
@@ -613,40 +639,24 @@ router.get("/download/sales/report/excel/:reportId", async (req, res) => {
   try {
     const doc = await SalesReport.findById(req.params.reportId);
     const workbook = new excel.Workbook();
-    const options = {
-      sheetProtection: {
-        autoFilter: true,
-        deleteColumns: true,
-        deleteRows: true,
-        formatCells: true,
-        formatColumns: true,
-        formatRows: true,
-        insertColumns: true,
-        insertHyperlinks: true,
-        insertRows: true,
-        objects: true,
-        pivotTables: true,
-        scenarios: true,
-        selectLockedCells: true,
-        selectUnlockedCells: true,
-        sheet: true,
-        sort: true,
-      },
-    };
+
     const categoriesSheet = workbook.addWorksheet("Categories");
     const brandsSheet = workbook.addWorksheet("Brands");
     const productsSheet = workbook.addWorksheet("Products");
+
     const columnHeading = workbook.createStyle({
       font: {
         bold: true,
         size: 12,
       },
     });
+
     const style = workbook.createStyle({
       font: {
         size: 12,
       },
     });
+
     const generateSheet = (sheet, data) => {
       let row = 1;
       sheet.cell(row, 1).string("Name").style(columnHeading);
@@ -669,36 +679,17 @@ router.get("/download/sales/report/excel/:reportId", async (req, res) => {
     generateSheet(brandsSheet, doc.brands);
     generateSheet(productsSheet, doc.products);
 
-    const reportsDir = path.join(__dirname, "..", "..", "reports");
-    if (!fs.existsSync(reportsDir)) {
-      fs.mkdirSync(reportsDir);
-    }
+    const buffer = await workbook.writeToBuffer();
 
-    await workbook.write(
-      path.join(reportsDir, `${doc.date}-sales-report.xlsx`)
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     );
-    res.download(
-      path.join(reportsDir, `${doc.date}-sales-report.xlsx`),
-      `${doc.date}-sales-report.xlsx`,
-      (err) => {
-        if (err) {
-          console.error("File download failed:", err);
-          req.flash("error", "File download failed");
-          return res.redirect("back");
-        }
-      }
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=${doc.date}-sales-report.xlsx`
     );
-
-    // Listen to the finish event on the response
-    res.on("finish", () => {
-      // Delete the file once the response is finished
-      fs.unlink(
-        path.join(reportsDir, `${doc.date}-sales-report.xlsx`),
-        (err) => {
-          if (err) console.error("Error deleting the file:", err);
-        }
-      );
-    });
+    res.end(buffer);
   } catch (error) {
     console.error("An error occurred:", error);
     req.flash("error", "Internal server error");
