@@ -3,7 +3,34 @@ const router = express.Router();
 const Product = require("../../models/Product");
 const Brand = require("../../models/Brand");
 
+const aggregateFeaturedQuery = [
+  {
+    $addFields: {
+      featuredScore: {
+        $sum: [
+          "$totalSoldItems",
+          "$discountPercentage",
+          {
+            $divide: [
+              1000,
+              {
+                $cond: [
+                  { $eq: ["$priceAfterDiscount", 0] },
+                  1,
+                  "$priceAfterDiscount",
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    },
+  },
+  { $sort: { featuredScore: -1 } },
+];
+
 router.get("/view-full-products", async (req, res) => {
+  const sortBy = req.query.sortBy || "Featured";
   const options = {
     page: parseInt(req.query.page) || 1,
     limit: 9,
@@ -14,13 +41,61 @@ router.get("/view-full-products", async (req, res) => {
     },
   };
 
+  let sortQuery = {};
+
+  switch (sortBy) {
+    case "Best Sellers":
+      sortQuery = { totalSoldItems: -1 };
+      break;
+    case "Price: Low to High":
+      sortQuery = { priceAfterDiscount: 1 };
+      break;
+    case "Price: High to Low":
+      sortQuery = { priceAfterDiscount: -1 };
+      break;
+    case "Top Discounts":
+      sortQuery = { discountPercentage: -1 };
+      break;
+    case "Latest Arrivals":
+      sortQuery = { createdAt: -1 };
+      break;
+    case "Featured":
+      options.sort = undefined;
+      options.customLabels = undefined;
+      break;
+    default:
+      sortQuery = {};
+      break;
+  }
+
+  options.sort = sortQuery;
+
   try {
     const filter = {
       isDeleted: false,
       brand: { $exists: true, $ne: null },
       category: { $exists: true, $ne: null },
     };
-    const result = await Product.paginate(filter, options);
+
+    let result;
+
+    if (sortBy === "Featured") {
+      const aggregatedProducts = await Product.aggregate(aggregateFeaturedQuery)
+        .match(filter)
+        .skip((options.page - 1) * options.limit)
+        .limit(options.limit);
+      const totalCount = await Product.countDocuments(filter);
+
+      result = {
+        products: aggregatedProducts,
+        productCount: totalCount,
+        page: options.page,
+        totalPages: Math.ceil(totalCount / options.limit),
+      };
+    } else {
+      result = await Product.paginate(filter, options);
+    }
+
     const categories = req.categories;
     const brands = await Brand.find();
     const latestProducts = await Product.find(filter)
@@ -36,6 +111,7 @@ router.get("/view-full-products", async (req, res) => {
       categories,
       latestProducts,
       brands,
+      sortBy,
     });
   } catch (err) {
     console.error("Error fetching products:", err);
@@ -76,7 +152,7 @@ router.get("/filter-products/category/:categoryId", async (req, res) => {
     };
     const result = await Product.paginate(filter, options);
 
-    if(!result.productCount){
+    if (!result.productCount) {
       req.flash("error", "No products on this category");
       return res.redirect("back");
     }
@@ -125,7 +201,7 @@ router.get("/filter-products/brand/:brandId", async (req, res) => {
     };
     const result = await Product.paginate(filter, options);
 
-    if(!result.productCount){
+    if (!result.productCount) {
       req.flash("error", "No products on this brand");
       return res.redirect("back");
     }

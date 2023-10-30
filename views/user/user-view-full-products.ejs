@@ -29,16 +29,23 @@
                                             <span><i class="fi-rs-apps-sort"></i>Sort by:</span>
                                         </div>
                                         <div class="sort-by-dropdown-wrap">
-                                            <span> Featured <i class="fi-rs-angle-small-down"></i></span>
+                                            <span> <%= sortBy %> <i class="fi-rs-angle-small-down"></i></span>
                                         </div>
                                     </div>
                                     <div class="sort-by-dropdown">
                                         <ul>
-                                            <li><a class="active" href="#">Featured</a></li>
-                                            <li><a href="#">Price: Low to High</a></li>
-                                            <li><a href="#">Price: High to Low</a></li>
-                                            <li><a href="#">Release Date</a></li>
-                                            <li><a href="#">Avg. Rating</a></li>
+                                            <li><a class="<%= sortBy === 'Featured' ? 'active' : '' %>"
+                                                    href="?sortBy=Featured">Featured</a></li>
+                                            <li><a class="<%= sortBy === 'Best Sellers' ? 'active' : '' %>"
+                                                    href="?sortBy=Best+Sellers">Best Sellers</a></li>
+                                            <li><a class="<%= sortBy === 'Price: Low to High' ? 'active' : '' %>"
+                                                    href="?sortBy=Price%3A+Low+to+High">Price: Low to High</a></li>
+                                            <li><a class="<%= sortBy === 'Price: High to Low' ? 'active' : '' %>"
+                                                    href="?sortBy=Price%3A+High+to+Low">Price: High to Low</a></li>
+                                            <li><a class="<%= sortBy === 'Top Discounts' ? 'active' : '' %>"
+                                                    href="?sortBy=Top+Discounts">Top Discounts</a></li>
+                                            <li><a class="<%= sortBy === 'Latest Arrivals' ? 'active' : '' %>"
+                                                    href="?sortBy=Latest+Arrivals">Latest Arrivals</a></li>
                                         </ul>
                                     </div>
                                 </div>
