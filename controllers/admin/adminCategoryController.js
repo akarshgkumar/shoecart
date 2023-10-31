@@ -41,16 +41,12 @@ router.post(
         : 0;
 
       let imageUrl = "";
-      console.log("before :", imageUrl);
-      console.log(req.file);
-      if (req.file) {
+                  if (req.file) {
         imageUrl = req.file.path;
       }
-      console.log("after :", imageUrl);
-
+      
       const newCategory = new Category({ name, imageUrl, discountPercentage });
-      console.log("after updating :", imageUrl);
-
+      
       await newCategory.save();
 
       req.flash("success", "Category added successfully");
@@ -91,8 +87,7 @@ router.post("/edit-category/:categoryId", async (req, res) => {
     if (!category) {
       return res.status(404).send("category not found");
     }
-    console.log(req.body.category_name);
-    const updatedcategoryData = {
+        const updatedcategoryData = {
       name: capitalizeWords(req.body.category_name),
       discountPercentage: req.body.discount_percentage
         ? req.body.discount_percentage
@@ -144,19 +139,15 @@ router.post(
       }
 
       let imageUrl = category.imageUrl;
-      console.log("before :", imageUrl);
-      console.log(req.file);
-
+            
       if (req.file) {
         imageUrl = req.file.path;
       }
-      console.log("after :", imageUrl);
-
+      
       const updatedCategoryData = {
         imageUrl: imageUrl,
       };
-      console.log("after updating :", imageUrl);
-
+      
       await Category.findByIdAndUpdate(categoryId, updatedCategoryData);
 
       res.redirect("/admin/view-category");
@@ -221,8 +212,7 @@ router.get("/search-category", async (req, res) => {
       pages: result.totalPages,
     });
   } catch (err) {
-    console.log("Error while searching for categories:", err);
-    req.flash("error", "Internal server error. Failed to search categories.");
+        req.flash("error", "Internal server error. Failed to search categories.");
     res.redirect("/admin/view-category");
   }
 });

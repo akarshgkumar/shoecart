@@ -28,9 +28,7 @@ router.post(
       }
 
       let imageUrl = banner.imageUrl;
-      console.log('before :', imageUrl);
-      console.log(req.file);
-      if (req.file) {
+                  if (req.file) {
         imageUrl = req.file.path; 
       }
       console.log('after :', imageUrl)

@@ -7,8 +7,7 @@ async function setLoginStatus(req, res, next) {
     const token = req.cookies.jwt;
     if (!token) {
       res.locals.isLoggedIn = false;
-      console.log("here");
-      return next();
+            return next();
     }
 
     const decoded = jwt.verify(token, JWT_SECRET);

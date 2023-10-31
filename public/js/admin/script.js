@@ -849,7 +849,7 @@ $(function () {
     console.log("on filter change");
     let filterValue = $(this).data("value");
     if (filterValue === "allTime") {
-      updateChart(xValues, yValues, "All Time Order Status");
+      updateChart(xValues, yValues, "All Time Order Statuses");
     } else if (filterValue === "paymentMethod") {
       let labels = paymentMethodCounts.map((e) => e._id);
       let counts = paymentMethodCounts.map((e) => e.count);
@@ -918,7 +918,7 @@ $(function () {
       updateChart(
         labels,
         monthlyStatusCounts,
-        `Orders In ${months[month - 1]} ${currentYear}`
+        `Order Statuses In ${months[month - 1]} ${currentYear}`
       );
     } else if (filterValue === "category") {
       let labels = categoryData.map((data) => data.category);
@@ -964,7 +964,7 @@ $(function () {
         legend: { display: false },
         title: {
           display: true,
-          text: "All Time Order Statistics",
+          text: "All Time Order Statuses",
         },
       },
     });

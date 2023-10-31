@@ -35,8 +35,7 @@ router.get("/view-single-order/:orderId", async (req, res) => {
     const order = await Order.findById(req.params.orderId).populate(
       "products.product"
     );
-    console.log(order);
-    res.render("admin/admin-view-single-order", { order });
+        res.render("admin/admin-view-single-order", { order });
   } catch (error) {
     console.error("Error fetching order:", error);
     req.flash("error", "Sorry, Server Error");

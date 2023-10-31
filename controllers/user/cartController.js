@@ -74,8 +74,7 @@ router.post("/remove-from-cart", async (req, res) => {
     );
 
     if (!updatedCart) {
-      console.log('no cart found');
-      return res.json({ success: false, message: "No cart found" });
+            return res.json({ success: false, message: "No cart found" });
     }
 
     const totalItems = updatedCart.products.reduce(

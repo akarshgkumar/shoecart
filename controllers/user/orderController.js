@@ -91,8 +91,7 @@ router.post("/cancel-order", async (req, res) => {
     }
     const decoded = jwt.verify(token, JWT_SECRET);
     const userId = decoded.userId;
-    console.log(userId);
-    if (order.totalAmountPaid > 0) {
+        if (order.totalAmountPaid > 0) {
       await User.findByIdAndUpdate(userId, {
         $inc: { "wallet.balance": order.totalAmountPaid },
       });
@@ -114,10 +113,8 @@ router.post("/cancel-order", async (req, res) => {
     await order.save();
 
     for (let orderedProduct of order.products) {
-      console.log(orderedProduct.product);
-      const product = await Product.findById(orderedProduct.product);
-      console.log(product);
-      product.stock += orderedProduct.quantity;
+            const product = await Product.findById(orderedProduct.product);
+            product.stock += orderedProduct.quantity;
       product.totalSoldItems -= orderedProduct.quantity;
       await product.save();
     }
@@ -164,8 +161,7 @@ router.get("/select-address", async (req, res) => {
 });
 
 router.post("/validate-cart", async (req, res) => {
-  console.log("Inside /validate-cart");
-  try {
+    try {
     const userId = req.body.userId;
     const cart = await Cart.findOne({ userId }).populate("products.productId");
 
@@ -235,8 +231,7 @@ router.post("/place-order", async (req, res) => {
   } = req.body;
 
   let { payment_option } = req.body;
-  console.log("payment option :", payment_option);
-  if (!payment_option) {
+    if (!payment_option) {
     req.flash("error", "Please select a payment method");
     return res.redirect("/order/checkout");
   }
@@ -264,8 +259,7 @@ router.post("/place-order", async (req, res) => {
     }
     const fetchedUser = await User.findById(user);
     let walletBalance = fetchedUser.wallet?.balance;
-    console.log(walletBalance);
-    let paidAmountOnWallet = 0;
+        let paidAmountOnWallet = 0;
 
     if (req.body.walletPayment === "on") {
       const amountAfterWalletUsage = calculateAmountAfterWalletUsage(
@@ -278,8 +272,7 @@ router.post("/place-order", async (req, res) => {
           payment_option === "Razor Pay" ||
           payment_option === "Cash On Delivery"
         ) {
-          console.log("on amountAfter 0");
-          payment_option = "Wallet Payment";
+                    payment_option = "Wallet Payment";
           paidAmountOnWallet = parseFloat(totalAfterDiscount);
           walletBalance = walletBalance - paidAmountOnWallet;
         }
@@ -325,8 +318,7 @@ router.post("/place-order", async (req, res) => {
         walletBalance = walletBalance - paidAmountOnWallet;
       }
     }
-    console.log("before creating short id");
-    let uniqueShortId,
+        let uniqueShortId,
       existingOrder,
       attempts = 0,
       maxAttempts = 10;
@@ -410,15 +402,13 @@ router.post("/place-order", async (req, res) => {
       });
     }
 
-    console.log("after saving order");
-    for (let cartProduct of cart.products) {
+        for (let cartProduct of cart.products) {
       const product = await Product.findById(cartProduct.productId);
       product.stock -= cartProduct.quantity;
       product.totalSoldItems += cartProduct.quantity;
       await product.save();
     }
-    console.log("after saving product");
-    if (paidAmountOnWallet > 0) {
+        if (paidAmountOnWallet > 0) {
       await User.findByIdAndUpdate(user, {
         $inc: { "wallet.balance": -paidAmountOnWallet },
       });
@@ -430,11 +420,8 @@ router.post("/place-order", async (req, res) => {
       await newWallet.save();
     }
     await Cart.deleteOne({ userId: user });
-    console.log("after deleting cart");
-    req.flash("success", "Order is successful");
-    console.log("after success flash");
-    console.log(`${newOrder._id}`);
-    return res.redirect(`/order/success/${newOrder._id}`);
+        req.flash("success", "Order is successful");
+            return res.redirect(`/order/success/${newOrder._id}`);
   } catch (err) {
     console.error(err);
     if (err.name === "MongoError" && err.code === 11000) {
@@ -450,8 +437,7 @@ router.post("/place-order", async (req, res) => {
 });
 
 router.post("/validate-order", async (req, res) => {
-  console.log("on validate order route");
-  const { razorpay_payment_id, razorpay_order_id, razorpay_signature } =
+    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } =
     req.body;
   const text = razorpay_order_id + "|" + razorpay_payment_id;
   const generatedSignature = crypto
@@ -460,8 +446,7 @@ router.post("/validate-order", async (req, res) => {
     .digest("hex");
 
   if (!req.body.razorpay_paid_amount) {
-    console.log("razorpay_paid_amount is not received");
-    return;
+        return;
   }
 
   if (generatedSignature === razorpay_signature) {
@@ -481,9 +466,7 @@ router.post("/validate-order", async (req, res) => {
       totalAfterDiscount,
       razorpay_paid_amount,
     } = req.body;
-    console.log("Type of totalAfterDiscount:", typeof totalAfterDiscount);
-    console.log("Type of razorpay_paid_amount:", typeof razorpay_paid_amount);
-
+        
     const cart = await Cart.findOne({ userId: user });
     let uniqueShortId,
       existingOrder,
@@ -518,13 +501,10 @@ router.post("/validate-order", async (req, res) => {
         };
       })
     );
-    console.log("after discount", totalAfterDiscount);
-    console.log("razor", razorpay_paid_amount);
-
+        
     const amountPaidThroughWallet =
       parseFloat(totalAfterDiscount) - parseFloat(razorpay_paid_amount);
-    console.log(amountPaidThroughWallet);
-
+    
     const newOrder = new Order({
       razorOrderId: razorpay_order_id,
       shortId: uniqueShortId,
@@ -629,8 +609,7 @@ router.post("/return-reason", async (req, res) => {
     }
     const decoded = jwt.verify(token, JWT_SECRET);
     const userId = decoded.userId;
-    console.log(userId);
-    const sanitizedAdditionalInfo = validator.escape(additionalInfo);
+        const sanitizedAdditionalInfo = validator.escape(additionalInfo);
     const validReasons = ["size", "damaged", "color"];
 
     if (!validReasons.includes(reason)) {
@@ -654,8 +633,7 @@ router.post("/return-reason", async (req, res) => {
     await newWallet.save();
 
     order.returnMsg = sanitizedAdditionalInfo;
-    console.log(sanitizedAdditionalInfo);
-
+    
     if (reason !== "damaged") {
       for (let orderedProduct of order.products) {
         const product = await Product.findById(orderedProduct.product);
@@ -677,21 +655,17 @@ router.post("/return-reason", async (req, res) => {
     order.returnDate = new Date();
     order.status = "Returned";
     await order.save();
-    console.log("on try");
-    req.flash("success", "Order returned successfully");
+        req.flash("success", "Order returned successfully");
     res.redirect(`/order/view-single-order/${orderId}`);
   } catch (error) {
     console.error(error);
-    console.log("on catch");
-    req.flash("error", "An error occurred, try again later");
+        req.flash("error", "An error occurred, try again later");
     res.redirect(`/order/view-single-order/${orderId}`);
   }
 });
 
 router.get("/success/:orderId", (req, res) => {
-  console.log("on order success route");
-  console.log(req.params.orderId);
-  res.render("user/order-success", { orderId: req.params.orderId });
+      res.render("user/order-success", { orderId: req.params.orderId });
 });
 
 router.post("/apply-coupon", async (req, res) => {

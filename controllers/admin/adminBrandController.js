@@ -67,8 +67,7 @@ router.get("/check-brand/:name", async (req, res) => {
     const brand = await Brand.findOne({
       name: { $regex: `^${req.params.name}$`, $options: "i" },
     });
-    console.log(brand);
-    if (brand) {
+        if (brand) {
       return res.json({ exists: true });
     } else {
       return res.json({ exists: false });

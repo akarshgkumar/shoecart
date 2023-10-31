@@ -125,8 +125,7 @@ router.get("/view-single-product/:productId", async (req, res) => {
   const product = await Product.findOne({ _id: productId })
     .populate("category")
     .populate("brand");
-  console.log(product);
-  res.render("user/user-single-product", {
+    res.render("user/user-single-product", {
     product,
     categories: req.categories,
   });

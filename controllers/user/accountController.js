@@ -18,7 +18,6 @@ const generateOTP = require("../../utils/generateOTP");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 router.get("/login", noCache, redirectIfLoggedIn, (req, res) => {
-  console.log("here");
   res.render("user/login");
 });
 
@@ -29,11 +28,8 @@ router.get("/signup", noCache, redirectIfLoggedIn, (req, res) => {
 
 router.post("/verify-otp", async (req, res) => {
   const { email, otp, forgot } = req.body;
-  console.log(forgot);
-  console.log(email);
   const user = await User.findOne({ email });
   if (!user) {
-    console.log(`No user found with email: ${email}`);
     return res.redirect("/signup?error=User%20not%20found");
   }
 
@@ -87,7 +83,6 @@ router.post("/verify-otp", async (req, res) => {
 
 router.get("/reset-password", (req, res) => {
   const email = req.query.email;
-  console.log(email);
   res.render("user/reset-password", { email });
 });
 
@@ -121,15 +116,14 @@ router.get("/account", async (req, res) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     const userId = decoded.userId;
     const user = await User.findOne({ _id: userId });
-    console.log("user name :", user.name);
 
     if (!user) {
       return res.status(404).send("User not found");
     }
 
-    const order = await Order.find({ user: userId }).populate(
-      "products.product"
-    );
+    const orders = await Order.find({ user: userId })
+      .populate("products.product")
+      .sort({ createdAt: -1 });
 
     const walletTransactions = await WalletTransaction.find({
       userId: userId,
@@ -145,7 +139,7 @@ router.get("/account", async (req, res) => {
       referralCode: user.referralCode,
       referralEarnings: user.referralEarnings,
       phoneNo: user.phoneNo,
-      orders: order,
+      orders: orders,
       addresses: user.addresses,
       walletTransactions: validWalletTransactions,
       walletBalance: user.wallet?.balance,
@@ -187,7 +181,6 @@ router.get("/verify-email/:forgot", (req, res) => {
 
 router.get("/check-email/:forgot", (req, res) => {
   const email = req.query.email;
-  console.log(email);
   if (req.params.forgot === "true") {
     res.render("user/check-email", { email });
   } else {
@@ -257,7 +250,6 @@ router.get("/home", async (req, res) => {
       mostSoldProducts,
     });
   } catch (error) {
-    console.log(error);
     req.flash("error", "Internal server error");
     res.redirect("back");
   }
@@ -332,7 +324,6 @@ router.post("/resend-otp", async (req, res) => {
     const { email } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
-      console.log("User not found for email:", email);
       return res.json({ success: false, message: "User not found" });
     }
 
@@ -370,7 +361,6 @@ router.post("/resend-otp", async (req, res) => {
 router.post("/verify-email/:forgot", async (req, res) => {
   const forgot = req.params.forgot;
   const email = req.body.email;
-  console.log(email);
   const user = await User.findOne({ email });
 
   if (user) {
@@ -472,7 +462,7 @@ router.post("/signup", async (req, res) => {
       otpExpires,
       wallet: {
         balance: 0,
-      }
+      },
     };
     const referralCodeUppercase = req.body.referralCode.toUpperCase();
 
@@ -641,7 +631,6 @@ router.post("/change-password", async (req, res) => {
   try {
     const { oldPassword, newPassword, confirmNewPassword, userId } = req.body;
     const user = await User.findById(userId);
-    console.log(req.body);
 
     if (!user) {
       return res.redirect("/account?error=User not found.");

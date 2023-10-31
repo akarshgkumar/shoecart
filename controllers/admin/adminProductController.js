@@ -96,33 +96,25 @@ router.post(
         categoryDiscountPercentage: categoryDiscount,
       };
 
-      console.log("req.body :", req.body);
-
+      
       const newImageUrls = req.files.image
         ? req.files.image.map((file) => file.path)
         : [];
-      console.log(newImageUrls);
-      console.log("Product Images:", product.images);
-      product.images.forEach((imagePath, index) => {
-        console.log(`deleteImage${index}:`, req.body[`deleteImage${index}`]);
-      });
+                  product.images.forEach((imagePath, index) => {
+              });
       const retainedImages = product.images.filter(
         (imagePath, index) => req.body[`deleteImage${index}`] === "on"
       );
-      console.log(retainedImages);
-      const allImageUrls = [...retainedImages, ...newImageUrls];
-      console.log(allImageUrls);
-      if (allImageUrls.length > 3) {
+            const allImageUrls = [...retainedImages, ...newImageUrls];
+            if (allImageUrls.length > 3) {
         req.flash("error", "Only submit 3 sub images");
         return res.redirect(`/admin/edit-product/${productId}`);
       }
 
       updatedProductData.images = allImageUrls;
-      console.log("after saving");
-      await Product.findByIdAndUpdate(productId, updatedProductData);
+            await Product.findByIdAndUpdate(productId, updatedProductData);
       req.flash("success", "Product edited successfully");
-      console.log("before redirecting");
-      res.redirect("/admin/view-products");
+            res.redirect("/admin/view-products");
     } catch (err) {
       console.error(err);
       req.flash("error", "Internal server error");
@@ -232,8 +224,7 @@ router.get("/search-product", async (req, res) => {
       pages: result.totalPages,
     });
   } catch (err) {
-    console.log("Error while searching for products:", err);
-    req.flash("error", "Internal server error. Failed to search products.");
+        req.flash("error", "Internal server error. Failed to search products.");
     res.redirect("/admin/view-products");
   }
 });
@@ -349,8 +340,7 @@ router.get("/edit-product/:productId", async (req, res) => {
 router.get("/add-stock/:productId", async (req, res) => {
   const productId = req.params.productId;
   const product = await Product.findOne({ _id: productId }, "stock");
-  console.log(product);
-  res.render("admin/admin-add-stock", { productId, stock: product.stock });
+    res.render("admin/admin-add-stock", { productId, stock: product.stock });
 });
 
 router.post("/add-stock/:productId", async (req, res) => {
@@ -422,8 +412,7 @@ router.get("/filter-products/status/:status", async (req, res) => {
   };
   const status = req.params.status;
   const isDeletedStatus = status === "true";
-  console.log(isDeletedStatus);
-  try {
+    try {
     const filter = {
       brand: { $exists: true, $ne: null },
       category: { $exists: true, $ne: null },
