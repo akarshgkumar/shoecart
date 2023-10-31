@@ -78,7 +78,9 @@
                             <h5 class="mb-0">Hello <%= username %>! </h5>
                           </div>
                           <div class="card-body">
-                            <p>Your Referral ID : <span class="text-brand"><%= referralCode %></span></p>
+                            <p>Your Referral ID : <span class="text-brand">
+                                <%= referralCode %>
+                              </span></p>
                             <p>Your Referral Earnings : <span class="text-brand">₹<%= referralEarnings %></span></p>
                           </div>
                         </div>
@@ -87,7 +89,7 @@
                             <h5 class="mb-0"><i class="fi-rs-shopping-bag mr-10"></i>Wallet</h5>
                           </div>
                           <div class="card-body">
-                            <p>Wallet Balance : <span class="ml-5 text-brand">₹<%= walletBalance %></span></p>
+                            <p>Wallet Balance : <span class="ml-5 text-brand">₹<%=  parseFloat(walletBalance.toString()).toFixed(2) %></span></p>
                           </div>
                         </div>
                       </div>
@@ -97,7 +99,7 @@
                             <h5 class="mb-0"><i class="fi-rs-shopping-bag mr-10"></i>Wallet</h5>
                           </div>
                           <div class="card-body">
-                            <p>Wallet Balance : <span class="ml-5 text-brand">₹<%= walletBalance %></span></p>
+                            <p>Wallet Balance : <span class="ml-5 text-brand">₹<%=  parseFloat(walletBalance.toString()).toFixed(2) %></span></p>
                           </div>
                           <div class="card">
                             <div class="card-header">
@@ -130,15 +132,19 @@
                                             <%= walletTransaction.orderId.status %>
                                           </td>
                                           <td>
-                                            <% if(walletTransaction.type === "addition") { %>
+                                            <% if(walletTransaction.type==="addition" ) { %>
                                               <span class="text-brand fw-600 ml-5">
-                                                + <%= walletTransaction.orderId.totalAmountPaid %>
+                                                + <%=
+                                                  parseFloat(walletTransaction.orderId.totalAfterDiscount.toString()).toFixed(2)
+                                                  %>
                                               </span>
                                               <% } else { %>
                                                 <span class="text-danger fw-600 ml-5">
-                                                  - <%= walletTransaction.orderId.totalAmountPaid %>
+                                                  - <%=
+                                                    parseFloat(walletTransaction.orderId.walletPaidAmount.toString()).toFixed(2)
+                                                    %>
                                                 </span>
-                                              <% } %>
+                                                <% } %>
 
                                           </td>
                                           <td>

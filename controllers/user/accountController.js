@@ -127,7 +127,9 @@ router.get("/account", async (req, res) => {
 
     const walletTransactions = await WalletTransaction.find({
       userId: userId,
-    }).populate("orderId");
+    })
+      .populate("orderId")
+      .sort({ createdAt: -1 });
     const validWalletTransactions = walletTransactions.filter(
       (transaction) => transaction.orderId !== null
     );

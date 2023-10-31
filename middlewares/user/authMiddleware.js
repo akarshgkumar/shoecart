@@ -36,7 +36,6 @@ async function setLoginStatus(req, res, next) {
 
 async function fetchUserFromToken(req, res, next) {
   try {
-    console.log("here")
     const token = req.cookies.jwt;
     if (!token) {
       return next();
@@ -44,7 +43,6 @@ async function fetchUserFromToken(req, res, next) {
 
     const decoded = jwt.verify(token, JWT_SECRET);
     const userEmail = decoded.email;
-    console.log("user email ", userEmail)
 
     const user = await User.findOne({ email: userEmail });
 

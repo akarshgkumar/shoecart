@@ -141,10 +141,17 @@
                   <div class="product-cart-wrap mb-30">
                     <div class="product-img-action-wrap">
                       <div class="product-img product-img-zoom">
-                        <a href="/product/view-single-product/<%= product._id %>">
-                          <img class="default-img" src="<%= product.mainImage %>" alt="">
-                          <img class="hover-img" src="<%= product.images[0] %>" alt="">
-                        </a>
+                        <% if(product.discountPercentage> 0) { %>
+                          <button class="product-offer-btn btn btn-sm btn-primary position-absolute top-0 end-0"
+                            style="z-index: 100;">
+                            <%= product.discountPercentage %>%
+                              OFF
+                          </button>
+                          <% } %>
+                            <a href="/product/view-single-product/<%= product._id %>">
+                              <img class="default-img" src="<%= product.mainImage %>" alt="">
+                              <img class="hover-img" src="<%= product.images[0] %>" alt="">
+                            </a>
                       </div>
                       <div class="product-action-1">
                         <a aria-label="Full View" class="action-btn hover-up"
@@ -175,8 +182,8 @@
                           <%= product.name.slice(0, 30) %>...
                         </a></h2>
                       <div class="product-price">
-                        <span>₹<%= product.price %> </span>
-                        <span class="old-price">₹<%= product.price + product.price * 0.15 %></span>
+                        <span>₹<%= product.priceAfterDiscount %> </span>
+                        <span class="old-price">₹<%= product.price %></span>
                       </div>
                       <div class="product-action-1 show">
                         <a aria-label="Add To Cart" onclick="addToCart(this, '<%= product.sizes[0] %>')"
@@ -200,10 +207,17 @@
                   <div class="product-cart-wrap mb-30">
                     <div class="product-img-action-wrap">
                       <div class="product-img product-img-zoom">
-                        <a href="/product/view-single-product/<%= product._id %>">
-                          <img class="default-img" src="<%= product.mainImage %>" alt="">
-                          <img class="hover-img" src="<%= product.images[0] %>" alt="">
-                        </a>
+                        <% if(product.discountPercentage> 0) { %>
+                          <button class="product-offer-btn btn btn-sm btn-primary position-absolute top-0 end-0"
+                            style="z-index: 100;">
+                            <%= product.discountPercentage %>%
+                              OFF
+                          </button>
+                          <% } %>
+                            <a href="/product/view-single-product/<%= product._id %>">
+                              <img class="default-img" src="<%= product.mainImage %>" alt="">
+                              <img class="hover-img" src="<%= product.images[0] %>" alt="">
+                            </a>
                       </div>
                       <div class="product-action-1">
                         <a aria-label="Full View" class="action-btn hover-up"
@@ -234,8 +248,8 @@
                           <%= product.name.slice(0,30) %>...
                         </a></h2>
                       <div class="product-price">
-                        <span>₹<%= product.price %> </span>
-                        <span class="old-price">₹<%= product.price + product.price * 0.15 %></span>
+                        <span>₹<%= product.priceAfterDiscount %> </span>
+                        <span class="old-price">₹<%= product.price %></span>
                       </div>
                       <div class="product-action-1 show">
                         <a aria-label="Add To Cart" onclick="addToCart(this, '<%= product.sizes[0] %>')"
@@ -259,10 +273,17 @@
                   <div class="product-cart-wrap mb-30">
                     <div class="product-img-action-wrap">
                       <div class="product-img product-img-zoom">
-                        <a href="/product/view-single-product/<%= product._id %>">
-                          <img class="default-img" src="<%= product.mainImage %>" alt="">
-                          <img class="hover-img" src="<%= product.images[0] %>" alt="">
-                        </a>
+                        <% if(product.discountPercentage> 0) { %>
+                          <button class="product-offer-btn btn btn-sm btn-primary position-absolute top-0 end-0"
+                            style="z-index: 100;">
+                            <%= product.discountPercentage %>%
+                              OFF
+                          </button>
+                          <% } %>
+                            <a href="/product/view-single-product/<%= product._id %>">
+                              <img class="default-img" src="<%= product.mainImage %>" alt="">
+                              <img class="hover-img" src="<%= product.images[0] %>" alt="">
+                            </a>
                       </div>
                       <div class="product-action-1">
                         <a aria-label="Full View" class="action-btn hover-up"
@@ -293,8 +314,8 @@
                           <%= product.name.slice(0,30) %>...
                         </a></h2>
                       <div class="product-price">
-                        <span>₹<%= product.price %></span>
-                        <span class="old-price">₹<%= product.price + product.price * 0.15 %></span>
+                        <span>₹<%= product.priceAfterDiscount %></span>
+                        <span class="old-price">₹<%= product.price %></span>
                       </div>
                       <div class="product-action-1 show">
                         <a aria-label="Add To Cart" onclick="addToCart(this, '<%= product.sizes[0] %>')"
@@ -346,10 +367,17 @@
               <div class="product-cart-wrap small hover-up">
                 <div class="product-img-action-wrap">
                   <div class="product-img product-img-zoom">
-                    <a href="/product/view-full-products">
-                      <img class="default-img" src="<%= product.mainImage %>" alt="">
-                      <img class="hover-img" src="<%= product.images[0] %>" alt="">
-                    </a>
+                    <% if(product.discountPercentage> 0) { %>
+                      <button class="product-offer-small-btn btn btn-sm btn-primary position-absolute top-0 end-0"
+                        style="z-index: 100;">
+                        <%= product.discountPercentage %>%
+                          OFF
+                      </button>
+                      <% } %>
+                        <a href="/product/view-full-products">
+                          <img class="default-img" src="<%= product.mainImage %>" alt="">
+                          <img class="hover-img" src="<%= product.images[0] %>" alt="">
+                        </a>
                   </div>
                   <div class="product-action-1">
                     <a aria-label="Full View" class="action-btn hover-up"
@@ -380,9 +408,9 @@
                     <span style="color: #003262;">Brand : <%= product.brand.name %></span>
                   </div>
                   <div class="product-price">
-                    <span>₹<%= product.price %></span>
+                    <span>₹<%= product.priceAfterDiscount %></span>
 
-                    <span class="old-price">₹<%= product.price + product.price * 0.15 %></span>
+                    <span class="old-price">₹<%= product.price %></span>
                   </div>
                 </div>
               </div>

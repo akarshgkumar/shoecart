@@ -62,7 +62,9 @@ router.get("/checkout", async (req, res) => {
 
     const user = await User.findById(userId);
     const defaultAddress = user.addresses.find((address) => address.default);
-    const coupons = await Coupon.find({ isDeleted: false }).sort({ discountPercentage: -1 });
+    const coupons = await Coupon.find({ isDeleted: false }).sort({
+      discountPercentage: -1,
+    });
 
     res.render("user/user-checkout", {
       products: populatedProducts,
@@ -91,7 +93,7 @@ router.post("/cancel-order", async (req, res) => {
     }
     const decoded = jwt.verify(token, JWT_SECRET);
     const userId = decoded.userId;
-        if (order.totalAmountPaid > 0) {
+    if (order.totalAmountPaid > 0) {
       await User.findByIdAndUpdate(userId, {
         $inc: { "wallet.balance": order.totalAmountPaid },
       });
@@ -113,8 +115,8 @@ router.post("/cancel-order", async (req, res) => {
     await order.save();
 
     for (let orderedProduct of order.products) {
-            const product = await Product.findById(orderedProduct.product);
-            product.stock += orderedProduct.quantity;
+      const product = await Product.findById(orderedProduct.product);
+      product.stock += orderedProduct.quantity;
       product.totalSoldItems -= orderedProduct.quantity;
       await product.save();
     }
@@ -161,7 +163,7 @@ router.get("/select-address", async (req, res) => {
 });
 
 router.post("/validate-cart", async (req, res) => {
-    try {
+  try {
     const userId = req.body.userId;
     const cart = await Cart.findOne({ userId }).populate("products.productId");
 
@@ -231,7 +233,7 @@ router.post("/place-order", async (req, res) => {
   } = req.body;
 
   let { payment_option } = req.body;
-    if (!payment_option) {
+  if (!payment_option) {
     req.flash("error", "Please select a payment method");
     return res.redirect("/order/checkout");
   }
@@ -259,7 +261,7 @@ router.post("/place-order", async (req, res) => {
     }
     const fetchedUser = await User.findById(user);
     let walletBalance = fetchedUser.wallet?.balance;
-        let paidAmountOnWallet = 0;
+    let paidAmountOnWallet = 0;
 
     if (req.body.walletPayment === "on") {
       const amountAfterWalletUsage = calculateAmountAfterWalletUsage(
@@ -272,7 +274,7 @@ router.post("/place-order", async (req, res) => {
           payment_option === "Razor Pay" ||
           payment_option === "Cash On Delivery"
         ) {
-                    payment_option = "Wallet Payment";
+          payment_option = "Wallet Payment";
           paidAmountOnWallet = parseFloat(totalAfterDiscount);
           walletBalance = walletBalance - paidAmountOnWallet;
         }
@@ -318,7 +320,7 @@ router.post("/place-order", async (req, res) => {
         walletBalance = walletBalance - paidAmountOnWallet;
       }
     }
-        let uniqueShortId,
+    let uniqueShortId,
       existingOrder,
       attempts = 0,
       maxAttempts = 10;
@@ -402,13 +404,13 @@ router.post("/place-order", async (req, res) => {
       });
     }
 
-        for (let cartProduct of cart.products) {
+    for (let cartProduct of cart.products) {
       const product = await Product.findById(cartProduct.productId);
       product.stock -= cartProduct.quantity;
       product.totalSoldItems += cartProduct.quantity;
       await product.save();
     }
-        if (paidAmountOnWallet > 0) {
+    if (paidAmountOnWallet > 0) {
       await User.findByIdAndUpdate(user, {
         $inc: { "wallet.balance": -paidAmountOnWallet },
       });
@@ -420,8 +422,8 @@ router.post("/place-order", async (req, res) => {
       await newWallet.save();
     }
     await Cart.deleteOne({ userId: user });
-        req.flash("success", "Order is successful");
-            return res.redirect(`/order/success/${newOrder._id}`);
+    req.flash("success", "Order is successful");
+    return res.redirect(`/order/success/${newOrder._id}`);
   } catch (err) {
     console.error(err);
     if (err.name === "MongoError" && err.code === 11000) {
@@ -437,7 +439,7 @@ router.post("/place-order", async (req, res) => {
 });
 
 router.post("/validate-order", async (req, res) => {
-    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } =
+  const { razorpay_payment_id, razorpay_order_id, razorpay_signature } =
     req.body;
   const text = razorpay_order_id + "|" + razorpay_payment_id;
   const generatedSignature = crypto
@@ -446,7 +448,7 @@ router.post("/validate-order", async (req, res) => {
     .digest("hex");
 
   if (!req.body.razorpay_paid_amount) {
-        return;
+    return;
   }
 
   if (generatedSignature === razorpay_signature) {
@@ -466,7 +468,7 @@ router.post("/validate-order", async (req, res) => {
       totalAfterDiscount,
       razorpay_paid_amount,
     } = req.body;
-        
+
     const cart = await Cart.findOne({ userId: user });
     let uniqueShortId,
       existingOrder,
@@ -501,10 +503,10 @@ router.post("/validate-order", async (req, res) => {
         };
       })
     );
-        
+
     const amountPaidThroughWallet =
       parseFloat(totalAfterDiscount) - parseFloat(razorpay_paid_amount);
-    
+      console.log("amount paid through wallet : ",amountPaidThroughWallet);
     const newOrder = new Order({
       razorOrderId: razorpay_order_id,
       shortId: uniqueShortId,
@@ -537,30 +539,32 @@ router.post("/validate-order", async (req, res) => {
 
     await newOrder.save();
 
-    const userOrdersCount = await Order.countDocuments({ user: user });
-    const fetchedUserAgain = await User.findById(user);
+      const userOrdersCount = await Order.countDocuments({ user: user });
+      const fetchedUserAgain = await User.findById(user);
 
-    if (fetchedUserAgain.referredBy && userOrdersCount === 1) {
-      await User.findOneAndUpdate(
-        { referralCode: fetchedUserAgain.referredBy },
-        {
+      if (fetchedUserAgain.referredBy && userOrdersCount === 1) {
+        console.log("on referred by condition")
+        await User.findOneAndUpdate(
+          { referralCode: fetchedUserAgain.referredBy },
+          {
+            $inc: {
+              "wallet.balance": 500,
+              referralEarnings: 500,
+            },
+          }
+        );
+        await User.findByIdAndUpdate(fetchedUserAgain._id, {
           $inc: {
-            "wallet.balance": 500,
-            referralEarnings: 500,
+            "wallet.balance": 250,
           },
-        }
-      );
-      await User.findByIdAndUpdate(fetchedUserAgain._id, {
-        $inc: {
-          "wallet.balance": 250,
-        },
-      });
-    }
+        });
+      }
 
     if (amountPaidThroughWallet > 0) {
       await User.findByIdAndUpdate(user, {
         $inc: { "wallet.balance": -amountPaidThroughWallet },
       });
+      console.log("updated wallet balance")
       const newWallet = new WalletTransaction({
         userId: user,
         orderId: newOrder._id,
@@ -609,7 +613,7 @@ router.post("/return-reason", async (req, res) => {
     }
     const decoded = jwt.verify(token, JWT_SECRET);
     const userId = decoded.userId;
-        const sanitizedAdditionalInfo = validator.escape(additionalInfo);
+    const sanitizedAdditionalInfo = validator.escape(additionalInfo);
     const validReasons = ["size", "damaged", "color"];
 
     if (!validReasons.includes(reason)) {
@@ -633,7 +637,7 @@ router.post("/return-reason", async (req, res) => {
     await newWallet.save();
 
     order.returnMsg = sanitizedAdditionalInfo;
-    
+
     if (reason !== "damaged") {
       for (let orderedProduct of order.products) {
         const product = await Product.findById(orderedProduct.product);
@@ -655,17 +659,17 @@ router.post("/return-reason", async (req, res) => {
     order.returnDate = new Date();
     order.status = "Returned";
     await order.save();
-        req.flash("success", "Order returned successfully");
+    req.flash("success", "Order returned successfully");
     res.redirect(`/order/view-single-order/${orderId}`);
   } catch (error) {
     console.error(error);
-        req.flash("error", "An error occurred, try again later");
+    req.flash("error", "An error occurred, try again later");
     res.redirect(`/order/view-single-order/${orderId}`);
   }
 });
 
 router.get("/success/:orderId", (req, res) => {
-      res.render("user/order-success", { orderId: req.params.orderId });
+  res.render("user/order-success", { orderId: req.params.orderId });
 });
 
 router.post("/apply-coupon", async (req, res) => {
@@ -683,34 +687,39 @@ router.get("/invoices/download", async (req, res) => {
   try {
     const id = req.query.orderId;
     const order = await Order.findById(id).populate("products.product");
-    const templatePath = path.resolve(__dirname, "../../public/templates/invoice.ejs");
-    
+    const templatePath = path.resolve(
+      __dirname,
+      "../../public/templates/invoice.ejs"
+    );
+
     const ejsData = await ejs.renderFile(templatePath, { order });
 
     const browser = await puppeteer.launch({ headless: "new" });
     const page = await browser.newPage();
     await page.setContent(ejsData);
-    
+
     const pdfOptions = {
       format: "A3",
       margin: {
         top: "10mm",
         right: "10mm",
         bottom: "10mm",
-        left: "10mm"
-      }
+        left: "10mm",
+      },
     };
     const pdfBuffer = await page.pdf(pdfOptions);
     await browser.close();
 
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=invoice_${order.shortId}.pdf`);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=invoice_${order.shortId}.pdf`
+    );
     res.send(pdfBuffer);
   } catch (error) {
     console.error(error);
     res.status(500).send(`Server Error: ${error.message}`);
   }
 });
-
 
 module.exports = router;

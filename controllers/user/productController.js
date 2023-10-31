@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Product = require("../../models/Product");
 const Brand = require("../../models/Brand");
+const ObjectId = require("mongoose").Types.ObjectId;
 
 const aggregateFeaturedQuery = [
   {
@@ -125,14 +126,14 @@ router.get("/view-single-product/:productId", async (req, res) => {
   const product = await Product.findOne({ _id: productId })
     .populate("category")
     .populate("brand");
-    res.render("user/user-single-product", {
+  res.render("user/user-single-product", {
     product,
     categories: req.categories,
   });
 });
 
 router.get("/filter-products/category/:categoryId", async (req, res) => {
-  const categoryId = req.params.categoryId;
+  const categoryId = new ObjectId(req.params.categoryId);
 
   const options = {
     page: parseInt(req.query.page) || 1,
@@ -145,11 +146,23 @@ router.get("/filter-products/category/:categoryId", async (req, res) => {
   };
 
   try {
+    const sortBy = "Featured";
     const filter = {
       category: categoryId,
       isDeleted: false,
     };
-    const result = await Product.paginate(filter, options);
+    let result;
+    const aggregatedProducts = await Product.aggregate(aggregateFeaturedQuery)
+      .match(filter)
+      .skip((options.page - 1) * options.limit)
+      .limit(options.limit);
+    const totalCount = await Product.countDocuments(filter);
+    result = {
+      products: aggregatedProducts,
+      productCount: totalCount,
+      page: options.page,
+      totalPages: Math.ceil(totalCount / options.limit),
+    };
 
     if (!result.productCount) {
       req.flash("error", "No products on this category");
@@ -172,6 +185,7 @@ router.get("/filter-products/category/:categoryId", async (req, res) => {
       categories,
       latestProducts,
       brands,
+      sortBy: sortBy,
     });
   } catch (err) {
     console.error("Error fetching products by category:", err);
@@ -181,7 +195,8 @@ router.get("/filter-products/category/:categoryId", async (req, res) => {
 });
 
 router.get("/filter-products/brand/:brandId", async (req, res) => {
-  const brandId = req.params.brandId;
+  const brandId = new ObjectId(req.params.brandId);
+  const sortBy = 'Featured';
 
   const options = {
     page: parseInt(req.query.page) || 1,
@@ -198,7 +213,17 @@ router.get("/filter-products/brand/:brandId", async (req, res) => {
       isDeleted: false,
       brand: brandId,
     };
-    const result = await Product.paginate(filter, options);
+    const aggregatedProducts = await Product.aggregate(aggregateFeaturedQuery)
+      .match(filter)
+      .skip((options.page - 1) * options.limit)
+      .limit(options.limit);
+    const totalCount = await Product.countDocuments(filter);
+    result = {
+      products: aggregatedProducts,
+      productCount: totalCount,
+      page: options.page,
+      totalPages: Math.ceil(totalCount / options.limit),
+    };
 
     if (!result.productCount) {
       req.flash("error", "No products on this brand");
@@ -220,6 +245,7 @@ router.get("/filter-products/brand/:brandId", async (req, res) => {
       categories,
       latestProducts,
       brands,
+      sortBy
     });
   } catch (err) {
     console.error("Error fetching products by brand:", err);

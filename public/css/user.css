@@ -10687,3 +10687,8 @@ input.form-control {
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 99999;
 }
+
+.product-offer-small-btn {
+  padding: 3px 6px !important;
+  background-color: #383e50 !important;
+}

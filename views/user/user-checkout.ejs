@@ -41,13 +41,13 @@
                     <div class="panel-collapse collapse coupon_form " id="coupon">
                       <div class="panel-body">
                         <p class="mb-30 font-sm">If you have a coupon code, please apply it below.</p>
-                          <div class="form-group">
-                            <input type="text" name="couponCode" placeholder="Enter Coupon Code...">
-                            <a class="f-right coupon-checkout-anchor" id="view-coupons-text">View My Coupons</a>
-                          </div>
-                          <div class="form-group">
-                            <button class="btn  btn-md" name="applyCoupon">Apply Coupon</button>
-                          </div>
+                        <div class="form-group">
+                          <input type="text" name="couponCode" placeholder="Enter Coupon Code...">
+                          <a class="f-right coupon-checkout-anchor" id="view-coupons-text">View My Coupons</a>
+                        </div>
+                        <div class="form-group">
+                          <button class="btn  btn-md" name="applyCoupon">Apply Coupon</button>
+                        </div>
                         <div class="coupon-table" style="display:none;">
                           <table>
                             <tbody>
@@ -224,7 +224,7 @@
                               value="<%= walletBalance %>">
                             <label class="form-check-label" for="walletPayment"><span
                                 style="color: black; margin-right: 5px;">Use Wallet</span> (Wallet Balance : ₹<%=
-                                walletBalance %>)</label>
+                                parseFloat(walletBalance.toString()).toFixed(2) %>)</label>
                           </div>
                         </div>
                       </div>
