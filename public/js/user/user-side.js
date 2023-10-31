@@ -220,7 +220,6 @@ $(function () {
     });
   }
 
-  // Your existing function for updating total after discount
   function updateTotalAfterDiscount() {
     if ($("#couponRow").css("display") !== "none") {
       let discountAmount = parseFloat(

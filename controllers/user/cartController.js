@@ -62,23 +62,23 @@ router.post("/add-to-cart", async (req, res) => {
 router.post("/remove-from-cart", async (req, res) => {
   try {
     const productId = req.body.productId;
-
     const decoded = jwt.verify(req.cookies.jwt, JWT_SECRET);
     const userId = decoded.userId;
 
-    const cart = await Cart.findOne({ userId });
-    if (!cart) {
+    const updatedCart = await Cart.findOneAndUpdate(
+      { userId },
+      {
+        $pull: { products: { productId } },
+      },
+      { new: true }
+    );
+
+    if (!updatedCart) {
       console.log('no cart found');
       return res.json({ success: false, message: "No cart found" });
     }
 
-    cart.products = cart.products.filter(
-      (p) => p.productId.toString() !== productId
-    );
-
-    await cart.save();
-
-    const totalItems = cart.products.reduce(
+    const totalItems = updatedCart.products.reduce(
       (acc, product) => acc + product.quantity,
       0
     );
@@ -89,6 +89,7 @@ router.post("/remove-from-cart", async (req, res) => {
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
+
 
 router.post("/clear-cart", async (req, res) => {
   try {
