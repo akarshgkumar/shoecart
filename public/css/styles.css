@@ -16,6 +16,10 @@
   text-decoration: underline;
 }
 
+.username-span {
+  margin-left: 20px;
+}
+
 body,
 html {
   height: 100%;

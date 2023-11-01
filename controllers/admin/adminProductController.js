@@ -10,7 +10,6 @@ const nanoid = customAlphabet("1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ", 6);
 
 router.get("/view-products", async (req, res) => {
   const options = {
-    sort: { totalSoldItems: -1 },
     page: parseInt(req.query.page) || 1,
     limit: 8,
     populate: ["category", "brand"],
@@ -77,12 +76,14 @@ router.post(
       const discountAmount = (originalPrice * highestDiscountPercentage) / 100;
       const priceAfterDiscount = Math.round(originalPrice - discountAmount);
 
+      const brandId = req.body.product_brand;
+
       const updatedProductData = {
         name: req.body.product_name,
         color: req.body.product_color,
         sizes: numericSizes,
         category: new mongoose.Types.ObjectId(categoryId),
-        brand: new mongoose.Types.ObjectId(req.body.product_brand),
+        brand: new mongoose.Types.ObjectId(brandId),
         description: req.body.description,
         price: originalPrice,
         priceAfterDiscount: priceAfterDiscount,
@@ -96,25 +97,45 @@ router.post(
         categoryDiscountPercentage: categoryDiscount,
       };
 
+      const oldCategoryId = product.category;
+      const oldBrandId = product.brand;
+
+      if (oldCategoryId != categoryId) {
+        await Category.updateOne(
+          { _id: categoryId },
+          { $inc: { productCount: 1 } }
+        );
+        await Category.updateOne(
+          { _id: product.category },
+          { $inc: { productCount: -1 } }
+        );
+      }
       
+      if (oldBrandId != brandId) {
+        await Brand.updateOne({ _id: brandId }, { $inc: { productCount: 1 } });
+        await Brand.updateOne(
+          { _id: product.brand },
+          { $inc: { productCount: -1 } }
+        );
+      }
+
       const newImageUrls = req.files.image
         ? req.files.image.map((file) => file.path)
         : [];
-                  product.images.forEach((imagePath, index) => {
-              });
+      product.images.forEach((imagePath, index) => {});
       const retainedImages = product.images.filter(
         (imagePath, index) => req.body[`deleteImage${index}`] === "on"
       );
-            const allImageUrls = [...retainedImages, ...newImageUrls];
-            if (allImageUrls.length > 3) {
+      const allImageUrls = [...retainedImages, ...newImageUrls];
+      if (allImageUrls.length > 3) {
         req.flash("error", "Only submit 3 sub images");
         return res.redirect(`/admin/edit-product/${productId}`);
       }
 
       updatedProductData.images = allImageUrls;
-            await Product.findByIdAndUpdate(productId, updatedProductData);
+      await Product.findByIdAndUpdate(productId, updatedProductData);
       req.flash("success", "Product edited successfully");
-            res.redirect("/admin/view-products");
+      res.redirect("/admin/view-products");
     } catch (err) {
       console.error(err);
       req.flash("error", "Internal server error");
@@ -224,7 +245,7 @@ router.get("/search-product", async (req, res) => {
       pages: result.totalPages,
     });
   } catch (err) {
-        req.flash("error", "Internal server error. Failed to search products.");
+    req.flash("error", "Internal server error. Failed to search products.");
     res.redirect("/admin/view-products");
   }
 });
@@ -314,7 +335,7 @@ router.post(
         { $inc: { productCount: 1 } }
       );
 
-      const result = await product.save();
+      await product.save();
       req.flash("success", "Product added successfully");
       res.redirect("/admin/view-products");
     } catch (err) {
@@ -340,7 +361,7 @@ router.get("/edit-product/:productId", async (req, res) => {
 router.get("/add-stock/:productId", async (req, res) => {
   const productId = req.params.productId;
   const product = await Product.findOne({ _id: productId }, "stock");
-    res.render("admin/admin-add-stock", { productId, stock: product.stock });
+  res.render("admin/admin-add-stock", { productId, stock: product.stock });
 });
 
 router.post("/add-stock/:productId", async (req, res) => {
@@ -412,7 +433,7 @@ router.get("/filter-products/status/:status", async (req, res) => {
   };
   const status = req.params.status;
   const isDeletedStatus = status === "true";
-    try {
+  try {
     const filter = {
       brand: { $exists: true, $ne: null },
       category: { $exists: true, $ne: null },

@@ -525,7 +525,9 @@ $(function () {
         console.log("Response:", response);
         if (response.valid) {
           $(".referral-check-msg")
-            .text("Correct Referral Code")
+            .html(
+              `Correct Referral Code<br><span class="username-span">(User Name : ${response.userName})</span>`
+            )
             .css("color", "#198754")
             .show();
           $(".referral-input-msg").hide();

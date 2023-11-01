@@ -156,11 +156,11 @@
                                                 class="add-stock-btn btn btn-sm btn-primary position-absolute top-0 end-0 fw-bold">
                                                 <%= index + 1 %>
                                             </button></a>
-                                        <a href="javascript:void(0)" class="img-wrap">
+                                        <a href="javascript:void(0)" class="img-wrap" style="cursor: auto;">
                                             <img src="<%= product.mainImage %>" alt="Product">
                                         </a>
                                         <div class="info-wrap">
-                                            <a href="/admin/edit-product/<%= product._id %>" class="title capitalize">
+                                            <a href="/admin/edit-product/<%= product._id %>" class="title capitalize" style="cursor: auto;">
                                                 <%= product.name.length> 70 ? product.name.slice(0, 70) + '...' :
                                                     product.name %>
                                             </a>

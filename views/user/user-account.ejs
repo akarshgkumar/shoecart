@@ -135,7 +135,7 @@
                                             <% if(walletTransaction.type==="addition" ) { %>
                                               <span class="text-brand fw-600 ml-5">
                                                 + <%=
-                                                  parseFloat(walletTransaction.orderId.totalAfterDiscount.toString()).toFixed(2)
+                                                  parseFloat(walletTransaction.orderId.totalAmountPaid.toString()).toFixed(2)
                                                   %>
                                               </span>
                                               <% } else { %>

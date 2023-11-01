@@ -407,7 +407,7 @@ router.post("/check-referral", async (req, res) => {
     const regex = new RegExp(`^${req.body.referralCode}$`, "i");
     const user = await User.findOne({ referralCode: regex });
     if (user) {
-      return res.json({ valid: true });
+      return res.json({ valid: true, userName: user.name });
     } else {
       return res.json({ valid: false });
     }
