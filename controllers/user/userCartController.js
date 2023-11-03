@@ -1,11 +1,9 @@
-const express = require("express");
-const router = express.Router();
 const Cart = require("../../models/Cart");
 const Product = require("../../models/Product");
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
 
-router.post("/add-to-cart", async (req, res) => {
+exports.addToCart = async (req, res) => {
   try {
     const { productId, size, quantity } = req.body;
 
@@ -56,10 +54,9 @@ router.post("/add-to-cart", async (req, res) => {
   } catch (error) {
     console.error("Error adding to cart:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
-  }
-});
+  }};
 
-router.post("/remove-from-cart", async (req, res) => {
+exports.removeFromCart = async (req, res) => {
   try {
     const productId = req.body.productId;
     const decoded = jwt.verify(req.cookies.jwt, JWT_SECRET);
@@ -86,11 +83,9 @@ router.post("/remove-from-cart", async (req, res) => {
   } catch (error) {
     console.error("Error removing from cart:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
-  }
-});
+  }};
 
-
-router.post("/clear-cart", async (req, res) => {
+exports.clearCart = async (req, res) => {
   try {
     const decoded = jwt.verify(req.cookies.jwt, JWT_SECRET);
     const userId = decoded.userId;
@@ -101,10 +96,9 @@ router.post("/clear-cart", async (req, res) => {
     console.error("Error clearing the cart:", error);
     req.flash("error", "Failed to clear cart. Please try again.");
   }
-  res.redirect("/cart");
-});
+  res.redirect("/cart");};
 
-router.get("/", async (req, res) => {
+exports.getCart = async (req, res) => {
   try {
     const token = req.cookies.jwt;
 
@@ -134,10 +128,9 @@ router.get("/", async (req, res) => {
     console.error("Error fetching cart:", error);
     req.flash("error", "Internal server error");
     res.redirect("/home");
-  }
-});
+  }};
 
-router.post("/update-cart-quantity", async (req, res) => {
+exports.updateCartQuantity = async (req, res) => {
   try {
     const { productId, quantity } = req.body;
     const decoded = jwt.verify(req.cookies.jwt, JWT_SECRET);
@@ -165,10 +158,9 @@ router.post("/update-cart-quantity", async (req, res) => {
   } catch (error) {
     console.error("Error updating product quantity:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
-  }
-});
+  }};
 
-router.post("/update-product-size", async (req, res) => {
+exports.updateProductSize = async (req, res) => {
   try {
     const { productId, newSize } = req.body;
     const decoded = jwt.verify(req.cookies.jwt, JWT_SECRET);
@@ -189,7 +181,4 @@ router.post("/update-product-size", async (req, res) => {
   } catch (error) {
     console.error("Error updating product size:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
-  }
-});
-
-module.exports = router;
+  }};

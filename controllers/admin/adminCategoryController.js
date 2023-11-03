@@ -1,17 +1,13 @@
-const express = require("express");
-const router = express.Router();
 const Category = require("../../models/Category");
 const Product = require("../../models/Product");
 const capitalizeWords = require("../../middlewares/admin/capitalizeWords");
-const parser = require("../../config/cloudinaryConfig");
 
-router.get("/view-category", async (req, res) => {
+exports.viewCategories = async (req, res) => {
   const options = {
     sort: { productCount: -1 },
     page: parseInt(req.query.page) || 1,
     limit: 10,
   };
-
   try {
     const result = await Category.paginate({}, options);
     res.render("admin/admin-view-category", {
@@ -24,42 +20,32 @@ router.get("/view-category", async (req, res) => {
     console.error("Error fetching categories:", err);
     res.redirect("back");
   }
-});
+};
 
-router.get("/add-category", (req, res) => {
+exports.addCategoryGet = (req, res) => {
   res.render("admin/admin-add-category");
-});
+};
 
-router.post(
-  "/add-category",
-  parser.single("category_img"),
-  async (req, res) => {
-    try {
-      const name = req.body.category_name;
-      const discountPercentage = req.body.discount_percentage
-        ? req.body.discount_percentage
-        : 0;
-
-      let imageUrl = "";
-                  if (req.file) {
-        imageUrl = req.file.path;
-      }
-      
-      const newCategory = new Category({ name, imageUrl, discountPercentage });
-      
-      await newCategory.save();
-
-      req.flash("success", "Category added successfully");
-      res.redirect("/admin/view-category");
-    } catch (err) {
-      console.error(err);
-      req.flash("error", "Internal server error");
-      res.redirect("/admin/add-category");
+exports.addCategoryPost = async (req, res) => {
+  try {
+    const name = req.body.category_name;
+    const discountPercentage = req.body.discount_percentage || 0;
+    let imageUrl = "";
+    if (req.file) {
+      imageUrl = req.file.path;
     }
+    const newCategory = new Category({ name, imageUrl, discountPercentage });
+    await newCategory.save();
+    req.flash("success", "Category added successfully");
+    res.redirect("/admin/category/view-category");
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "Internal server error");
+    res.redirect("/admin/category/add-category");
   }
-);
+};
 
-router.get("/edit-category/:categoryId", async (req, res) => {
+exports.editCategoryGet = async (req, res) => {
   const category = await Category.findById(req.params.categoryId);
   if (category) {
     res.render("admin/admin-edit-category", { category });
@@ -67,9 +53,44 @@ router.get("/edit-category/:categoryId", async (req, res) => {
     req.flash("error", "Invalid category");
     res.redirect("back");
   }
-});
+};
 
-router.get("/edit-category-image/:categoryId", async (req, res) => {
+exports.editCategoryPost = async (req, res) => {
+  const categoryId = req.params.categoryId;
+  try {
+    const category = await Category.findById(categoryId);
+    if (!category) {
+      return res.status(404).send("Category not found");
+    }
+    const updatedcategoryData = {
+      name: capitalizeWords(req.body.category_name),
+      discountPercentage: req.body.discount_percentage || 0,
+    };
+
+    await Category.findByIdAndUpdate(categoryId, updatedcategoryData);
+
+    // Update related products
+    const categoryDiscount = updatedcategoryData.discountPercentage;
+    const allProducts = await Product.find({ category: categoryId });
+
+    for (const product of allProducts) {
+      product.categoryDiscountPercentage = categoryDiscount;
+      product.discountPercentage = Math.max(product.categoryDiscountPercentage, product.individualDiscountPercentage);
+      const originalPrice = product.price;
+      const discountAmount = (originalPrice * product.discountPercentage) / 100;
+      product.priceAfterDiscount = Math.round(originalPrice - discountAmount);
+      await product.save();
+    }
+
+    req.flash("success", "Category updated successfully");
+    res.redirect("/admin/category/view-category");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.editCategoryImageGet = async (req, res) => {
   const category = await Category.findById(req.params.categoryId);
   if (category) {
     res.render("admin/admin-category-image-edit", { category });
@@ -77,91 +98,31 @@ router.get("/edit-category-image/:categoryId", async (req, res) => {
     req.flash("error", "Invalid category");
     res.redirect("back");
   }
-});
+};
 
-router.post("/edit-category/:categoryId", async (req, res) => {
+exports.editCategoryImagePost = async (req, res) => {
   const categoryId = req.params.categoryId;
   try {
     const category = await Category.findById(categoryId);
-
     if (!category) {
-      return res.status(404).send("category not found");
+      return res.status(404).send("Category not found");
     }
-        const updatedcategoryData = {
-      name: capitalizeWords(req.body.category_name),
-      discountPercentage: req.body.discount_percentage
-        ? req.body.discount_percentage
-        : 0,
-    };
-
-    await Category.findByIdAndUpdate(categoryId, updatedcategoryData);
-
-    const categoryDiscount = updatedcategoryData.discountPercentage;
-    const allProducts = await Product.find({category: categoryId})
-
-    for(const product of allProducts) {
-      product.categoryDiscountPercentage = categoryDiscount;
-
-      if(product.categoryDiscountPercentage > product.individualDiscountPercentage) {
-        product.discountPercentage = product.categoryDiscountPercentage;
-      } else {
-        product.discountPercentage = product.individualDiscountPercentage;
-      }
-
-      const highestDiscountPercentage = product.discountPercentage;
-      const originalPrice = product.price; 
-      const discountAmount = (originalPrice * highestDiscountPercentage) / 100;
-      product.priceAfterDiscount = Math.round(originalPrice - discountAmount);
-
-      await product.save();
+    let imageUrl = category.imageUrl;
+    if (req.file) {
+      imageUrl = req.file.path;
     }
-
-    req.flash("success", "Category updated successfully");
-    res.redirect("/admin/view-category");
+    await Category.findByIdAndUpdate(categoryId, { imageUrl: imageUrl });
+    res.redirect("/admin/category/view-category");
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal Server Error");
   }
-});
+};
 
-
-router.post(
-  "/edit-category-image/:categoryId",
-  parser.single("category_img"),
-  async (req, res) => {
-    const categoryId = req.params.categoryId;
-
-    try {
-      const category = await Category.findById(categoryId);
-
-      if (!category) {
-        return res.status(404).send("Category not found");
-      }
-
-      let imageUrl = category.imageUrl;
-            
-      if (req.file) {
-        imageUrl = req.file.path;
-      }
-      
-      const updatedCategoryData = {
-        imageUrl: imageUrl,
-      };
-      
-      await Category.findByIdAndUpdate(categoryId, updatedCategoryData);
-
-      res.redirect("/admin/view-category");
-    } catch (err) {
-      console.error(err);
-      res.status(500).send("Internal Server Error");
-    }
-  }
-);
-
-router.get("/check-category", async (req, res) => {
+exports.checkCategory = async (req, res) => {
   try {
     const { categoryName, editCategoryName } = req.query;
-    let category = undefined;
+    let category;
     if (categoryName === editCategoryName) {
       category = null;
     } else {
@@ -169,42 +130,29 @@ router.get("/check-category", async (req, res) => {
         name: { $regex: `^${categoryName}$`, $options: "i" },
       });
     }
-
-    if (category) {
-      return res.json({ exists: true });
-    } else {
-      return res.json({ exists: false });
-    }
+    res.json({ exists: !!category });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Internal server error" });
   }
-});
+};
 
-router.get("/search-category", async (req, res) => {
+exports.searchCategory = async (req, res) => {
   try {
     const options = {
       sort: { productCount: -1 },
       page: parseInt(req.query.page) || 1,
       limit: 10,
     };
-
     const searchTerm = req.query.q;
     const filter = {
       name: new RegExp(searchTerm, "i"),
     };
-
     const result = await Category.paginate(filter, options);
-
     if (result.docs.length === 0) {
       req.flash("error", "No categories found for the given search term.");
-      if (req.headers.referer) {
-        return res.redirect("back");
-      } else {
-        return res.redirect("/admin/view-category");
-      }
+      return res.redirect(req.headers.referer || "/admin/view-category");
     }
-
     res.render("admin/admin-view-category", {
       category: result.docs,
       categoryCount: result.totalDocs,
@@ -212,9 +160,8 @@ router.get("/search-category", async (req, res) => {
       pages: result.totalPages,
     });
   } catch (err) {
-        req.flash("error", "Internal server error. Failed to search categories.");
-    res.redirect("/admin/view-category");
+    console.error("An error occurred:", err);
+    req.flash("error", "Internal server error. Failed to search categories.");
+    res.redirect("/admin/category/view-category");
   }
-});
-
-module.exports = router;
+};

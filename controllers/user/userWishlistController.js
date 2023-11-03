@@ -1,10 +1,8 @@
-const express = require("express");
-const router = express.Router();
 const Wishlist = require("../../models/Wishlist");
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
 
-router.post("/add-to-wishlist", async (req, res) => {
+exports.addToWishlist = async (req, res) => {
   try {
     const { productId } = req.body;
 
@@ -40,9 +38,9 @@ router.post("/add-to-wishlist", async (req, res) => {
     console.error("Error adding to wishlist:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
-});
+};
 
-router.get("/", async (req, res) => {
+exports.getWishlist = async (req, res) => {
   try {
     const token = req.cookies.jwt;
 
@@ -61,15 +59,19 @@ router.get("/", async (req, res) => {
     const validProducts =
       wishlist?.products.filter((product) => product.productId) || [];
 
-    res.render("user/user-wishlist", { products: validProducts, userId,categories: req.categories });
+    res.render("user/user-wishlist", {
+      products: validProducts,
+      userId,
+      categories: req.categories,
+    });
   } catch (error) {
     console.error("Error fetching wishlist:", error);
     req.flash("error", "Error fetching wishlist");
     res.redirect("/home");
   }
-});
+};
 
-router.post("/clear-wishlist", async (req, res) => {
+exports.clearWishlist = async (req, res) => {
   try {
     const decoded = jwt.verify(req.cookies.jwt, JWT_SECRET);
     const userId = decoded.userId;
@@ -81,9 +83,9 @@ router.post("/clear-wishlist", async (req, res) => {
     console.error("Error clearing wishlist:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
-});
+};
 
-router.post("/remove-from-wishlist", async (req, res) => {
+exports.removeFromWishlist = async (req, res) => {
   try {
     const productId = req.body.productId;
     const decoded = jwt.verify(req.cookies.jwt, JWT_SECRET);
@@ -102,6 +104,4 @@ router.post("/remove-from-wishlist", async (req, res) => {
     console.error("Error removing from wishlist:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
-});
-
-module.exports = router;
+};

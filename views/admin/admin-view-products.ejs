@@ -9,25 +9,25 @@
               <p>List of all products.</p>
             </div>
             <div>
-              <a href="/admin/add-product" class="btn btn-primary btn-sm rounded">Create New</a>
+              <a href="/admin/product/add-product" class="btn btn-primary btn-sm rounded">Create New</a>
             </div>
           </div>
           <header class="card card-body mb-4">
             <div class="row gx-3">
               <div class="col-lg-4 col-md-6 me-auto">
-                <form action="/admin/search-product" method="get">
+                <form action="/admin/product/search-product" method="get">
                   <input type="text" placeholder="Search..." name="q" class="form-control">
                 </form>
               </div>
               <div class="col-lg-2 col-6 col-md-3">
                 <select class="form-select" onchange="navigateWithDropDown(this)">
-                  <option value="/admin/view-products" <%=typeof selectedCategoryId !='undefined' && !selectedCategoryId
+                  <option value="/admin/product/view-products" <%=typeof selectedCategoryId !='undefined' && !selectedCategoryId
                     ? 'selected' : '' %>>
                     All Categories
                   </option>
 
                   <% categories.forEach(category=> { %>
-                    <option class="category-list-dropdown" value="/admin/filter-products/category/<%= category._id %>"
+                    <option class="category-list-dropdown" value="/admin/product/filter-products/category/<%= category._id %>"
                       <%=typeof selectedCategoryId !=='undefined' && selectedCategoryId==category._id ? 'selected' : ''
                       %>>
                       <%= category.name %>
@@ -37,16 +37,16 @@
               </div>
               <div class="col-lg-2 col-6 col-md-3">
                 <select class="form-select" onchange="navigateWithDropDown(this)">
-                  <option value="/admin/view-products" <%=typeof selectedProductFilter !='undefined' &&
+                  <option value="/admin/product/view-products" <%=typeof selectedProductFilter !='undefined' &&
                     !selectedProductFilter ? 'selected' : '' %>>
                     All Products
                   </option>
 
-                  <option class="category-list-dropdown" value="/admin/filter-products/status/false" <%=typeof
+                  <option class="category-list-dropdown" value="/admin/product/filter-products/status/false" <%=typeof
                     selectedProductFilter !=='undefined' && selectedProductFilter=='false' ? 'selected' : '' %>>
                     Live Products
                   </option>
-                  <option class="category-list-dropdown" value="/admin/filter-products/status/true" <%=typeof
+                  <option class="category-list-dropdown" value="/admin/product/filter-products/status/true" <%=typeof
                     selectedProductFilter !=='undefined' && selectedProductFilter=='true' ? 'selected' : '' %>>
                     Deleted Products
                   </option>
@@ -58,29 +58,29 @@
             <% products.forEach(product=> { %>
               <div class="col-xl-3 col-lg-4 col-md-6 mb-10">
                 <div class="card card-product-grid position-relative">
-                  <a href="/admin/add-stock/<%= product._id %>"><button
+                  <a href="/admin/product/add-stock/<%= product._id %>"><button
                       class="add-stock-btn btn btn-sm btn-primary position-absolute top-0 end-0 m-2">Add Stock</button></a>
                   <a href="#" class="img-wrap">
                     <img src="<%= product.mainImage %>" alt="Product">
                   </a>
                   <div class="info-wrap">
                     <div class="dropdown float-end">
-                      <a href="/admin/edit-product/<%= product._id %>" class="btn btn-sm btn-brand rounded">
+                      <a href="/admin/product/edit-product/<%= product._id %>" class="btn btn-sm btn-brand rounded">
                         <i class="material-icons md-edit mr-5"></i>Edit
                       </a>
                       <% if (product.isDeleted) { %>
-                        <a style="background-color: #EF9B0F;" href="/admin/show-product/<%= product._id %>"
+                        <a style="background-color: #EF9B0F;" href="/admin/product/show-product/<%= product._id %>"
                           class="btn btn-sm btn-brand rounded">
                           <i class="material-icons md-visibility mr-5"></i>Show
                         </a>
                         <% } else { %>
-                          <a style="background-color: #960018" href="/admin/hide-product/<%= product._id %>"
+                          <a style="background-color: #960018" href="/admin/product/hide-product/<%= product._id %>"
                             class="btn btn-sm btn-brand rounded">
                             <i class="material-icons md-visibility_off mr-5"></i>Hide
                           </a>
                           <% } %>
                     </div>
-                    <a href="/admin/edit-product/<%= product._id %>" class="title capitalize">
+                    <a href="/admin/product/edit-product/<%= product._id %>" class="title capitalize">
                       <%= product.name.slice(0, 30) %>...
                     </a>
                     <div class="price mt-1">₹<%= product.price %>
@@ -120,12 +120,12 @@
               <ul class="pagination justify-content-start">
                 <% for (let i=1; i <=pages; i++) { %>
                   <li class="page-item <%= current == i ? 'active' : '' %>"><a class="page-link"
-                      href="/admin/view-products?page=<%= i %>">
+                      href="/admin/product/view-products?page=<%= i %>">
                       <%= i %>
                     </a></li>
                   <% } %>
                     <% if(current < pages) { %>
-                      <li class="page-item"><a class="page-link" href="/admin/view-products?page=<%= current + 1 %>"><i
+                      <li class="page-item"><a class="page-link" href="/admin/product/view-products?page=<%= current + 1 %>"><i
                             class="fi-rs-angle-double-small-right"></i></a></li>
                       <% } %>
               </ul>

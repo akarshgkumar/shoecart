@@ -1,10 +1,8 @@
-const express = require("express");
-const router = express.Router();
 const User = require("../../models/User");
+const mongoose = require("mongoose");
 
-router.get("/search-users", async (req, res) => {
+exports.searchUsers = async (req, res) => {
   const searchTerm = req.query.q;
-
   const options = {
     page: parseInt(req.query.page) || 1,
     limit: 10,
@@ -16,16 +14,18 @@ router.get("/search-users", async (req, res) => {
 
   try {
     let filter = { verified: true };
-
+    
     if (searchTerm) {
-      filter['name'] = new RegExp(searchTerm, 'i');
+      filter.$or = [
+        { name: new RegExp(searchTerm, "i") },
+        { email: new RegExp(searchTerm, "i") },
+      ];
     }
 
     const result = await User.paginate(filter, options);
-
     if (result.userCount === 0) {
       req.flash("error", "No users found");
-      return res.redirect("/admin/view-users");
+      return res.redirect("/admin/user/view-users");
     }
 
     res.render("admin/admin-view-users", {
@@ -34,15 +34,14 @@ router.get("/search-users", async (req, res) => {
       current: result.page,
       pages: result.totalPages,
     });
-
   } catch (error) {
     console.error("Search error:", error);
     req.flash("error", "Unexpected Error");
-    res.redirect("/admin/view-users");
+    res.redirect("/admin/user/view-users");
   }
-});
+};
 
-router.get("/view-users", async (req, res) => {
+exports.viewUsers = async (req, res) => {
   const options = {
     page: parseInt(req.query.page) || 1,
     limit: 10,
@@ -52,9 +51,8 @@ router.get("/view-users", async (req, res) => {
     },
   };
 
-  const filter = { verified: true };
-
   try {
+    const filter = { verified: true };
     const result = await User.paginate(filter, options);
     res.render("admin/admin-view-users", {
       users: result.users,
@@ -62,13 +60,13 @@ router.get("/view-users", async (req, res) => {
       current: result.page,
       pages: result.totalPages,
     });
-  } catch (err) {
-    console.error("Error fetching users:", err);
+  } catch (error) {
+    console.error("Error fetching users:", error);
     res.redirect("back");
   }
-});
+};
 
-router.get("/unblock-user/:userId", async (req, res) => {
+exports.unblockUser = async (req, res) => {
   const { userId } = req.params;
   try {
     if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -82,14 +80,14 @@ router.get("/unblock-user/:userId", async (req, res) => {
     if (!user) {
       return res.status(404).send("User not found");
     }
-    res.redirect("/admin/view-users");
-  } catch (err) {
-    console.error(err);
+    res.redirect("/admin/user/view-users");
+  } catch (error) {
+    console.error(error);
     res.status(500).send("Server Error");
   }
-});
+};
 
-router.get("/block-user/:userId", async (req, res) => {
+exports.blockUser = async (req, res) => {
   const { userId } = req.params;
   try {
     if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -103,11 +101,9 @@ router.get("/block-user/:userId", async (req, res) => {
     if (!user) {
       return res.status(404).send("User not found");
     }
-    res.redirect("/admin/view-users");
-  } catch (err) {
-    console.error(err);
+    res.redirect("/admin/user/view-users");
+  } catch (error) {
+    console.error(error);
     res.status(500).send("Server Error");
   }
-});
-
-module.exports = router;
+};

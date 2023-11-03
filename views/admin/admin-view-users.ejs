@@ -13,7 +13,7 @@
             <header class="card-header">
               <div class="row gx-3">
                 <div class="col-lg-4 mb-lg-0 mb-15 me-auto">
-                  <form action="/admin/search-users" method="get">
+                  <form action="/admin/user/search-users" method="get">
                     <input type="text" name="q" placeholder="Search..." class="form-control">
                   </form>
                 </div>
@@ -49,11 +49,11 @@
                     </div>
                     <div class="col-lg-2 col-sm-2 col-4 col-action text-end">
                       <% if(user.isBlocked) { %>
-                        <a href="/admin/unblock-user/<%= user.id %>" class="btn btn-sm font-sm btn-light rounded">
+                        <a href="/admin/user/unblock-user/<%= user.id %>" class="btn btn-sm font-sm btn-light rounded">
                           <i class="material-icons md-block"></i> Unblock
                         </a>
                         <% } else { %>
-                          <a href="/admin/block-user/<%= user.id %>" class="btn btn-sm font-sm rounded btn-brand">
+                          <a href="/admin/user/block-user/<%= user.id %>" class="btn btn-sm font-sm rounded btn-brand">
                             <i class="material-icons md-block"></i> Block
                           </a>
                           <% } %>
@@ -69,13 +69,13 @@
               <ul class="pagination justify-content-start">
                 <% for (let i=1; i <=pages; i++) { %>
                   <li class="page-item <%= current == i ? 'active' : '' %>"><a class="page-link"
-                      href="/admin/view-users?page=<%= i %>">
+                      href="/admin/user/view-users?page=<%= i %>">
                       <%= i %>
                     </a></li>
                   <% } %>
                     <% if(current < pages) { %>
                       <li class="page-item"><a class="page-link"
-                          href="/admin/view-users?page=<%= current + 1 %>"><i
+                          href="/admin/user/view-users?page=<%= current + 1 %>"><i
                             class="fi-rs-angle-double-small-right"></i></a></li>
                       <% } %>
               </ul>

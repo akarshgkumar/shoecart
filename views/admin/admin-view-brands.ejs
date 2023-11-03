@@ -9,7 +9,7 @@
               <p>Brand management</p>
             </div>
             <div>
-              <a href="/admin/add-brands" class="btn btn-primary"><i
+              <a href="/admin/brand/add-brands" class="btn btn-primary"><i
                   class="text-muted material-icons md-post_add"></i>Add New Brand</a>
             </div>
           </div>
@@ -17,7 +17,7 @@
             <header class="card-header">
               <div class="row gx-3">
                 <div class="col-lg-4 mb-lg-0 mb-15 me-auto">
-                  <form action="/admin/search-brands" method="get">
+                  <form action="/admin/brand/search-brands" method="get">
                     <input type="text" name="q" placeholder="Search..." class="form-control">
                   </form>
                 </div>
@@ -54,7 +54,7 @@
                         </span>
                     </div>
                     <div class="col-lg-2 col-sm-2 col-4 col-action text-end">
-                      <a href="/admin/edit-brand/<%= brand._id %>" class="btn btn-sm font-sm rounded btn-brand">
+                      <a href="/admin/brand/edit-brand/<%= brand._id %>" class="btn btn-sm font-sm rounded btn-brand">
                         <i class="material-icons md-edit"></i> Edit
                       </a>
                     </div>
@@ -69,12 +69,12 @@
               <ul class="pagination justify-content-start">
                 <% for (let i=1; i <=pages; i++) { %>
                   <li class="page-item <%= current == i ? 'active' : '' %>"><a class="page-link"
-                      href="/admin/view-brands?page=<%= i %>">
+                      href="/admin/brand/view-brands?page=<%= i %>">
                       <%= i %>
                     </a></li>
                   <% } %>
                     <% if(current < pages) { %>
-                      <li class="page-item"><a class="page-link" href="/admin/view-brands?page=<%= current + 1 %>"><i
+                      <li class="page-item"><a class="page-link" href="/admin/brand/view-brands?page=<%= current + 1 %>"><i
                             class="fi-rs-angle-double-small-right"></i></a></li>
                       <% } %>
               </ul>

@@ -3,7 +3,7 @@
     <main class="main-wrap">
       <%- include('partials/admin-header') %>
         <section class="content-main">
-          <form class="admin-edit-order-form" action="/admin/edit-order/<%= order._id %>" method="POST">
+          <form class="admin-edit-order-form" action="/admin/order/edit-order/<%= order._id %>" method="POST">
             <input type="hidden" name="_id" value="<%= order._id %>">
             <div class="row">
               <div class="col-9">

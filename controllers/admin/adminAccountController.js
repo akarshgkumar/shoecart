@@ -1,22 +1,18 @@
-const express = require("express");
-const router = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const puppeteer = require("puppeteer");
 const ejs = require("ejs");
-const fs = require("fs");
 const path = require("path");
+const excel = require("excel4node");
 const Admin = require("../../models/Admin");
 const Order = require("../../models/Order");
 const Product = require("../../models/Product");
 const User = require("../../models/User");
 const Category = require("../../models/Category");
-const excel = require("excel4node");
 const SalesReport = require("../../models/SalesReport");
 const JWT_SECRET = process.env.JWT_SECRET;
-const authenticateAdmin = require("../../middlewares/admin/authenticateAdmin");
 
-router.get("/", async (req, res) => {
+exports.adminLoginGet = async (req, res) => {
   const adminToken = req.cookies.adminJwt;
 
   if (adminToken) {
@@ -27,11 +23,11 @@ router.get("/", async (req, res) => {
       res.render("admin/admin-login");
     }
   } else {
-    res.redirect("/admin/admin-login");
+    res.render("admin/admin-login");
   }
-});
+};
 
-router.post("/", async (req, res) => {
+exports.adminLoginPost = async (req, res) => {
   const { userName, password } = req.body;
   const admin = await Admin.findOne({ userName });
   if (admin && (await bcrypt.compare(password, admin.password))) {
@@ -48,11 +44,9 @@ router.post("/", async (req, res) => {
       notFound: "Incorrect username or password",
     });
   }
-});
+};
 
-router.use(authenticateAdmin);
-
-router.get("/dashboard", async (req, res) => {
+exports.adminDashboard = async (req, res) => {
   try {
     const orders = await Order.find();
     const orderCount = orders.length;
@@ -230,11 +224,12 @@ router.get("/dashboard", async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).send("Internal Server Error");
+    req.flash("error", "Sorry server error");
+    res.redirect("/admin/dashboard");
   }
-});
+};
 
-router.post("/sales/report", async (req, res) => {
+exports.adminSalesReport = async (req, res) => {
   try {
     const { startDate, endDate } = req.body;
     const startDateTime = new Date(startDate);
@@ -249,11 +244,6 @@ router.post("/sales/report", async (req, res) => {
     });
 
     const totalOrders = orders.length;
-
-    const totalSales = orders.reduce(
-      (acc, order) => acc + parseFloat(order.totalAmountPaid.toString()),
-      0
-    );
 
     const deliveredOrders = orders.filter(
       (order) => order.status === "Delivered"
@@ -283,6 +273,11 @@ router.post("/sales/report", async (req, res) => {
     );
     const totalRevenue = revenueOrders.reduce(
       (acc, order) => acc + parseFloat(order.totalAmountPaid.toString()),
+      0
+    );
+
+    const totalSales = revenueOrders.reduce(
+      (acc, order) => acc + parseFloat(order.totalAfterDiscount.toString()),
       0
     );
 
@@ -611,9 +606,9 @@ router.post("/sales/report", async (req, res) => {
     req.flash("error", "Sorry, Server Error");
     res.redirect("/admin/dashboard");
   }
-});
+};
 
-router.get("/download/sales/report/pdf/:reportId", async (req, res) => {
+exports.downloadSalesReportPDF = async (req, res) => {
   try {
     const report = await SalesReport.findById(req.params.reportId);
     if (!report) {
@@ -656,9 +651,9 @@ router.get("/download/sales/report/pdf/:reportId", async (req, res) => {
     req.flash("error", "Sorry, Server error occurred");
     res.redirect("back");
   }
-});
+};
 
-router.get("/download/sales/report/excel/:reportId", async (req, res) => {
+exports.downloadSalesReportExcel = async (req, res) => {
   try {
     const doc = await SalesReport.findById(req.params.reportId);
     const workbook = new excel.Workbook();
@@ -718,11 +713,9 @@ router.get("/download/sales/report/excel/:reportId", async (req, res) => {
     req.flash("error", "Internal server error");
     res.redirect("back");
   }
-});
+};
 
-router.get("/logout", (req, res) => {
+exports.adminLogout = (req, res) => {
   res.clearCookie("adminJwt");
   res.redirect("/admin");
-});
-
-module.exports = router;
+};

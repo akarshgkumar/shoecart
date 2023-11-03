@@ -139,10 +139,10 @@
             <%= doc.totalReturnedOrders %>
           </td>
           <td>
-            ₹<%= doc.totalSales %>
+            ₹<%= doc.totalSales.toFixed(2) %>
           </td>
           <td>
-            ₹<%= doc.totalRevenue %>
+            ₹<%= doc.totalRevenue.toFixed(2) %>
           </td>
         </tr>
       </tbody>

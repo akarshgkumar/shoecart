@@ -158,6 +158,39 @@ $(function () {
     errorMessage = undefined;
   }
 
+  $("#coupon_code").on("input", function () {
+    const couponCode = $(this).val();
+
+    if (couponCode.trim()) {
+      const newCouponCodeInput = $("#coupon_code");
+      const newCouponCode = newCouponCodeInput.val();
+      const oldCouponCode = $("#hidden_input_coupon_code").val();
+
+      $.get("/admin/coupon/check-coupon", {
+        newCouponCode: newCouponCode,
+        oldCouponCode: oldCouponCode,
+      })
+        .done(function (response) {
+          if (response.exists) {
+            console.log("exists");
+            const nextSpan = $("#coupon-error-span");
+            console.log(nextSpan); // Log the span element to debug
+            nextSpan.text("Coupon name already exists");
+            console.log("after");
+          } else {
+            console.log("no");
+            $("#coupon_code").next(".error-span").text("");
+          }
+        })
+        .fail(function (error) {
+          showAlert("Error checking coupon, try again later!");
+          console.error("Error checking coupon:", error);
+        });
+    } else {
+      $(".error-span").text("");
+    }
+  });
+
   $(".banner-form").validate({
     onkeyup: function (element) {
       $(element).valid();
@@ -176,7 +209,7 @@ $(function () {
       },
       highlighted_heading: {
         noSpaceMinLength: 6,
-        maxlength: 15,
+        maxlength: 16,
       },
       small_description: {
         noSpaceMinLength: 4,
@@ -225,22 +258,26 @@ $(function () {
     },
     submitHandler: function (form) {
       const couponCodeInput = $("#coupon_code");
-      const couponCode = couponCodeInput.val();
+      const newCouponCode = couponCodeInput.val();
+      const oldCouponCode = $("#hidden_input_coupon_code").val();
 
-      $.get(`/admin/coupon/check-coupon/${couponCode}`)
+      $.get("/admin/coupon/check-coupon", {
+        newCouponCode: newCouponCode,
+        oldCouponCode: oldCouponCode,
+      })
         .done(function (response) {
           if (response.exists) {
-            $("#coupon_code")
-              .next(".error-span")
-              .text("Coupon code already exists");
+            console.log("here");
+            $("#coupon-error-span").text("Coupon code already exists");
             couponCodeInput.focus();
           } else {
-            $("#coupon_code").next(".error-span").text("");
+            console.log("not exists");
+            $("#coupon-error-span").text("");
             form.submit();
           }
         })
         .fail(function (error) {
-          showAlert("error", "Error checking coupon, try again later!");
+          showAlert("Error checking coupon, try again later!");
           console.error("Error checking coupon:", error);
         });
     },
@@ -660,7 +697,7 @@ $(function () {
       const categoryName = categoryNameInput.val();
       const editCategoryName = $("#hidden_input_category_name").val();
 
-      $.get("/admin/check-category", {
+      $.get("/admin/category/check-category", {
         categoryName: categoryName,
         editCategoryName: editCategoryName,
       })
@@ -732,7 +769,7 @@ $(function () {
       const brandNameInput = $("#brand_name");
       const brandName = brandNameInput.val();
 
-      $.get(`/admin/check-brand/${brandName}`)
+      $.get(`/admin/brand/check-brand/${brandName}`)
         .done(function (response) {
           if (response.exists) {
             $(".error-span").text("Brand name already exists");
@@ -781,7 +818,7 @@ $(function () {
     const brandName = $(this).val();
 
     if (brandName.trim()) {
-      $.get(`/admin/check-brand/${brandName}`)
+      $.get(`/admin/brand/check-brand/${brandName}`)
         .done(function (response) {
           if (response.exists) {
             $(".error-span").text("Brand name already exists");
@@ -801,7 +838,7 @@ $(function () {
     const brandName = $(this).val();
 
     if (brandName.trim()) {
-      $.get(`/admin/check-brand/${brandName}`)
+      $.get(`/admin/brand/check-brand/${brandName}`)
         .done(function (response) {
           if (response.exists) {
             $(".error-span").text("Brand name already exists");
@@ -811,36 +848,6 @@ $(function () {
         })
         .fail(function (error) {
           console.error("Error checking brand:", error);
-        });
-    } else {
-      $(".error-span").text("");
-    }
-  });
-
-  $("#coupon_code").on("input", function () {
-    const couponCode = $(this).val();
-
-    if (couponCode.trim()) {
-      const newCouponCodeInput = $("#coupon_code");
-      const newCouponCode = newCouponCodeInput.val();
-      const oldCouponCode = $("#hidden_input_coupon_code").val();
-
-      $.get("/admin/coupon/check-coupon", {
-        newCouponCode: newCouponCode,
-        oldCouponCode: oldCouponCode,
-      })
-        .done(function (response) {
-          if (response.exists) {
-            $("#coupon_code")
-              .next(".error-span")
-              .text("Coupon name already exists");
-          } else {
-            $("#coupon_code").next(".error-span").text("");
-          }
-        })
-        .fail(function (error) {
-          showAlert("error", "Error checking coupon, try again later!");
-          console.error("Error checking coupon:", error);
         });
     } else {
       $(".error-span").text("");

@@ -1,10 +1,8 @@
-const express = require("express");
-const router = express.Router();
-const Order = require("../../models/Order");
 const Product = require("../../models/Product");
 const formatDate = require("../../utils/formatDate");
+const Order = require("../../models/Order");
 
-router.get("/view-orders", async (req, res) => {
+exports.viewOrders = async (req, res) => {
   const options = {
     page: parseInt(req.query.page) || 1,
     limit: 10,
@@ -28,22 +26,22 @@ router.get("/view-orders", async (req, res) => {
     console.error("Error fetching orders:", err);
     res.status(500).send("Internal server error");
   }
-});
+};
 
-router.get("/view-single-order/:orderId", async (req, res) => {
+exports.viewSingleOrder = async (req, res) => {
   try {
     const order = await Order.findById(req.params.orderId).populate(
       "products.product"
     );
-        res.render("admin/admin-view-single-order", { order });
+    res.render("admin/admin-view-single-order", { order });
   } catch (error) {
     console.error("Error fetching order:", error);
     req.flash("error", "Sorry, Server Error");
-    res.redirect("/admin/view-orders");
+    res.redirect("/admin/order/view-orders");
   }
-});
+};
 
-router.get("/edit-order/:orderId", async (req, res) => {
+exports.editOrderGet = async (req, res) => {
   try {
     const orderId = req.params.orderId;
     const order = await Order.findById(orderId);
@@ -60,19 +58,19 @@ router.get("/edit-order/:orderId", async (req, res) => {
     console.error(error);
     res.status(500).send("Server Error");
   }
-});
+};
 
-router.post("/edit-order/:id", async (req, res) => {
+exports.editOrderPost = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { orderId } = req.params;
     const { order_name, shipped_date, delivery_date, status, order_email } =
       req.body;
 
-    const order = await Order.findById(id);
+    const order = await Order.findById(orderId);
 
     if (!order) {
       req.flash("error", "Order not found");
-      return res.redirect("/admin/view-orders");
+      return res.redirect("/admin/order/view-orders");
     }
 
     let updateFields = {
@@ -95,7 +93,7 @@ router.post("/edit-order/:id", async (req, res) => {
       }
     }
 
-    const updatedOrder = await Order.findByIdAndUpdate(id, updateFields, {
+    const updatedOrder = await Order.findByIdAndUpdate(orderId, updateFields, {
       new: true,
     });
 
@@ -103,21 +101,24 @@ router.post("/edit-order/:id", async (req, res) => {
 
     if (updatedOrder) {
       req.flash("success", "Order updated successfully");
-      res.redirect("/admin/view-orders");
+      res.redirect("/admin/order/view-orders");
     } else {
       req.flash("error", "Failed to update Order");
-      res.redirect("/admin/view-orders");
+      res.redirect("/admin/order/view-orders");
     }
   } catch (error) {
     console.error("Error updating order:", error);
     req.flash("error", "An error occurred while updating the order.");
-    res.redirect("/admin/view-orders");
+    res.redirect("/admin/order/view-orders");
   }
-});
+};
 
-router.get("/search-orders", async (req, res) => {
-  const searchQuery = req.query.searchQuery;
+exports.searchOrders = async (req, res) => {
+  let searchQuery = req.query.searchQuery;
 
+  if (searchQuery && searchQuery.startsWith("#")) {
+    searchQuery = searchQuery.substring(1);
+  }
   const options = {
     page: parseInt(req.query.page) || 1,
     limit: 10,
@@ -139,7 +140,7 @@ router.get("/search-orders", async (req, res) => {
 
     if (result.orderCount === 0) {
       req.flash("error", "No orders found");
-      return res.redirect("/admin/view-orders");
+      return res.redirect("/admin/order/view-orders");
     }
 
     res.render("admin/admin-view-orders", {
@@ -151,11 +152,11 @@ router.get("/search-orders", async (req, res) => {
   } catch (error) {
     console.error("Search error:", error);
     req.flash("error", "Unexpected Error");
-    res.redirect("/admin/view-orders");
+    res.redirect("/admin/order/view-orders");
   }
-});
+};
 
-router.get("/search-order-email", async (req, res) => {
+exports.searchOrderEmail = async (req, res) => {
   const emailQuery = req.query.emailQuery;
 
   const options = {
@@ -179,7 +180,7 @@ router.get("/search-order-email", async (req, res) => {
 
     if (result.orderCount === 0) {
       req.flash("error", "No orders found with that email");
-      return res.redirect("/admin/view-orders");
+      return res.redirect("/admin/order/view-orders");
     }
 
     res.render("admin/admin-view-orders", {
@@ -191,8 +192,6 @@ router.get("/search-order-email", async (req, res) => {
   } catch (error) {
     console.error("Search error:", error);
     req.flash("error", "Unexpected Error");
-    res.redirect("/admin/view-orders");
+    res.redirect("/admin/order/view-orders");
   }
-});
-
-module.exports = router;
+};

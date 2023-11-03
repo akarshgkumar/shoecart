@@ -1,32 +1,28 @@
-const express = require("express");
 const bcrypt = require("bcrypt");
-const router = express.Router();
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
 const sgMail = require("@sendgrid/mail");
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const { customAlphabet } = require("nanoid");
 const nanoid = customAlphabet("1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ", 6);
+
 const User = require("../../models/User");
 const Order = require("../../models/Order");
 const Banner = require("../../models/Banner");
 const Product = require("../../models/Product");
 const WalletTransaction = require("../../models/WalletTransaction");
-const noCache = require("../../middlewares/user/noCache");
-const redirectIfLoggedIn = require("../../middlewares/user/redirectIfLoggedIn");
 const generateOTP = require("../../utils/generateOTP");
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
-router.get("/login", noCache, redirectIfLoggedIn, (req, res) => {
+exports.getLogin = (req, res) => {
   res.render("user/login");
-});
+};
 
-router.get("/signup", noCache, redirectIfLoggedIn, (req, res) => {
+exports.getSignup = (req, res) => {
   const error = req.query.error;
   res.render("user/signup", { error });
-});
+};
 
-router.post("/verify-otp", async (req, res) => {
+exports.verifyOTP = async (req, res) => {
   const { email, otp, forgot } = req.body;
   const user = await User.findOne({ email });
   if (!user) {
@@ -79,14 +75,14 @@ router.post("/verify-otp", async (req, res) => {
     req.flash("error", "Invalid or expired otp");
     res.redirect(`/enter-otp?email=${encodeURIComponent(email)}`);
   }
-});
+};
 
-router.get("/reset-password", (req, res) => {
+exports.getResetPassword = (req, res) => {
   const email = req.query.email;
   res.render("user/reset-password", { email });
-});
+};
 
-router.post("/reset-password", async (req, res) => {
+exports.postResetPassword = async (req, res) => {
   try {
     const { email, password, confirmPassword } = req.body;
 
@@ -105,9 +101,9 @@ router.post("/reset-password", async (req, res) => {
     req.flash("success", "Successfully logged in");
     res.redirect("/reset-password");
   }
-});
+};
 
-router.get("/account", async (req, res) => {
+exports.getAccount = async (req, res) => {
   try {
     const token = req.cookies.jwt;
     if (!token) {
@@ -158,16 +154,16 @@ router.get("/account", async (req, res) => {
     req.flash("error", "Internal server error");
     res.redirect("/home");
   }
-});
+};
 
-router.get("/enter-otp", (req, res) => {
+exports.getEnterOTP = (req, res) => {
   const error = req.query.error;
   const email = req.query.email;
   const forgot = req.query.forgot;
   res.render("user/enter-otp", { error, email, forgot });
-});
+};
 
-router.get("/verify-email/:forgot", (req, res) => {
+exports.getVerifyEmail = (req, res) => {
   const error = req.query.error;
   let forgot = false;
   if (req.params.forgot === "true") {
@@ -179,28 +175,28 @@ router.get("/verify-email/:forgot", (req, res) => {
   } else {
     res.redirect("/home");
   }
-});
+};
 
-router.get("/check-email/:forgot", (req, res) => {
+exports.getCheckEmail = (req, res) => {
   const email = req.query.email;
   if (req.params.forgot === "true") {
     res.render("user/check-email", { email });
   } else {
     res.redirect("/home");
   }
-});
+};
 
-router.get("/", (req, res) => {
+exports.getHomeRedirect = (req, res) => {
   res.redirect("/home");
-});
+};
 
-router.get("/logout", (req, res) => {
+exports.logout = (req, res) => {
   res.clearCookie("jwt");
   req.flash("success", "logged out successfully");
   res.redirect("/login");
-});
+};
 
-router.get("/home", async (req, res) => {
+exports.getHome = async (req, res) => {
   try {
     const firstBanner = await Banner.findOne({ name: "Main Image" });
     const secondBanner = await Banner.findOne({ name: "Secondary Image" });
@@ -255,13 +251,14 @@ router.get("/home", async (req, res) => {
     req.flash("error", "Internal server error");
     res.redirect("back");
   }
-});
+};
 
-router.post("/login", async (req, res) => {
+exports.postLogin = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
-      return res.render("user/login", { notFound: "Email not registered" });
+      req.flash("error", "Email not registered");
+      return res.redirect("/login");
     }
     if (!user.verified) {
       const otp = generateOTP();
@@ -293,7 +290,8 @@ router.post("/login", async (req, res) => {
         });
     }
     if (user.isBlocked === true) {
-      res.render("user/login", { notFound: "User is blocked" });
+      req.flash("error", "User is blocked");
+      res.redirect("/login");
     } else if (
       user &&
       (await bcrypt.compare(req.body.password, user.password))
@@ -313,15 +311,17 @@ router.post("/login", async (req, res) => {
       req.flash("success", "Successfully logged in");
       res.redirect("/home");
     } else {
-      res.render("user/login", { notFound: "Incorrect email or password" });
+      req.flash("error", "Incorrect email or password");
+      res.redirect("/login");
     }
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal server error");
+    req.flash("error", "Sorry server error");
+    return res.redirect("/login")
   }
-});
+};
 
-router.post("/resend-otp", async (req, res) => {
+exports.resendOTP = async (req, res) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
@@ -358,51 +358,50 @@ router.post("/resend-otp", async (req, res) => {
     console.error(error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
-});
+};
+exports.verifyEmail = async (req, res) => {
+  try {
+    const forgot = req.params.forgot;
+    const email = req.body.email;
+    const user = await User.findOne({ email });
 
-router.post("/verify-email/:forgot", async (req, res) => {
-  const forgot = req.params.forgot;
-  const email = req.body.email;
-  const user = await User.findOne({ email });
+    if (user) {
+      const otp = generateOTP();
+      const otpExpires = Date.now() + 10 * 60 * 1000;
 
-  if (user) {
-    const otp = generateOTP();
-    const otpExpires = Date.now() + 10 * 60 * 1000;
+      user.otp = otp;
+      user.otpExpires = otpExpires;
+      await user.save();
 
-    user.otp = otp;
-    user.otpExpires = otpExpires;
-    await user.save();
+      const msg = {
+        to: email,
+        from: { email: process.env.EMAIL },
+        subject: "Your OTP for Login",
+        text: `Your OTP for login is: ${otp}. It is valid for only 10 minutes.`,
+      };
 
-    const msg = {
-      to: email,
-      from: { email: process.env.EMAIL },
-      subject: "Your OTP for Login",
-      text: `Your OTP for login is: ${otp}. It is valid for only 10 minutes.`,
-    };
-
-    sgMail
-      .send(msg)
-      .then(() => {
-        res.redirect(
-          `/enter-otp?email=${encodeURIComponent(
-            email
-          )}&otpExpires=${otpExpires}&forgot=${forgot}`
-        );
-      })
-      .catch((error) => {
-        console.error("Error sending mail:", error.response?.body?.errors);
-        res.redirect(
-          `/verify-email?${forgot}error=Error sending OTP. Please try again later.`
-        );
-      });
-  } else {
-    res.redirect(
-      `/verify-email/${forgot}?error=Email not found in our records.`
+      await sgMail.send(msg);
+      res.redirect(
+        `/enter-otp?email=${encodeURIComponent(
+          email
+        )}&otpExpires=${otpExpires}&forgot=${forgot}`
+      );
+    } else {
+      res.redirect(
+        `/verify-email/${forgot}?error=Email not found in our records.`
+      );
+    }
+  } catch (error) {
+    console.error("Error during email verification:", error);
+    req.flash(
+      "error",
+      "There was an error sending the OTP. Please try again later."
     );
+    res.redirect(`/verify-email/${forgot}`);
   }
-});
+};
 
-router.post("/check-referral", async (req, res) => {
+exports.checkReferral = async (req, res) => {
   try {
     const regex = new RegExp(`^${req.body.referralCode}$`, "i");
     const user = await User.findOne({ referralCode: regex });
@@ -415,9 +414,9 @@ router.post("/check-referral", async (req, res) => {
     console.error(error);
     return res.status(500).send("Internal Server Error");
   }
-});
+};
 
-router.post("/signup", async (req, res) => {
+exports.signup = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
     if (user && !user.verified) {
@@ -505,9 +504,9 @@ router.post("/signup", async (req, res) => {
       res.status(500).send("Internal Server Error");
     }
   }
-});
+};
 
-router.post("/edit-account", async (req, res) => {
+exports.editAccount = async (req, res) => {
   const { userId, name, email, phoneNo } = req.body;
 
   try {
@@ -539,9 +538,9 @@ router.post("/edit-account", async (req, res) => {
     req.flash("error", "Internal server error");
     res.redirect("/account");
   }
-});
+};
 
-router.post("/add-address", async (req, res) => {
+exports.addAddress = async (req, res) => {
   try {
     const {
       userId,
@@ -586,90 +585,110 @@ router.post("/add-address", async (req, res) => {
     res.redirect("/account");
   } catch (error) {
     console.error("Error adding address:", error);
-    res.status(500).send("Internal server error");
+    req.flash("error", "Internal server error");
+    res.redirect("/account");
   }
-});
+};
 
-router.get("/edit-address/:addressId", async (req, res) => {
+exports.getEditAddress = async (req, res) => {
   if (!req.user) {
-    return res.status(403).send("Not authenticated");
+    req.flash("error", "Not authenticated");
+    return res.redirect("/login");
   }
   const addressId = req.params.addressId;
   const address = req.user.addresses.id(addressId);
   if (!address) {
-    return res.status(404).send("Address not found.");
+    req.flash("error", "Address not found.");
+    return res.redirect("/account");
   }
   res.render("user/edit-address", { address: address });
-});
+};
 
-router.post("/update-address/:addressId", async (req, res) => {
-  const addressId = req.params.addressId;
-  const updatedAddress = req.body;
-  const address = req.user.addresses.id(addressId);
-  Object.assign(address, updatedAddress);
-  await req.user.save();
-  req.flash("success", "Address updated successfully");
-  res.redirect("/account");
-});
+exports.updateAddress = async (req, res) => {
+  try {
+    const addressId = req.params.addressId;
+    const updatedAddress = req.body;
+    const address = req.user.addresses.id(addressId);
 
-router.post("/remove-address/:addressId", async (req, res) => {
+    if (!address) {
+      req.flash("error", "Address not found.");
+      return res.redirect("/account");
+    }
+
+    Object.assign(address, updatedAddress);
+    await req.user.save();
+
+    req.flash("success", "Address updated successfully");
+    res.redirect("/account");
+  } catch (error) {
+    console.error("Error updating address:", error);
+    req.flash("error", "Failed to update address.");
+    res.redirect("/account");
+  }
+};
+
+exports.removeAddress = async (req, res) => {
   try {
     const addressId = req.params.addressId;
     await User.updateOne(
       { _id: req.user._id },
-      {
-        $pull: { addresses: { _id: addressId } },
-      }
+      { $pull: { addresses: { _id: addressId } } }
     );
     req.flash("success", "Address removed successfully");
     res.redirect("/account");
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal Server Error");
+    req.flash("error", "Failed to remove the address. Please try again later.");
+    res.redirect("/account");
   }
-});
+};
 
-router.post("/change-password", async (req, res) => {
+exports.changePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword, confirmNewPassword, userId } = req.body;
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.redirect("/account?error=User not found.");
+      req.flash("error", "User not found.");
+      return res.redirect("/account");
     }
 
     const isValidPassword = await bcrypt.compare(oldPassword, user.password);
-
     if (!isValidPassword) {
-      req.flash("error", "Old Password is incorrect");
+      req.flash("error", "Old password is incorrect.");
       return res.redirect("/account");
     }
 
     if (newPassword !== confirmNewPassword) {
-      req.flash("error", "New passwords doesn't match");
+      req.flash("error", "New passwords do not match.");
       return res.redirect("/account");
     }
 
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedNewPassword;
     await user.save();
-    req.flash("success", "Password changed successfully");
+
+    req.flash("success", "Password changed successfully.");
     return res.redirect("/account");
   } catch (error) {
     console.error("Error changing password:", error);
-    return res.redirect("/account?error=Internal Server Error");
+    req.flash(
+      "error",
+      "An error occurred while changing the password. Please try again later."
+    );
+    return res.redirect("/account");
   }
-});
+};
 
-router.post("/set-default-address", async (req, res) => {
+exports.setDefaultAddress = async (req, res) => {
   try {
     const { userId, addressId } = req.body;
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).send("User not found.");
+      req.flash("error", "User not found.");
+      return res.redirect("/account");
     }
-
     user.addresses.forEach((address) => {
       address.default = address._id.toString() === addressId;
     });
@@ -682,6 +701,4 @@ router.post("/set-default-address", async (req, res) => {
     req.flash("error", "Something unexpected happened");
     res.redirect("/account");
   }
-});
-
-module.exports = router;
+};
