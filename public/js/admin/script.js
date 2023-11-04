@@ -216,9 +216,6 @@ $(function () {
         maxlength: 40,
       },
     },
-    errorPlacement: function (error, element) {
-      element.next(".error-span").html(error.text());
-    },
   });
 
   $(".coupon-form").validate({

@@ -12,6 +12,7 @@ exports.getEditBanner = async (req, res) => {
 
 exports.postEditBanner = async (req, res) => {
   const bannerId = req.params.bannerId;
+  const {sub_heading, main_heading, highlighted_heading, small_description} = req.body;
 
   try {
     const banner = await Banner.findById(bannerId);
@@ -28,6 +29,10 @@ exports.postEditBanner = async (req, res) => {
 
     const updatedBannerData = {
       imageUrl: imageUrl,
+      subHeading: sub_heading,
+      mainHeading: main_heading,
+      highlightedHeading: highlighted_heading,
+      description: small_description,
     };
 
     await Banner.findByIdAndUpdate(bannerId, updatedBannerData);
