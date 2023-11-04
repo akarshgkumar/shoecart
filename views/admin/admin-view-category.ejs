@@ -66,9 +66,20 @@
                         <i class="material-icons md-edit"></i> Edit
                       </a>
                       <a href="/admin/category/edit-category-image/<%= category._id %>"
-                        class="btn btn-sm font-sm btn-light rounded">
+                        class="btn btn-sm font-sm btn-light rounded m-1">
                         <i class="material-icons md-edit"></i> Image
                       </a>
+                      <% if(category.isDeleted) { %>
+                        <a style="background-color: #EF9B0F;" href="/admin/category/show-category/<%= category._id %>"
+                          class="btn btn-sm btn-brand rounded">
+                          <i class="material-icons md-visibility mr-5"></i>Show
+                        </a>
+                        <% } else { %>
+                          <a style="background-color: #960018;" href="/admin/category/hide-category/<%= category._id %>"
+                            class="btn btn-sm btn-brand rounded">
+                            <i class="material-icons md-visibility_off mr-5"></i>Hide
+                          </a>
+                          <% } %>
                     </div>
                   </div>
                 </article>

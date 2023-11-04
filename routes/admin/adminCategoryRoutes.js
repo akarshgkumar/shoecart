@@ -24,4 +24,10 @@ router.get("/check-category", adminCategoryController.checkCategory);
 // Route to search for categories
 router.get("/search-category", adminCategoryController.searchCategory);
 
+// Route to show the categories
+router.get("/show-category/:categoryId", adminCategoryController.showCategory);
+
+// Route to hide the categories
+router.get("/hide-category/:categoryId", adminCategoryController.hideCategory);
+
 module.exports = router;

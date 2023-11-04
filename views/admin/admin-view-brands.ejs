@@ -54,9 +54,21 @@
                         </span>
                     </div>
                     <div class="col-lg-2 col-sm-2 col-4 col-action text-end">
-                      <a href="/admin/brand/edit-brand/<%= brand._id %>" class="btn btn-sm font-sm rounded btn-brand">
+                      <a href="/admin/brand/edit-brand/<%= brand._id %>"
+                        class="btn btn-sm font-sm rounded btn-brand">
                         <i class="material-icons md-edit"></i> Edit
                       </a>
+                      <% if(brand.isDeleted) { %>
+                        <a style="background-color: #EF9B0F;" href="/admin/brand/show-brand/<%= brand._id %>"
+                          class="btn btn-sm btn-brand rounded">
+                          <i class="material-icons md-visibility mr-5"></i>Show
+                        </a>
+                        <% } else { %>
+                          <a style="background-color: #960018;" href="/admin/brand/hide-brand/<%= brand._id %>"
+                            class="btn btn-sm btn-brand rounded">
+                            <i class="material-icons md-visibility_off mr-5"></i>Hide
+                          </a>
+                          <% } %>
                     </div>
                   </div>
                 </article>
@@ -74,7 +86,8 @@
                     </a></li>
                   <% } %>
                     <% if(current < pages) { %>
-                      <li class="page-item"><a class="page-link" href="/admin/brand/view-brands?page=<%= current + 1 %>"><i
+                      <li class="page-item"><a class="page-link"
+                          href="/admin/brand/view-brands?page=<%= current + 1 %>"><i
                             class="fi-rs-angle-double-small-right"></i></a></li>
                       <% } %>
               </ul>

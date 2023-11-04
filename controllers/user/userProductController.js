@@ -96,7 +96,7 @@ exports.viewFullProducts = async (req, res) => {
     }
 
     const categories = req.categories;
-    const brands = await Brand.find();
+    const brands = await Brand.find({isDeleted: false});
     const latestProducts = await Product.find(filter)
       .sort({ createdAt: -1 })
       .limit(3)
@@ -202,14 +202,14 @@ exports.filterProductsByCategory = async (req, res) => {
     }
 
     const categories = req.categories;
-    const brands = await Brand.find();
+    const brands = await Brand.find({isDeleted: false});
     const latestProducts = await Product.find(filter)
       .sort({ createdAt: -1 })
       .limit(3)
       .populate(["category", "brand"]);
 
     res.render("user/user-view-full-products", {
-      selectedCategoryId: categoryId,
+      selectedCategoryId: req.params.categoryId,
       products: result.products,
       productCount: result.productCount,
       current: result.page,
@@ -296,13 +296,14 @@ exports.filterProductsByBrand = async (req, res) => {
     }
 
     const categories = req.categories;
-    const brands = await Brand.find();
+    const brands = await Brand.find({isDeleted: false});
     const latestProducts = await Product.find(filter)
       .sort({ createdAt: -1 })
       .limit(3)
       .populate(["category", "brand"]);
 
     res.render("user/user-view-full-products", {
+      selectedBrandId: req.params.brandId,
       products: result.products,
       productCount: result.productCount,
       current: result.page,
@@ -320,6 +321,7 @@ exports.filterProductsByBrand = async (req, res) => {
 };
 
 exports.searchProducts = async (req, res) => {
+  const sortBy = req.query.sortBy || "Featured";
   const searchTerm = req.query.q;
   const options = {
     page: parseInt(req.query.page) || 1,
@@ -339,7 +341,7 @@ exports.searchProducts = async (req, res) => {
       category: { $exists: true, $ne: null },
     };
     const result = await Product.paginate(filter, options);
-    const brands = await Brand.find();
+    const brands = await Brand.find({isDeleted: false});
     if (result.productCount === 0) {
       req.flash("error", "No products found for the provided search term.");
       return res.redirect("back");
@@ -359,6 +361,7 @@ exports.searchProducts = async (req, res) => {
       categories: categories,
       latestProducts: latestProducts,
       brands: brands,
+      sortBy: sortBy,
     });
   } catch (err) {
     console.error("Error searching products:", err);

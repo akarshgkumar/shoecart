@@ -19,4 +19,10 @@ router.get("/check-brand/:name", adminBrandController.checkBrand);
 // Route to search for brands
 router.get("/search-brands", adminBrandController.searchBrands);
 
+// Route to show the brands
+router.get("/show-brand/:brandId", adminBrandController.showBrand);
+
+// Route to hide the brands
+router.get("/hide-brand/:brandId", adminBrandController.hideBrand);
+
 module.exports = router;

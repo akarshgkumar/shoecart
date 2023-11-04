@@ -89,8 +89,10 @@ exports.postEditProduct = async (req, res) => {
 
     const oldCategoryId = product.category;
     const oldBrandId = product.brand;
+    console.log(product.isCascadedDelete);
+    let isCascadedDelete = product.isCascadedDelete;
 
-    if (oldCategoryId != categoryId) {
+    if (oldCategoryId.toString() !== categoryId.toString()) {
       await Category.updateOne(
         { _id: categoryId },
         { $inc: { productCount: 1 } }
@@ -99,14 +101,34 @@ exports.postEditProduct = async (req, res) => {
         { _id: product.category },
         { $inc: { productCount: -1 } }
       );
+      const newCategory = await Category.findById(categoryId);
+      if (newCategory.isDeleted) {
+        isCascadedDelete = true;
+      } else {
+        isCascadedDelete = false;
+      }
     }
 
-    if (oldBrandId != brandId) {
+    if (oldBrandId.toString() !== brandId.toString()) {
       await Brand.updateOne({ _id: brandId }, { $inc: { productCount: 1 } });
       await Brand.updateOne(
         { _id: product.brand },
         { $inc: { productCount: -1 } }
       );
+      const newBrand = await Brand.findById(brandId);
+      if (newBrand.isDeleted) {
+        isCascadedDelete = true;
+      } else {
+        isCascadedDelete = false;
+      }
+    }
+
+    updatedProductData.isCascadedDelete = isCascadedDelete;
+
+    if (isCascadedDelete === true) {
+      updatedProductData.isDeleted = true;
+    } else {
+      updatedProductData.isDeleted = false;
     }
 
     const newImageUrls = req.files.image
@@ -135,22 +157,18 @@ exports.postEditProduct = async (req, res) => {
 
 exports.hideProduct = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.productId);
+    const productId = req.params.productId;
+    const product = await Product.findById(productId);
 
     if (!product) {
       req.flash("error", "Product not found.");
       return res.redirect("/admin/product/view-products");
     }
 
-    await Product.findByIdAndUpdate(req.params.productId, { isDeleted: true });
-    await Category.updateOne(
-      { _id: product.category },
-      { $inc: { productCount: -1 } }
-    );
-    await Brand.updateOne(
-      { _id: product.brand },
-      { $inc: { productCount: -1 } }
-    );
+    await Product.findByIdAndUpdate(productId, {
+      isDeleted: true,
+      isSelfDeleted: true,
+    });
 
     const referrer = req.header("Referer");
     if (referrer) {
@@ -167,22 +185,21 @@ exports.hideProduct = async (req, res) => {
 
 exports.showProduct = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.productId);
+    const productId = req.params.productId;
+    const product = await Product.findById(productId);
 
     if (!product) {
       req.flash("error", "Product not found.");
       return res.redirect("/admin/product/view-products");
     }
+    const updateResult = await Product.updateOne(
+      { _id: productId, isCascadedDelete: false },
+      { $set: { isDeleted: false, isSelfDeleted: false } }
+    );
 
-    await Product.findByIdAndUpdate(req.params.productId, { isDeleted: false });
-    await Category.updateOne(
-      { _id: product.category },
-      { $inc: { productCount: 1 } }
-    );
-    await Brand.updateOne(
-      { _id: product.brand },
-      { $inc: { productCount: 1 } }
-    );
+    if (updateResult.modifiedCount === 0) {
+      req.flash("error", "Product's category or brand is deleted");
+    }
 
     const referrer = req.header("Referer");
     if (referrer) {
@@ -288,6 +305,13 @@ exports.postAddProduct = async (req, res) => {
     const discountAmount = (originalPrice * highestDiscountPercentage) / 100;
     const priceAfterDiscount = Math.round(originalPrice - discountAmount);
 
+    const brand = await Brand.findById(req.body.product_brand);
+    const isCategoryDeleted = category && category.isDeleted;
+    const isBrandDeleted = brand && brand.isDeleted;
+
+    const isProductDeleted = isCategoryDeleted || isBrandDeleted;
+    const isCascadedDelete = isProductDeleted;
+
     const product = new Product({
       shortId: uniqueShortId,
       name: req.body.product_name,
@@ -307,6 +331,8 @@ exports.postAddProduct = async (req, res) => {
       discountPercentage: highestDiscountPercentage,
       individualDiscountPercentage: productDiscountPercentage,
       categoryDiscountPercentage: categoryDiscount,
+      isDeleted: isProductDeleted,
+      isCascadedDelete: isCascadedDelete,
     });
 
     await Category.updateOne(
@@ -317,6 +343,7 @@ exports.postAddProduct = async (req, res) => {
       { _id: req.body.product_brand },
       { $inc: { productCount: 1 } }
     );
+
 
     await product.save();
     req.flash("success", "Product added successfully");

@@ -165,3 +165,63 @@ exports.searchCategory = async (req, res) => {
     res.redirect("/admin/category/view-category");
   }
 };
+
+exports.showCategory = async (req, res) => {
+  try {
+    const category = await Category.findById(req.params.categoryId);
+
+    if (!category) {
+      req.flash("error", "Category not found.");
+      return res.redirect("/admin/category/view-category");
+    }
+
+    category.isDeleted = false;
+    await category.save();
+
+    await Product.updateMany(
+      { category: req.params.categoryId, isSelfDeleted: false },
+      { isDeleted: false, isCascadedDelete: false }
+    );
+
+    const referrer = req.header("Referer");
+    if (referrer) {
+      return res.redirect("back");
+    } else {
+      return res.redirect("/admin/category/view-category");
+    }
+  } catch (err) {
+    console.error("Error:", err);
+    req.flash("error", "Internal Server Error");
+    return res.redirect("/admin/category/view-category");
+  }
+}
+
+exports.hideCategory = async (req, res) => {
+  try {
+    const category = await Category.findById(req.params.categoryId);
+
+    if (!category) {
+      req.flash("error", "Category not found.");
+      return res.redirect("/admin/category/view-category");
+    }
+
+    category.isDeleted = true;
+    await category.save();
+
+    await Product.updateMany(
+      { category: req.params.categoryId },
+      { isDeleted: true, isCascadedDelete: true }
+    );
+
+    const referrer = req.header("Referer");
+    if (referrer) {
+      return res.redirect("back");
+    } else {
+      return res.redirect("/admin/category/view-category");
+    }
+  } catch (err) {
+    console.error("Error:", err);
+    req.flash("error", "Internal Server Error");
+    return res.redirect("/admin/category/view-category");
+  }
+}

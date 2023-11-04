@@ -82,7 +82,7 @@ function removeFromWishlist(buttonElement) {
 function clearWishlist() {
   $.ajax({
     type: 'POST',
-    url: '/wishlist/clear-wishlist',
+    url: 'api/v1/user/wishlist/clear-wishlist',
     success: function(data) {
       if (data.success) {
         showSuccess('Wishlist cleared');

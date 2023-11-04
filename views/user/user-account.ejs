@@ -23,12 +23,13 @@
                       <ul class="nav flex-column" role="tablist">
                         <li class="nav-item">
                           <a class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" href="#dashboard"
-                            role="tab" aria-controls="dashboard" aria-selected="false"><i
+                            role="tab" aria-controls="dashboard" aria-selected="true"><i
                               class="fi-rs-settings-sliders mr-10"></i>Dashboard</a>
                         </li>
                         <li class="nav-item">
-                          <a class="nav-link" id="wallet-tab" data-bs-toggle="tab" href="#wallet-history" role="tab"
-                            aria-controls="wallet" aria-selected="false"><i class="fi-rs-money mr-10"></i>Wallet
+                          <a class="nav-link" id="wallet-history-tab" data-bs-toggle="tab" href="#wallet-history"
+                            role="tab" aria-controls="wallet" aria-selected="false"><i
+                              class="fi-rs-money mr-10"></i>Wallet
                             History</a>
                         </li>
                         <li class="nav-item">
@@ -38,30 +39,30 @@
                         </li>
                         <li class="nav-item">
                           <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#address" role="tab"
-                            aria-controls="address" aria-selected="true"><i class="fi-rs-marker mr-10"></i>My
+                            aria-controls="address" aria-selected="false"><i class="fi-rs-marker mr-10"></i>My
                             Address</a>
                         </li>
                         <li class="nav-item">
-                          <a class="nav-link" id="address-tab" data-bs-toggle="tab" href="#add-address" role="tab"
-                            aria-controls="address" aria-selected="true"><i class="fi-rs-add mr-10"></i>Add
+                          <a class="nav-link" id="add-address-tab" data-bs-toggle="tab" href="#add-address" role="tab"
+                            aria-controls="address" aria-selected="false"><i class="fi-rs-add mr-10"></i>Add
                             Address</a>
                         </li>
                         <li class="nav-item">
                           <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab" href="#account-detail"
-                            role="tab" aria-controls="account-detail" aria-selected="true"><i
+                            role="tab" aria-controls="account-detail" aria-selected="false"><i
                               class="fi-rs-user mr-10"></i>Account
                             Details</a>
                         </li>
                         <li class="nav-item">
-                          <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab" href="#edit-account-detail"
-                            role="tab" aria-controls="account-detail" aria-selected="true"><i
-                              class="fi-rs-edit mr-10"></i>Edit Account
+                          <a class="nav-link" id="edit-account-detail-tab" data-bs-toggle="tab"
+                            href="#edit-account-detail" role="tab" aria-controls="account-detail"
+                            aria-selected="false"><i class="fi-rs-edit mr-10"></i>Edit Account
                             Details
                           </a>
                         </li>
                         <li class="nav-item">
-                          <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab" href="#change-password"
-                            role="tab" aria-controls="account-detail" aria-selected="true"><i
+                          <a class="nav-link" id="change-password-tab" data-bs-toggle="tab" href="#change-password"
+                            role="tab" aria-controls="account-detail" aria-selected="false"><i
                               class="fi-rs-lock mr-10"></i>Change
                             Password
                           </a>
@@ -89,7 +90,8 @@
                             <h5 class="mb-0"><i class="fi-rs-shopping-bag mr-10"></i>Wallet</h5>
                           </div>
                           <div class="card-body">
-                            <p>Wallet Balance : <span class="ml-5 text-brand">₹<%=  parseFloat(walletBalance.toString()).toFixed(2) %></span></p>
+                            <p>Wallet Balance : <span class="ml-5 text-brand">₹<%=
+                                  parseFloat(walletBalance.toString()).toFixed(2) %></span></p>
                           </div>
                         </div>
                       </div>
@@ -99,7 +101,8 @@
                             <h5 class="mb-0"><i class="fi-rs-shopping-bag mr-10"></i>Wallet</h5>
                           </div>
                           <div class="card-body">
-                            <p>Wallet Balance : <span class="ml-5 text-brand">₹<%=  parseFloat(walletBalance.toString()).toFixed(2) %></span></p>
+                            <p>Wallet Balance : <span class="ml-5 text-brand">₹<%=
+                                  parseFloat(walletBalance.toString()).toFixed(2) %></span></p>
                           </div>
                           <div class="card">
                             <div class="card-header">
@@ -151,7 +154,8 @@
                                             <%= walletTransaction.orderId.totalItems %>item<%=
                                                 walletTransaction.orderId.totalItems> 1 ? "s" : "" %>
                                           </td>
-                                          <td><a href="/order/view-single-order/<%= walletTransaction.orderId._id %>"
+                                          <td><a
+                                              href="/order/view-single-order/<%= walletTransaction.orderId._id %>"
                                               class="text-body view-text-order">Detail</a></td>
                                         </tr>
                                         <% }); %>
@@ -220,8 +224,8 @@
 
                       <div class="tab-pane fade" id="address" role="tabpanel" aria-labelledby="address-tab">
                         <% if(addresses && addresses.length> 0) { %>
-                          <% addresses.forEach(address=> { %>
-                            <div class="row mb-20">
+                          <div class="row mb-20">
+                            <% addresses.forEach(address=> { %>
                               <div class="col-lg-6">
                                 <div class="card">
                                   <div class="card-header">
@@ -255,26 +259,27 @@
                                         Select :
                                         <input class="form-check-input p-0 custom-radio-input"
                                           id="address-select-<%= address._id %>" type="radio" name="address-select" <%
-                                          if(address.default) { %> checked <% } %> data-address-id="<%= address._id %>
-                                            "
+                                          if(address.default) { %> checked <% } %> data-address-id="<%= address._id %> "
                                             style="width: 1.3em; height: 1.3em; margin-left: 5px;">
                                       </label>
                                     </div>
-                                    <a href="/edit-address/<%= address._id %>" class="btn-small mr-10">Edit</a>
-                                    <form action="/remove-address/<%= address._id %>" style="display: inline-block;"
-                                      method="post">
+                                    <a href="/edit-address/<%= address._id %>"
+                                      class="btn-small mr-10">Edit</a>
+                                    <form action="/remove-address/<%= address._id %>"
+                                      style="display: inline-block;" method="post">
                                       <button id="anchor-button" type="submit"
                                         class="btn-small text-danger">Remove</button>
                                     </form>
                                   </div>
                                 </div>
                               </div>
-                            </div>
-                            <% }) %>
-                              <% } else { %>
-                                <p>You have not added any addresses yet.</p>
-                                <% } %>
+                              <% }) %>
+                          </div>
+                          <% } else { %>
+                            <p>You have not added any addresses yet.</p>
+                            <% } %>
                       </div>
+                      
                       <div class="tab-pane fade" id="account-detail" role="tabpanel"
                         aria-labelledby="account-detail-tab">
                         <div class="card">
@@ -300,7 +305,8 @@
                               </div>
                             </div>
                             <div class="col-md-12">
-                              <a href="/account#edit-account-detail"><button class="btn btn-fill-out submit" value="Edit Details">Edit
+                              <a href="/account#edit-account-detail"><button class="btn btn-fill-out submit"
+                                  value="Edit Details">Edit
                                   Details</button></a>
                             </div>
                           </div>
@@ -314,7 +320,8 @@
                           </div>
                           <div class="card-body">
                             <div class="row">
-                              <form action="/edit-account" method="post" class="edit-account-form edit-form">
+                              <form action="/edit-account" method="post"
+                                class="edit-account-form edit-form">
                                 <div class="form-group col-md-12">
                                   <label>Full Name <span class="required">*</span></label>
                                   <input value="<%= username %>" class="form-control square capitalize" name="name"

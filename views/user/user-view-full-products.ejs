@@ -29,7 +29,9 @@
                                             <span><i class="fi-rs-apps-sort"></i>Sort by:</span>
                                         </div>
                                         <div class="sort-by-dropdown-wrap">
-                                            <span> <%= sortBy %> <i class="fi-rs-angle-small-down"></i></span>
+                                            <span>
+                                                <%= sortBy %> <i class="fi-rs-angle-small-down"></i>
+                                            </span>
                                         </div>
                                     </div>
                                     <div class="sort-by-dropdown">
@@ -148,10 +150,11 @@
                         <div class="widget-category mb-30">
                             <h5 class="section-title style-1 mb-30 wow fadeIn animated">Category</h5>
                             <ul class="categories">
-                                <li><a href="/product/view-full-products">All</a></li>
+                                <li><a href="/product/view-full-products" class="<%=typeof selectedCategoryId ==='undefined' ? 'text-brand' : '' %>">All</a></li>
                                 <% categories.forEach(category=> { %>
                                     <li><a href="/product/filter-products/category/<%= category._id %>"
-                                            class="capitalize">
+                                            class="capitalize <%=typeof selectedCategoryId !=='undefined' &&
+                                            selectedCategoryId==category._id ? 'text-brand' : '' %>">
                                             <%= category.name %>
                                         </a></li>
                                     <% }); %>
@@ -161,41 +164,43 @@
                         <div class="widget-category mb-30">
                             <h5 class="section-title style-1 mb-30 wow fadeIn animated">Brand</h5>
                             <ul class="categories">
-                                <li><a href="/product/view-full-products">All</a></li>
+                                <li><a href="/product/view-full-products" class="<%=typeof selectedBrandId ==='undefined' ? 'text-brand' : '' %>">All</a></li>
                                 <% brands.forEach(brand=> { %>
-                                    <li><a href="/product/filter-products/brand/<%= brand._id %>" class="capitalize">
+                                    <li><a href="/product/filter-products/brand/<%= brand._id %>" class="capitalize <%=typeof selectedBrandId !=='undefined' &&
+                                        selectedBrandId==brand._id ? 'text-brand' : '' %>">
                                             <%= brand.name %>
                                         </a></li>
                                     <% }); %>
                             </ul>
 
                         </div>
-                        <div class="sidebar-widget product-sidebar  mb-30 p-30 bg-grey border-radius-10">
-                            <div class="widget-header position-relative mb-20 pb-10">
-                                <h5 class="widget-title mb-10">New products</h5>
-                                <div class="bt-1 border-color-1"></div>
-                            </div>
-                            <% latestProducts.forEach(product=> { %>
-                                <div class="single-post clearfix">
-                                    <div class="image">
-                                        <img src="<%= product.mainImage %>" alt="<%= product.name %>">
-                                    </div>
-                                    <div class="content pt-10">
-                                        <h5><a href="/product/view-single-product/<%= product._id %>">
-                                                <%= product.name.slice(0,56) %>...
-                                            </a></h5>
-                                        <p class="price mb-0 mt-5">₹<%= product.price %>
-                                        </p>
-                                        <div class="product-brand">
-                                            <p>
-                                                <%= product.brand.name %>
+                        <% if(latestProducts && latestProducts.length> 0) { %>
+                            <div class="sidebar-widget product-sidebar  mb-30 p-30 bg-grey border-radius-10">
+                                <div class="widget-header position-relative mb-20 pb-10">
+                                    <h5 class="widget-title mb-10">New products</h5>
+                                    <div class="bt-1 border-color-1"></div>
+                                </div>
+                                <% latestProducts.forEach(product=> { %>
+                                    <div class="single-post clearfix">
+                                        <div class="image">
+                                            <img src="<%= product.mainImage %>" alt="<%= product.name %>">
+                                        </div>
+                                        <div class="content pt-10">
+                                            <h5><a href="/product/view-single-product/<%= product._id %>">
+                                                    <%= product.name.slice(0,56) %>...
+                                                </a></h5>
+                                            <p class="price mb-0 mt-5">₹<%= product.price %>
                                             </p>
+                                            <div class="product-brand">
+                                                <p>
+                                                    <%= product.brand.name %>
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <% }); %>
-                        </div>
-
+                                    <% }); %>
+                            </div>
+                            <% } %>
                     </div>
                 </div>
             </div>

@@ -11,6 +11,12 @@ const orderRoutes = require('./admin/adminOrderRoutes');
 const productRoutes = require('./admin/adminProductRoutes');
 const userRoutes = require('./admin/adminUserRoutes');
 
+// Import middlewares
+const fetchCategoryMiddleware = require("../middlewares/fetchCategory");
+
+// Middleware: Fetch category
+router.use(fetchCategoryMiddleware);
+
 // Routes: Admin account operations
 router.use('/', accountRoutes);
 

@@ -10,6 +10,10 @@ const brandSchema = new mongoose.Schema(
     productCount: {
       type: Number,
       default: 0
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
     }
   },
   {

@@ -36,12 +36,12 @@
 
                     <div class="product-detail-rating">
                       <div class="pro-details-brand">
-                        <span> Brands: <a href="shop-grid-right.html" class="capitalize">
+                        <span> Brands: <a href="javascript:void(0);" class="capitalize">
                             <%= product.brand.name %>
                           </a></span>
                       </div>
                       <div class="product-rate-cover text-end">
-                        <span> Category: <a class="capitalize" href="shop-grid-right.html">
+                        <span> Category: <a class="capitalize" href="javascript:void(0);">
                             <%= product.category.name %>
                           </a></span>
                       </div>
@@ -73,7 +73,7 @@
                     <div class="attr-detail attr-color mb-15">
                       <strong class="mr-10">Color</strong>
                       <ul class="list-filter color-filter">
-                        <li><a href="#" data-color="<%= product.color %>"><span
+                        <li><a href="javascript:void(0);" data-color="<%= product.color %>"><span
                               class="product-color-<%= product.color %>"></span></a></li>
                       </ul>
                     </div>
@@ -82,7 +82,7 @@
                       <ul class="list-filter size-filter font-small">
                         <% if (product && Array.isArray(product.sizes)) { %>
                           <% product.sizes.forEach(function(size) { %>
-                            <li><a href="#" onclick="changeSelectedSize('<%= size %>')">
+                            <li><a href="javascript:void(0);" onclick="changeSelectedSize('<%= size %>')">
                                 <%= size %>
                               </a></li>
                             <% }); %>
@@ -93,9 +93,9 @@
                     <div class="bt-1 border-color-1 mt-30 mb-30"></div>
                     <div class="detail-extralink">
                       <div class="detail-qty border radius">
-                        <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
+                        <a href="javascript:void(0);" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
                         <span class="qty-val">1</span>
-                        <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
+                        <a href="javascript:void(0);" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
                       </div>
                       <div class="product-extra-link2">
                         <button type="button" data-product-id="<%= product.id %>" id="addToCartButton"

@@ -1,5 +1,6 @@
-const Brand = require('../../models/Brand');
-const capitalizeWords = require('../../middlewares/admin/capitalizeWords');
+const Brand = require("../../models/Brand");
+const Product = require("../../models/Product");
+const capitalizeWords = require("../../middlewares/admin/capitalizeWords");
 
 exports.viewBrands = async (req, res) => {
   const options = {
@@ -32,6 +33,7 @@ exports.addBrandsPost = async (req, res) => {
       name: capitalizeWords(req.body.brand_name),
     });
     await newBrand.save();
+    req.flash("success", "Brand added successfully");
     res.redirect("/admin/brand/view-brands");
   } catch (err) {
     console.error("Error while adding brand:", err);
@@ -91,7 +93,9 @@ exports.searchBrands = async (req, res) => {
     const result = await Brand.paginate(query, options);
     if (result.docs.length === 0) {
       req.flash("error", "No brands found for the given search term.");
-      return req.headers.referer ? res.redirect("back") : res.redirect("/admin/brand/view-brands");
+      return req.headers.referer
+        ? res.redirect("back")
+        : res.redirect("/admin/brand/view-brands");
     }
 
     res.render("admin/admin-view-brands", {
@@ -104,5 +108,65 @@ exports.searchBrands = async (req, res) => {
   } catch (err) {
     console.error("Error fetching and paginating brands:", err);
     res.redirect("back");
+  }
+};
+
+exports.hideBrand = async (req, res) => {
+  try {
+    const brand = await Brand.findById(req.params.brandId);
+
+    if (!brand) {
+      req.flash("error", "Brand not found.");
+      return res.redirect("/admin/brand/view-brands");
+    }
+
+    brand.isDeleted = true;
+    await brand.save();
+
+    await Product.updateMany(
+      { brand: req.params.brandId },
+      { isDeleted: true, isCascadedDelete: true }
+    );
+
+    const referrer = req.header("Referer");
+    if (referrer) {
+      return res.redirect("back");
+    } else {
+      return res.redirect("/admin/brand/view-brands");
+    }
+  } catch (err) {
+    console.error("Error:", err);
+    req.flash("error", "Internal Server Error");
+    return res.redirect("/admin/brand/view-brands");
+  }
+};
+
+exports.showBrand = async (req, res) => {
+  try {
+    const brand = await Brand.findById(req.params.brandId);
+
+    if (!brand) {
+      req.flash("error", "Brand not found.");
+      return res.redirect("/admin/brand/view-brands");
+    }
+
+    brand.isDeleted = false;
+    await brand.save();
+
+    await Product.updateMany(
+      { brand: req.params.brandId, isSelfDeleted: false },
+      { isDeleted: false,isCascadedDelete: false }
+    );
+    
+    const referrer = req.header("Referer");
+    if (referrer) {
+      return res.redirect("back");
+    } else {
+      return res.redirect("/admin/brand/view-brands");
+    }
+  } catch (err) {
+    console.error("Error:", err);
+    req.flash("error", "Internal Server Error");
+    return res.redirect("/admin/brand/view-brands");
   }
 };

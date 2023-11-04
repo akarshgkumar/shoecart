@@ -46,7 +46,15 @@ const productSchema = new mongoose.Schema(
     priceAfterDiscount: {
       type: Number,
       required: true,
-    }
+    },
+    isSelfDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    isCascadedDelete: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

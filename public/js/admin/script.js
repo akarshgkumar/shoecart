@@ -174,7 +174,7 @@ $(function () {
           if (response.exists) {
             console.log("exists");
             const nextSpan = $("#coupon-error-span");
-            console.log(nextSpan); // Log the span element to debug
+            console.log(nextSpan);
             nextSpan.text("Coupon name already exists");
             console.log("after");
           } else {
@@ -814,27 +814,33 @@ $(function () {
     },
   });
 
-  $("#brand_name").on("input", function () {
-    const brandName = $(this).val();
+  $("#category_name").on("input", function () {
+    const categoryNameInput = $("#category_name");
+    const categoryName = categoryNameInput.val();
+    const editCategoryName = $("#hidden_input_category_name").val();
 
-    if (brandName.trim()) {
-      $.get(`/admin/brand/check-brand/${brandName}`)
-        .done(function (response) {
-          if (response.exists) {
-            $(".error-span").text("Brand name already exists");
-          } else {
-            $(".error-span").text("");
-          }
-        })
-        .fail(function (error) {
-          console.error("Error checking brand:", error);
-        });
-    } else {
-      $(".error-span").text("");
-    }
+    $.get("/admin/category/check-category", {
+      categoryName: categoryName,
+      editCategoryName: editCategoryName,
+    })
+      .done(function (response) {
+        console.log("check category response");
+        if (response.exists) {
+          console.log("category name exists");
+          $(".error-span").text("Category name already exists");
+          categoryNameInput.focus();
+        } else {
+          console.log("category name didn't exists");
+          $(".error-span").text("");
+          form.submit();
+        }
+      })
+      .fail(function (error) {
+        console.error("Error checking category:", error);
+      });
   });
 
-  $("#coupon_code").on("input", function () {
+  $("#brand_name").on("input", function () {
     const brandName = $(this).val();
 
     if (brandName.trim()) {

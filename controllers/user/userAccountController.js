@@ -650,18 +650,18 @@ exports.changePassword = async (req, res) => {
 
     if (!user) {
       req.flash("error", "User not found.");
-      return res.redirect("/account");
+      return res.redirect("/home");
     }
 
     const isValidPassword = await bcrypt.compare(oldPassword, user.password);
     if (!isValidPassword) {
       req.flash("error", "Old password is incorrect.");
-      return res.redirect("/account");
+      return res.redirect("/account#change-password");
     }
 
     if (newPassword !== confirmNewPassword) {
       req.flash("error", "New passwords do not match.");
-      return res.redirect("/account");
+      return res.redirect("/account#change-password");
     }
 
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
