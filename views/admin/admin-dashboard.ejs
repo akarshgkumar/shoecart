@@ -149,12 +149,12 @@
                         </header>
                         <div
                             class="card-body dashboard-products-card-container d-flex flex-wrap justify-content-center mt-30">
-                            <% products.forEach((product, index)=> { %>
+                            <% products.forEach((product) => { %>
                                 <div class="col-xl-3 col-lg-4 col-md-6 mb-30">
                                     <div class="card card-product-grid dashboard-product-card position-relative">
                                         <a href="javascript:void(0)"><button
-                                                class="add-stock-btn btn btn-sm btn-primary position-absolute top-0 end-0 fw-bold">
-                                                <%= index + 1 %>
+                                                class="add-stock-btn btn btn-sm btn-primary position-absolute top-0 end-0 fw-bold" style="letter-spacing: 0.5px;">
+                                                Sales : <%= product.totalSoldItems %>
                                             </button></a>
                                         <a href="javascript:void(0)" class="img-wrap" style="cursor: auto;">
                                             <img src="<%= product.mainImage %>" alt="Product">
@@ -164,7 +164,7 @@
                                                 <%= product.name.length> 70 ? product.name.slice(0, 70) + '...' :
                                                     product.name %>
                                             </a>
-                                            <div class="price mt-1">₹<%= product.price %>
+                                            <div class="price mt-1">₹<%= product.priceAfterDiscount %>
                                             </div>
                                             <% if (product.category) { %>
                                                 <div class="category">Category: <span class="text-brand capitalize">

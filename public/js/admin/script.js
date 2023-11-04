@@ -104,7 +104,7 @@ function showAlert(message) {
     setTimeout(() => {
       alertDiv.remove();
     }, 500);
-  }, 2000);
+  }, 3000);
 }
 
 function showSuccess(message) {
@@ -130,7 +130,7 @@ function showSuccess(message) {
   // Fade in
   setTimeout(() => {
     alertDiv.style.opacity = "1";
-  }, 50);
+  }, 100);
 
   // Fade out and remove
   setTimeout(() => {
@@ -138,7 +138,7 @@ function showSuccess(message) {
     setTimeout(() => {
       alertDiv.remove();
     }, 500);
-  }, 2000);
+  }, 3000);
 }
 
 function navigateWithDropDown(selectElement) {

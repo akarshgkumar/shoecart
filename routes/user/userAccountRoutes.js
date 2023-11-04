@@ -18,6 +18,8 @@ router.post("/verify-email/:forgot", userController.verifyEmail);
 router.get("/enter-otp", userController.getEnterOTP);
 router.post("/verify-otp", userController.verifyOTP);
 router.post("/resend-otp", userController.resendOTP);
+router.get("/change-email", userController.getChangeEmail);
+router.post("/change-email", userController.postChangeEmail)
 
 // Password reset routes
 router.get("/reset-password", userController.getResetPassword);

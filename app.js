@@ -13,7 +13,6 @@ const session = require("express-session");
 // Route imports
 const userRoutes = require("./routes/userRoutes");
 const adminRoutes = require("./routes/adminRoutes");
-const generalRoutes = require("./routes/generalRoutes");
 
 const app = express();
 
@@ -38,9 +37,6 @@ mongoose.connect(config.database.uri, config.database.options)
 // Static files and view engine setup
 app.use("/static", express.static(path.join(__dirname, "public")));
 app.set("view engine", "ejs");
-
-// Use general routes
-app.use("/", generalRoutes);
 
 // Route configurations
 app.use("/", userRoutes); 

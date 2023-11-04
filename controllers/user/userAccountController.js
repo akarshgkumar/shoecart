@@ -317,14 +317,21 @@ exports.postLogin = async (req, res) => {
   } catch (error) {
     console.error(error);
     req.flash("error", "Sorry server error");
-    return res.redirect("/login")
+    return res.redirect("/login");
   }
 };
 
 exports.resendOTP = async (req, res) => {
   try {
     const { email } = req.body;
-    const user = await User.findOne({ email });
+    const token = req.cookies.jwt;
+    if (!token) {
+      res.redirect("error", "Please login again");
+      return res.redirect("/login");
+    }
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.userId;
+    const user = await User.findOne({ _id: userId });
     if (!user) {
       return res.json({ success: false, message: "User not found" });
     }
@@ -359,6 +366,7 @@ exports.resendOTP = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
+
 exports.verifyEmail = async (req, res) => {
   try {
     const forgot = req.params.forgot;
@@ -510,33 +518,71 @@ exports.editAccount = async (req, res) => {
   const { userId, name, email, phoneNo } = req.body;
 
   try {
+    const user = await User.findById(userId);
+    if (!user) {
+      req.flash("error", "User not found");
+      return res.redirect("/home");
+    }
+
     const updatedUser = await User.findOneAndUpdate(
       { _id: userId },
-      { name, email, phoneNo },
+      { name, phoneNo },
       { new: true }
     );
-    if (!updatedUser) {
-      return res.status(404).send("User not found.");
-    }
     const token = jwt.sign(
       {
         userId: updatedUser._id,
-        email: updatedUser.email,
         name: updatedUser.name,
+        email: user.email,
       },
       JWT_SECRET,
       { expiresIn: "730d" }
     );
+
     res.cookie("jwt", token, {
       httpOnly: true,
       maxAge: 730 * 24 * 60 * 60 * 1000,
     });
 
-    res.redirect("/account");
+    if (user.email !== email) {
+      const emailExists =  await User.findOne({ email });
+      if (!emailExists) {
+        const otp = generateOTP();
+        const otpExpires = Date.now() + 10 * 60 * 1000;
+        user.otp = otp;
+        user.otpExpires = otpExpires;
+        await user.save();
+
+        const msg = {
+          to: email,
+          from: { email: process.env.EMAIL },
+          subject: "Your OTP for Login",
+          text: `Your OTP for login is: ${otp}. It is valid for only 10 minutes.`,
+        };
+
+        try {
+          await sgMail.send(msg);
+          return res.redirect(
+            `/change-email?email=${encodeURIComponent(
+              email
+            )}&otpExpires=${otpExpires}`
+          );
+        } catch (error) {
+          console.error("Error sending mail:", error.response?.body?.errors);
+          req.flash("error", "Error sending otp to new email, try again later");
+          return res.redirect("/account#edit-account-detail");
+        }
+      } else {
+        req.flash("error", "Account with this email already exists");
+        return res.redirect("/account#edit-account-detail");      }
+    } else {
+      req.flash("success", "Account details edited successfully");
+      return res.redirect("/account#account-detail");
+    }
   } catch (error) {
     console.error("Error updating the user:", error);
     req.flash("error", "Internal server error");
-    res.redirect("/account");
+    return res.redirect("/account");
   }
 };
 
@@ -700,5 +746,53 @@ exports.setDefaultAddress = async (req, res) => {
     console.error("Error setting default address:", error);
     req.flash("error", "Something unexpected happened");
     res.redirect("/account");
+  }
+};
+
+exports.getChangeEmail = (req, res) => {
+  const email = req.query.email;
+  res.render("user/change-email-otp", { email });
+};
+
+exports.postChangeEmail = async (req, res) => {
+  try {
+    const token = req.cookies.jwt;
+    if (!token) {
+      res.redirect("error", "Please login again");
+      return res.redirect("/login");
+    }
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.userId;
+    const { email, otp } = req.body;
+    const user = await User.findById(userId);
+    if (otp === user.otp && Date.now() <= user.otpExpires) {
+      user.otp = undefined;
+      user.otpExpires = undefined;
+      user.email = email;
+
+      await user.save();
+
+      const token = jwt.sign(
+        { userId: user._id, email: email, name: user.name },
+        JWT_SECRET,
+        {
+          expiresIn: "730d",
+        }
+      );
+
+      res.cookie("jwt", token, {
+        httpOnly: true,
+        maxAge: 730 * 24 * 60 * 60 * 1000,
+      });
+      req.flash("success", "Email edited successfully");
+      res.redirect("/account#account-detail");
+    } else {
+      req.flash("error", "Invalid or expired otp");
+      res.redirect(`/change-email?email=${encodeURIComponent(email)}`);
+    }
+  } catch {
+    console.error(error);
+    req.flash("error", "Sorry server error");
+    return res.redirect("/home");
   }
 };
