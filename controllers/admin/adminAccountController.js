@@ -223,7 +223,7 @@ exports.adminDashboard = async (req, res) => {
       startYear: startYear,
     });
   } catch (err) {
-    console.error(err);
+    
     req.flash("error", "Sorry server error");
     res.redirect("/admin/dashboard");
   }
@@ -602,7 +602,7 @@ exports.adminSalesReport = async (req, res) => {
       endDate,
     });
   } catch (error) {
-    console.error(error);
+    
     req.flash("error", "Sorry, Server Error");
     res.redirect("/admin/dashboard");
   }
@@ -647,7 +647,7 @@ exports.downloadSalesReportPDF = async (req, res) => {
     );
     res.end(pdfBuffer);
   } catch (error) {
-    console.error(error);
+    
     req.flash("error", "Sorry, Server error occurred");
     res.redirect("back");
   }
@@ -709,7 +709,7 @@ exports.downloadSalesReportExcel = async (req, res) => {
     );
     res.end(buffer);
   } catch (error) {
-    console.error("An error occurred:", error);
+    
     req.flash("error", "Internal server error");
     res.redirect("back");
   }

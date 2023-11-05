@@ -9,3 +9,8 @@ default.js
 
 # Log files
 *.log
+
+# Exclude production-ready files and folders
+/dist/css/
+/dist/js/
+/dist/images/

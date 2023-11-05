@@ -71,6 +71,10 @@
       font-size: 14px;
       font-family: sans-serif;
     }
+
+    p span {
+      color: #088178;
+    }
   </style>
 </head>
 
@@ -79,7 +83,7 @@
   <p class="main-heading">Sales Report</p>
   <div class="container mt-5">
     <div class="header text-center mb-5">
-      <p class="logo-text"><span style="color: #088178;">Shoe</span>Cart</p>
+      <p class="logo-text"><span>Shoe</span>Cart</p>
       <h2 class="selected-period-text">Selected Period Sales Report: <span class="selected-period-date">
           <%= doc.date.replace(/(\d{2}-\d{2}-\d{4})-(\d{2}-\d{2}-\d{4})/, "$1 to $2" ) %>
         </span>

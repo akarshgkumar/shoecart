@@ -50,11 +50,14 @@ exports.addToCart = async (req, res) => {
       (acc, product) => acc + product.quantity,
       0
     );
-    res.json({ success: true, cartItems: totalItems });
+    res.json({
+      success: true,
+      cartItems: totalItems,
+    });
   } catch (error) {
-    console.error("Error adding to cart:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
-  }};
+  }
+};
 
 exports.removeFromCart = async (req, res) => {
   try {
@@ -71,7 +74,7 @@ exports.removeFromCart = async (req, res) => {
     );
 
     if (!updatedCart) {
-            return res.json({ success: false, message: "No cart found" });
+      return res.json({ success: false, message: "No cart found" });
     }
 
     const totalItems = updatedCart.products.reduce(
@@ -81,9 +84,9 @@ exports.removeFromCart = async (req, res) => {
 
     res.json({ success: true, cartItems: totalItems });
   } catch (error) {
-    console.error("Error removing from cart:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
-  }};
+  }
+};
 
 exports.clearCart = async (req, res) => {
   try {
@@ -93,10 +96,10 @@ exports.clearCart = async (req, res) => {
     await Cart.findOneAndRemove({ userId });
     req.flash("success", "Cart cleared");
   } catch (error) {
-    console.error("Error clearing the cart:", error);
     req.flash("error", "Failed to clear cart. Please try again.");
   }
-  res.redirect("/cart");};
+  res.redirect("/cart");
+};
 
 exports.getCart = async (req, res) => {
   try {
@@ -123,12 +126,16 @@ exports.getCart = async (req, res) => {
       selectedSize: product.size,
     }));
 
-    res.render("user/shop-cart", { products: populatedProducts, userId, categories: req.categories });
+    res.render("user/shop-cart", {
+      products: populatedProducts,
+      userId,
+      categories: req.categories,
+    });
   } catch (error) {
-    console.error("Error fetching cart:", error);
     req.flash("error", "Internal server error");
     res.redirect("/home");
-  }};
+  }
+};
 
 exports.updateCartQuantity = async (req, res) => {
   try {
@@ -156,9 +163,9 @@ exports.updateCartQuantity = async (req, res) => {
       res.json({ success: false, message: "Product not found in cart" });
     }
   } catch (error) {
-    console.error("Error updating product quantity:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
-  }};
+  }
+};
 
 exports.updateProductSize = async (req, res) => {
   try {
@@ -179,6 +186,6 @@ exports.updateProductSize = async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
-    console.error("Error updating product size:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
-  }};
+  }
+};

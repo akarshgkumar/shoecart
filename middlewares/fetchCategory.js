@@ -6,7 +6,7 @@ const fetchCategories = async (req, res, next) => {
         req.categories = categories;  
         next();
     } catch (error) {
-        console.error('Error fetching categories:', error);
+        
         res.status(500).send('Internal Server Error');
     }
 };

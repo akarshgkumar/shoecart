@@ -31,7 +31,7 @@ exports.viewProducts = async (req, res) => {
       pages: result.totalPages,
     });
   } catch (err) {
-    console.error("Error fetching products:", err);
+    
     req.flash("error", "Error fetching products");
     res.redirect("back");
   }
@@ -89,7 +89,7 @@ exports.postEditProduct = async (req, res) => {
 
     const oldCategoryId = product.category;
     const oldBrandId = product.brand;
-    console.log(product.isCascadedDelete);
+    
     let isCascadedDelete = product.isCascadedDelete;
 
     if (oldCategoryId.toString() !== categoryId.toString()) {
@@ -149,7 +149,7 @@ exports.postEditProduct = async (req, res) => {
     req.flash("success", "Product edited successfully");
     res.redirect("/admin/product/view-products");
   } catch (err) {
-    console.error(err);
+    
     req.flash("error", "Internal server error");
     res.redirect(`/admin/product/edit-product/${productId}`);
   }
@@ -177,7 +177,7 @@ exports.hideProduct = async (req, res) => {
       return res.redirect("/admin/product/view-products");
     }
   } catch (err) {
-    console.error("Error:", err);
+    
     req.flash("error", "Internal Server Error");
     return res.redirect("/admin/product/view-products");
   }
@@ -208,7 +208,7 @@ exports.showProduct = async (req, res) => {
       return res.redirect("/admin/product/view-products");
     }
   } catch (err) {
-    console.error("Error:", err);
+    
     req.flash("error", "Internal Server Error");
     return res.redirect("/admin/product/view-products");
   }
@@ -384,7 +384,7 @@ exports.postAddStock = async (req, res) => {
 
     res.redirect("/admin/product/view-products");
   } catch (err) {
-    console.error("Error while updating stock:", err);
+    
     res.status(500).send("Server error");
   }
 };
@@ -424,7 +424,7 @@ exports.getFilterProductsByCategory = async (req, res) => {
       categories,
     });
   } catch (err) {
-    console.error("Error fetching products by category:", err);
+    
     req.flash("error", "Error fetching products");
     res.redirect("back");
   }
@@ -460,7 +460,7 @@ exports.getFilterProductsByStatus = async (req, res) => {
       selectedProductFilter: status,
     });
   } catch (err) {
-    console.error("Error fetching products:", err);
+    
     req.flash("error", "Error fetching products");
     res.redirect("back");
   }

@@ -57,7 +57,7 @@ $(function () {
 
     $("select[name='product_size'] option:selected").each(function () {
       const selectedValue = $(this).val();
-      console.log(selectedValue);
+      
       if (selectedValue === "") {
           canProceedToCheckout = false;
           return false;
@@ -73,7 +73,7 @@ $(function () {
       data: { userId: userId },
       dataType: "json",
       success: function (response) {
-        console.log(response);
+        
         if (response.status === "success") {
           window.location.href = "/order/checkout";
         } else {
@@ -139,7 +139,7 @@ $(function () {
 function addToCart(btn, defaultSize) {
   const productId = $(btn).data("product-id");
   const sizeToUse = selectedSize || defaultSize;
-  console.log(sizeToUse);
+  
   const quantity = parseInt($(".detail-qty .qty-val").text()) || 1;
 
   $.ajax({

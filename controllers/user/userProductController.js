@@ -113,7 +113,7 @@ exports.viewFullProducts = async (req, res) => {
       sortBy,
     });
   } catch (err) {
-    console.error("Error fetching products:", err);
+    
     req.flash("error", "Error fetching products");
     res.redirect("/home");
   }
@@ -220,7 +220,7 @@ exports.filterProductsByCategory = async (req, res) => {
       sortBy: sortBy,
     });
   } catch (err) {
-    console.error("Error fetching products by category:", err);
+    
     req.flash("error", "Error fetching products");
     res.redirect("/home");
   }
@@ -314,7 +314,7 @@ exports.filterProductsByBrand = async (req, res) => {
       sortBy,
     });
   } catch (err) {
-    console.error("Error fetching products by brand:", err);
+    
     req.flash("error", "Error fetching products");
     res.redirect("/home");
   }
@@ -364,7 +364,7 @@ exports.searchProducts = async (req, res) => {
       sortBy: sortBy,
     });
   } catch (err) {
-    console.error("Error searching products:", err);
+    
     req.flash("error", "Error searching products");
     res.redirect("/home");
   }

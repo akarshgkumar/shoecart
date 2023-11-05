@@ -39,7 +39,7 @@ exports.postEditBanner = async (req, res) => {
     req.flash("success", "Banner edited successfully");
     res.redirect("/admin/banner/view-banners");
   } catch (err) {
-    console.error(err);
+    
     req.flash("error", "Internal server error");
     res.redirect(`/admin/banner/edit-banner/${bannerId}`);
   }

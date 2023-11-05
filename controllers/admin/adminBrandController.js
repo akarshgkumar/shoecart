@@ -18,7 +18,7 @@ exports.viewBrands = async (req, res) => {
       pages: result.totalPages,
     });
   } catch (err) {
-    console.error("Error fetching brands:", err);
+    
     res.redirect("back");
   }
 };
@@ -36,7 +36,7 @@ exports.addBrandsPost = async (req, res) => {
     req.flash("success", "Brand added successfully");
     res.redirect("/admin/brand/view-brands");
   } catch (err) {
-    console.error("Error while adding brand:", err);
+    
     res.end("error", err);
   }
 };
@@ -106,7 +106,7 @@ exports.searchBrands = async (req, res) => {
       searchTerm: searchTerm,
     });
   } catch (err) {
-    console.error("Error fetching and paginating brands:", err);
+    
     res.redirect("back");
   }
 };
@@ -135,7 +135,7 @@ exports.hideBrand = async (req, res) => {
       return res.redirect("/admin/brand/view-brands");
     }
   } catch (err) {
-    console.error("Error:", err);
+    
     req.flash("error", "Internal Server Error");
     return res.redirect("/admin/brand/view-brands");
   }
@@ -165,7 +165,7 @@ exports.showBrand = async (req, res) => {
       return res.redirect("/admin/brand/view-brands");
     }
   } catch (err) {
-    console.error("Error:", err);
+    
     req.flash("error", "Internal Server Error");
     return res.redirect("/admin/brand/view-brands");
   }

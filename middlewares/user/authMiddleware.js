@@ -28,7 +28,7 @@ async function setLoginStatus(req, res, next) {
 
     next();
   } catch (error) {
-    console.error("Error in setLoginStatus middleware:", error);
+    
     res.locals.isLoggedIn = false;
     next();
   }
@@ -57,7 +57,7 @@ async function fetchUserFromToken(req, res, next) {
 
     next();
   } catch (error) {
-    console.error("Error fetching user from token:", error);
+    
     next();
   }
 }

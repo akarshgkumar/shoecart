@@ -14,7 +14,7 @@ exports.viewCoupons = async (req, res) => {
       pages: result.totalPages,
     });
   } catch (err) {
-    console.error("Error fetching coupons:", err);
+    
     res.redirect("/admin-home");
   }
 };
@@ -32,7 +32,7 @@ exports.addCouponPost = async (req, res) => {
     await newCoupon.save();
     res.redirect("/admin/coupon/view-coupons");
   } catch (err) {
-    console.error("Error while adding coupon:", err);
+    
     req.flash("error", "Error while adding coupon");
     res.redirect("back");
   }
@@ -79,7 +79,7 @@ exports.checkCoupon = async (req, res) => {
       return res.json({ exists: false });
     }
   } catch (error) {
-    console.error("Error while checking coupon:", error);
+    
     return res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -90,7 +90,7 @@ exports.showCoupon = async (req, res) => {
     await Coupon.findByIdAndUpdate(couponId, { $set: { isDeleted: false } });
     res.redirect("back");
   } catch (err) {
-    console.error("Error while showing coupon:", err);
+    
     req.flash("error", "Unexpected error occurred, try again later!");
     res.redirect("back");
   }
@@ -102,7 +102,7 @@ exports.hideCoupon = async (req, res) => {
     await Coupon.findByIdAndUpdate(couponId, { $set: { isDeleted: true } });
     res.redirect("/admin/coupon/view-coupons");
   } catch (err) {
-    console.error("Error while hiding coupon:", err);
+    
     req.flash("error", "Unexpected error occurred, try again later!");
     res.redirect("back");
   }
@@ -130,7 +130,7 @@ exports.searchCoupon = async (req, res) => {
       pages: result.totalPages,
     });
   } catch (err) {
-    console.error("An error occurred:", err);
+    
     res.status(500).send("Internal Server Error");
   }
 };

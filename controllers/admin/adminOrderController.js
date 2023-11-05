@@ -23,7 +23,7 @@ exports.viewOrders = async (req, res) => {
       pages: result.totalPages,
     });
   } catch (err) {
-    console.error("Error fetching orders:", err);
+    
     res.status(500).send("Internal server error");
   }
 };
@@ -35,7 +35,7 @@ exports.viewSingleOrder = async (req, res) => {
     );
     res.render("admin/admin-view-single-order", { order });
   } catch (error) {
-    console.error("Error fetching order:", error);
+    
     req.flash("error", "Sorry, Server Error");
     res.redirect("/admin/order/view-orders");
   }
@@ -55,7 +55,7 @@ exports.editOrderGet = async (req, res) => {
       formatDate: formatDate,
     });
   } catch (error) {
-    console.error(error);
+    
     res.status(500).send("Server Error");
   }
 };
@@ -107,7 +107,7 @@ exports.editOrderPost = async (req, res) => {
       res.redirect("/admin/order/view-orders");
     }
   } catch (error) {
-    console.error("Error updating order:", error);
+    
     req.flash("error", "An error occurred while updating the order.");
     res.redirect("/admin/order/view-orders");
   }
@@ -150,7 +150,7 @@ exports.searchOrders = async (req, res) => {
       pages: result.totalPages,
     });
   } catch (error) {
-    console.error("Search error:", error);
+    
     req.flash("error", "Unexpected Error");
     res.redirect("/admin/order/view-orders");
   }
@@ -190,7 +190,7 @@ exports.searchOrderEmail = async (req, res) => {
       pages: result.totalPages,
     });
   } catch (error) {
-    console.error("Search error:", error);
+    
     req.flash("error", "Unexpected Error");
     res.redirect("/admin/order/view-orders");
   }

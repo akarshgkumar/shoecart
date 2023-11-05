@@ -35,7 +35,7 @@ async function fetchCartForUser(req, res, next) {
     }
     next();
   } catch (error) {
-    console.error("Error fetching cart in middleware:", error);
+    
     res.locals.cartItems = 0;
     next();
   }
@@ -69,7 +69,7 @@ async function fetchWishlistForUser(req, res, next) {
     }
     next();
   } catch (error) {
-    console.error("Error fetching wishlist in middleware:", error);
+    
     res.locals.wishlistItems = 0;
     next();
   }

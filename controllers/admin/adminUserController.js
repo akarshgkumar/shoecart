@@ -35,7 +35,7 @@ exports.searchUsers = async (req, res) => {
       pages: result.totalPages,
     });
   } catch (error) {
-    console.error("Search error:", error);
+    
     req.flash("error", "Unexpected Error");
     res.redirect("/admin/user/view-users");
   }
@@ -61,7 +61,7 @@ exports.viewUsers = async (req, res) => {
       pages: result.totalPages,
     });
   } catch (error) {
-    console.error("Error fetching users:", error);
+    
     res.redirect("back");
   }
 };
@@ -82,7 +82,7 @@ exports.unblockUser = async (req, res) => {
     }
     res.redirect("/admin/user/view-users");
   } catch (error) {
-    console.error(error);
+    
     res.status(500).send("Server Error");
   }
 };
@@ -103,7 +103,7 @@ exports.blockUser = async (req, res) => {
     }
     res.redirect("/admin/user/view-users");
   } catch (error) {
-    console.error(error);
+    
     res.status(500).send("Server Error");
   }
 };

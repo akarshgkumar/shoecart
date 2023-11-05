@@ -77,7 +77,7 @@ exports.checkout = async (req, res) => {
       RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
     });
   } catch (error) {
-    console.error("Error fetching checkout data:", error);
+    
     req.flash("error", "An error occurred while fetching checkout data.");
     res.redirect("/home");
   }
@@ -125,7 +125,7 @@ exports.cancelOrder = async (req, res) => {
     req.flash("success", "Order cancelled successfully");
     res.redirect("/account#orders");
   } catch (err) {
-    console.error("Error cancelling order:", err);
+    
     req.flash("error", "Some error occurred");
     res.redirect(`/account#orders`);
   }
@@ -138,7 +138,7 @@ exports.viewSingleOrder = async (req, res) => {
     );
     res.render("user/user-view-single-order", { order });
   } catch (error) {
-    console.error("Error fetching order:", error);
+    
     res.status(500).send("Server error");
   }
 };
@@ -161,7 +161,7 @@ exports.selectAddress = async (req, res) => {
 
     res.render("user/select-address", { addresses: user.addresses, userId });
   } catch (error) {
-    console.error("Select Address Error:", error);
+    
     req.flash("error", "An error occurred while selecting the address.");
     res.status(500).send("Internal server error");
   }
@@ -211,7 +211,6 @@ exports.validateCart = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error("Error:", error);
     res.json({ status: "failure", message: "An error occurred" });
   }
 };
@@ -430,7 +429,7 @@ exports.placeOrder = async (req, res) => {
     req.flash("success", "Order is successful");
     return res.redirect(`/order/success/${newOrder._id}`);
   } catch (err) {
-    console.error(err);
+    
     if (err.name === "MongoError" && err.code === 11000) {
       req.flash(
         "error",
@@ -512,7 +511,7 @@ exports.validateOrder = async (req, res) => {
 
       const amountPaidThroughWallet =
         parseFloat(totalAfterDiscount) - parseFloat(razorpay_paid_amount);
-      console.log("amount paid through wallet : ", amountPaidThroughWallet);
+      
       const newOrder = new Order({
         razorOrderId: razorpay_order_id,
         shortId: uniqueShortId,
@@ -549,7 +548,7 @@ exports.validateOrder = async (req, res) => {
       const fetchedUserAgain = await User.findById(user);
 
       if (fetchedUserAgain.referredBy && userOrdersCount === 1) {
-        console.log("on referred by condition");
+        
         await User.findOneAndUpdate(
           { referralCode: fetchedUserAgain.referredBy },
           {
@@ -570,7 +569,7 @@ exports.validateOrder = async (req, res) => {
         await User.findByIdAndUpdate(user, {
           $inc: { "wallet.balance": -amountPaidThroughWallet },
         });
-        console.log("updated wallet balance");
+        
         const newWallet = new WalletTransaction({
           userId: user,
           orderId: newOrder._id,
@@ -595,7 +594,7 @@ exports.validateOrder = async (req, res) => {
       return res.redirect("/order/checkout");
     }
   } catch (error) {
-    console.error("Order validation error:", error);
+    
     req.flash(
       "error",
       "An unexpected error occurred while validating the order."
@@ -611,7 +610,7 @@ exports.getReturnReason = async (req, res) => {
     );
     res.render("user/user-return-reason", { order });
   } catch (error) {
-    console.error("Error fetching order:", error);
+    
     res.status(500).send("Server error");
   }
 };
@@ -676,7 +675,7 @@ exports.postReturnReason = async (req, res) => {
     req.flash("success", "Order returned successfully");
     res.redirect(`/order/view-single-order/${orderId}`);
   } catch (error) {
-    console.error(error);
+    
     req.flash("error", "An error occurred, try again later");
     res.redirect(`/order/view-single-order/${orderId}`);
   }
@@ -697,7 +696,7 @@ exports.applyCoupon = async (req, res) => {
 
     return res.json({ discountPercentage: coupon.discountPercentage });
   } catch (error) {
-    console.error("Error applying coupon:", error);
+    
     req.flash("error", "Sorry server error");
     res.redirect("/order/checkout");
   }
@@ -744,7 +743,7 @@ exports.downloadInvoice = async (req, res) => {
     );
     res.send(pdfBuffer);
   } catch (error) {
-    console.error("Error downloading invoice:", error);
+    
     req.flash("error", "Failed to download invoice.");
     res.redirect(`/order/view-single-order/${id}`);
   }

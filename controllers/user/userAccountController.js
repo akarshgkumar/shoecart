@@ -97,7 +97,7 @@ exports.postResetPassword = async (req, res) => {
     await User.findOneAndUpdate({ email: email }, { password: hashedPassword });
     res.redirect("/login");
   } catch (error) {
-    console.error("Error resetting password:", error);
+    
     req.flash("success", "Successfully logged in");
     res.redirect("/reset-password");
   }
@@ -150,7 +150,7 @@ exports.getAccount = async (req, res) => {
       categories: req.categories,
     });
   } catch (error) {
-    console.error(error);
+    
     req.flash("error", "Internal server error");
     res.redirect("/home");
   }
@@ -283,7 +283,7 @@ exports.postLogin = async (req, res) => {
           );
         })
         .catch((error) => {
-          console.error("Error sending mail:", error.response?.body?.errors);
+          
           return res.redirect(
             `/login?error=Error sending otp. Please try again later`
           );
@@ -315,7 +315,7 @@ exports.postLogin = async (req, res) => {
       res.redirect("/login");
     }
   } catch (error) {
-    console.error(error);
+    
     req.flash("error", "Sorry server error");
     return res.redirect("/login");
   }
@@ -355,14 +355,14 @@ exports.resendOTP = async (req, res) => {
         res.json({ success: true, message: "OTP sent successfully" });
       })
       .catch((error) => {
-        console.error("Error sending mail:", error.response?.body?.errors);
+        
         res.json({
           success: false,
           message: "Error sending OTP. Please try again later.",
         });
       });
   } catch (error) {
-    console.error(error);
+    
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
@@ -400,7 +400,7 @@ exports.verifyEmail = async (req, res) => {
       );
     }
   } catch (error) {
-    console.error("Error during email verification:", error);
+    
     req.flash(
       "error",
       "There was an error sending the OTP. Please try again later."
@@ -419,7 +419,7 @@ exports.checkReferral = async (req, res) => {
       return res.json({ valid: false });
     }
   } catch (error) {
-    console.error(error);
+    
     return res.status(500).send("Internal Server Error");
   }
 };
@@ -450,7 +450,7 @@ exports.signup = async (req, res) => {
           );
         })
         .catch((error) => {
-          console.error("Error sending mail:", error.response?.body?.errors);
+          
           return res.redirect(
             `/signup?error=Error sending otp. Please try again later`
           );
@@ -500,12 +500,12 @@ exports.signup = async (req, res) => {
         );
       })
       .catch((error) => {
-        console.error(error);
-        console.error("Error sending mail:", error.response.body.errors);
+        
+        
         res.status(500).send("Internal Server Error");
       });
   } catch (error) {
-    console.error(error);
+    
     if (error.name === "MongoError" && error.code === 11000) {
       res.redirect("/signup?error=Email%20already%20exists");
     } else {
@@ -568,7 +568,7 @@ exports.editAccount = async (req, res) => {
             )}&otpExpires=${otpExpires}`
           );
         } catch (error) {
-          console.error("Error sending mail:", error.response?.body?.errors);
+          
           req.flash("error", "Error sending otp to new email, try again later");
           return res.redirect("/account#edit-account-detail");
         }
@@ -580,7 +580,7 @@ exports.editAccount = async (req, res) => {
       return res.redirect("/account#account-detail");
     }
   } catch (error) {
-    console.error("Error updating the user:", error);
+    
     req.flash("error", "Internal server error");
     return res.redirect("/account");
   }
@@ -630,7 +630,7 @@ exports.addAddress = async (req, res) => {
     req.flash("success", "Address added successfully");
     res.redirect("/account");
   } catch (error) {
-    console.error("Error adding address:", error);
+    
     req.flash("error", "Internal server error");
     res.redirect("/account");
   }
@@ -667,7 +667,7 @@ exports.updateAddress = async (req, res) => {
     req.flash("success", "Address updated successfully");
     res.redirect("/account");
   } catch (error) {
-    console.error("Error updating address:", error);
+    
     req.flash("error", "Failed to update address.");
     res.redirect("/account");
   }
@@ -683,7 +683,7 @@ exports.removeAddress = async (req, res) => {
     req.flash("success", "Address removed successfully");
     res.redirect("/account");
   } catch (error) {
-    console.error(error);
+    
     req.flash("error", "Failed to remove the address. Please try again later.");
     res.redirect("/account");
   }
@@ -717,7 +717,7 @@ exports.changePassword = async (req, res) => {
     req.flash("success", "Password changed successfully.");
     return res.redirect("/account");
   } catch (error) {
-    console.error("Error changing password:", error);
+    
     req.flash(
       "error",
       "An error occurred while changing the password. Please try again later."
@@ -743,7 +743,7 @@ exports.setDefaultAddress = async (req, res) => {
     req.flash("success", "Default address changed");
     res.redirect("/account");
   } catch (error) {
-    console.error("Error setting default address:", error);
+    
     req.flash("error", "Something unexpected happened");
     res.redirect("/account");
   }
@@ -791,7 +791,7 @@ exports.postChangeEmail = async (req, res) => {
       res.redirect(`/change-email?email=${encodeURIComponent(email)}`);
     }
   } catch {
-    console.error(error);
+    
     req.flash("error", "Sorry server error");
     return res.redirect("/home");
   }

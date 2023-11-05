@@ -49,7 +49,7 @@ function updateTotalAfterDiscount() {
     );
     let totalAfterDiscount =
       parseFloat($("input[name='totalAmount']").val()) - discountAmount;
-    console.log(totalAfterDiscount);
+    
     $("input[name='totalAfterDiscount']").val(totalAfterDiscount.toFixed(2));
   } else {
     let totalAfterDiscount = parseFloat($("input[name='totalAmount']").val());
@@ -167,7 +167,7 @@ $(function () {
   let defaultAddress;
   if (defaultAddressDataElement) {
     defaultAddress = JSON.parse(defaultAddressDataElement.textContent);
-    console.log(defaultAddress);
+    
   }
 
   if ($("#walletBalanceInput").length > 0) {
@@ -176,7 +176,7 @@ $(function () {
 
   let originalTotalValue = $('input[name="totalAmount"]').val();
   let originalTotal = parseFloat(originalTotalValue) || 0;
-  console.log(originalTotal);
+  
   let discount = 0;
 
   if ($('button[name="applyCoupon"]').length) {
@@ -247,7 +247,7 @@ $(function () {
     });
 
     $(".checkout-table").on("click", "#removeCoupon", function () {
-      console.log("remove coupon clicked");
+      
       if ($("#couponRow").length) {
         $("#couponRow").hide();
         updateTotalAfterDiscount();
@@ -398,7 +398,7 @@ $(function () {
       }
     },
     submitHandler: function (form) {
-      console.log("on submit handler");
+      
       let paymentOption = document.querySelector(
         'input[name="payment_option"]:checked'
       ).value;
@@ -410,13 +410,13 @@ $(function () {
         let walletBalanceString = $('input[name="walletBalance"]').val();
         let walletBalanceNumber = parseFloat(walletBalanceString);
         if (walletBalanceNumber >= totalAfterDiscountNumber) {
-          console.log("wallet greater than total discount");
+          
           form.submit();
           return;
         }
       }
       if (paymentOption === "Razor Pay") {
-        console.log("inside razor pay");
+        
         const formData = $(form).serialize();
         const userName = $("input[name='name']").val();
         const userEmail = $("input[name='email']").val();
@@ -445,12 +445,12 @@ $(function () {
                   $("<input type='hidden' name='razorpay_signature' />")
                     .val(response.razorpay_signature)
                     .appendTo(form);
-                  console.log("form action");
+                  
 
                   form.action = "/order/validate-order";
-                  console.log("before form submit");
+                  
                   form.submit();
-                  console.log("form submitted");
+                  
                 },
                 prefill: {
                   name: userName,
@@ -465,7 +465,7 @@ $(function () {
                 },
               };
               var rzp1 = new Razorpay(options);
-              console.log("before razor pay open");
+              
               rzp1.open();
               rzp1.on("payment.failed", function (response) {
                 showAlert(
@@ -479,14 +479,14 @@ $(function () {
           },
         });
       } else {
-        console.log("on else not checked");
+        
         form.submit();
       }
     },
   });
 
   $('input[name="address-select-checkout"]').on("change", function () {
-    console.log("on address select ajax");
+    
     const selectedAddressId = $(this).data("address-id");
     const userId = $('input[name="userId"]').val();
 
@@ -498,17 +498,17 @@ $(function () {
         addressId: selectedAddressId,
       },
       success: function (response) {
-        console.log("Default address updated successfully!");
+        
         window.location.href = "/order/checkout";
       },
       error: function (error) {
-        console.log("Error updating default address.");
+        
       },
     });
   });
 
   $('input[name="address-select"]').on("change", function () {
-    console.log("on address select ajax");
+    
     const selectedAddressId = $(this).data("address-id");
     const userId = $('input[name="userId"]').val();
 
@@ -520,10 +520,10 @@ $(function () {
         addressId: selectedAddressId,
       },
       success: function (response) {
-        console.log("Default address updated successfully!");
+        
       },
       error: function (error) {
-        console.log("Error updating default address.");
+        
       },
     });
   });

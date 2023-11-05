@@ -17,7 +17,7 @@ exports.viewCategories = async (req, res) => {
       pages: result.totalPages,
     });
   } catch (err) {
-    console.error("Error fetching categories:", err);
+    
     res.redirect("back");
   }
 };
@@ -39,7 +39,7 @@ exports.addCategoryPost = async (req, res) => {
     req.flash("success", "Category added successfully");
     res.redirect("/admin/category/view-category");
   } catch (err) {
-    console.error(err);
+    
     req.flash("error", "Internal server error");
     res.redirect("/admin/category/add-category");
   }
@@ -85,7 +85,7 @@ exports.editCategoryPost = async (req, res) => {
     req.flash("success", "Category updated successfully");
     res.redirect("/admin/category/view-category");
   } catch (err) {
-    console.error(err);
+    
     res.status(500).send("Internal Server Error");
   }
 };
@@ -114,7 +114,7 @@ exports.editCategoryImagePost = async (req, res) => {
     await Category.findByIdAndUpdate(categoryId, { imageUrl: imageUrl });
     res.redirect("/admin/category/view-category");
   } catch (err) {
-    console.error(err);
+    
     res.status(500).send("Internal Server Error");
   }
 };
@@ -132,7 +132,7 @@ exports.checkCategory = async (req, res) => {
     }
     res.json({ exists: !!category });
   } catch (error) {
-    console.error(error);
+    
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -160,7 +160,7 @@ exports.searchCategory = async (req, res) => {
       pages: result.totalPages,
     });
   } catch (err) {
-    console.error("An error occurred:", err);
+    
     req.flash("error", "Internal server error. Failed to search categories.");
     res.redirect("/admin/category/view-category");
   }
@@ -190,7 +190,7 @@ exports.showCategory = async (req, res) => {
       return res.redirect("/admin/category/view-category");
     }
   } catch (err) {
-    console.error("Error:", err);
+    
     req.flash("error", "Internal Server Error");
     return res.redirect("/admin/category/view-category");
   }
@@ -220,7 +220,7 @@ exports.hideCategory = async (req, res) => {
       return res.redirect("/admin/category/view-category");
     }
   } catch (err) {
-    console.error("Error:", err);
+    
     req.flash("error", "Internal Server Error");
     return res.redirect("/admin/category/view-category");
   }

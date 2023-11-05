@@ -172,13 +172,13 @@ $(function () {
       })
         .done(function (response) {
           if (response.exists) {
-            console.log("exists");
+            
             const nextSpan = $("#coupon-error-span");
-            console.log(nextSpan);
+            
             nextSpan.text("Coupon name already exists");
-            console.log("after");
+            
           } else {
-            console.log("no");
+            
             $("#coupon_code").next(".error-span").text("");
           }
         })
@@ -264,11 +264,11 @@ $(function () {
       })
         .done(function (response) {
           if (response.exists) {
-            console.log("here");
+            
             $("#coupon-error-span").text("Coupon code already exists");
             couponCodeInput.focus();
           } else {
-            console.log("not exists");
+            
             $("#coupon-error-span").text("");
             form.submit();
           }
@@ -542,10 +542,10 @@ $(function () {
 
   $("#referralCode").on("keyup", function (event) {
     let code = $(this).val();
-    console.log("Code:", code);
+    
 
     if (!code.trim()) {
-      console.log("Empty code detected");
+      
       $(".referral-check-msg").hide();
       $(".referral-input-msg").show();
       return;
@@ -556,7 +556,7 @@ $(function () {
       url: "/check-referral",
       data: { referralCode: code },
       success: function (response) {
-        console.log("Response:", response);
+        
         if (response.valid) {
           $(".referral-check-msg")
             .html(
@@ -566,7 +566,7 @@ $(function () {
             .show();
           $(".referral-input-msg").hide();
         } else {
-          console.log("not valid");
+          
           $(".referral-check-msg")
             .text("Incorrect Referral Code")
             .css("color", "#c51e3a")
@@ -575,7 +575,7 @@ $(function () {
         }
       },
       error: function (jqXHR, textStatus, errorThrown) {
-        console.log("Error:", textStatus, errorThrown);
+        
       },
     });
   });
@@ -699,13 +699,13 @@ $(function () {
         editCategoryName: editCategoryName,
       })
         .done(function (response) {
-          console.log("check category response");
+          
           if (response.exists) {
-            console.log("category name exists");
+            
             $(".error-span").text("Category name already exists");
             categoryNameInput.focus();
           } else {
-            console.log("category name didn't exists");
+            
             $(".error-span").text("");
             form.submit();
           }
@@ -821,13 +821,13 @@ $(function () {
       editCategoryName: editCategoryName,
     })
       .done(function (response) {
-        console.log("check category response");
+        
         if (response.exists) {
-          console.log("category name exists");
+          
           $(".error-span").text("Category name already exists");
           categoryNameInput.focus();
         } else {
-          console.log("category name didn't exists");
+          
           $(".error-span").text("");
           form.submit();
         }
@@ -858,7 +858,7 @@ $(function () {
   });
 
   $(".dropdown-menu a.dropdown-item").click(function () {
-    console.log("on filter change");
+    
     let filterValue = $(this).data("value");
     if (filterValue === "allTime") {
       updateChart(xValues, yValues, "All Time Order Statuses");
@@ -890,7 +890,7 @@ $(function () {
         });
       updateChart(labels, monthlyCounts, `Orders In ${year}`);
     } else if (filterValue.startsWith("month_")) {
-      console.log("on month filter");
+      
       let month = parseInt(filterValue.split("_")[1]) + 1;
       let labels = [
         "Processing",
@@ -926,7 +926,7 @@ $(function () {
           }
         });
 
-      console.log(monthlyStatusCounts);
+      
       updateChart(
         labels,
         monthlyStatusCounts,
@@ -1042,7 +1042,7 @@ function resendOTP() {
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log(data);
+      
       if (data.success) {
         setOtpExpiry();
         showSuccess("OTP sent!");
