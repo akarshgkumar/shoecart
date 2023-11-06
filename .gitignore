@@ -4,13 +4,5 @@
 # Node modules directory
 node_modules/
 
-# Configuration files
-default.js
-
 # Log files
 *.log
-
-# Exclude production-ready files and folders
-/dist/css/
-/dist/js/
-/dist/images/

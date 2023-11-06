@@ -53,6 +53,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-app.listen(config.server.port, () => {
+const port = config.server.port || 3000;
+app.listen(port, () => {
   console.log(`Server running at port ${config.server.port}`);
 });
